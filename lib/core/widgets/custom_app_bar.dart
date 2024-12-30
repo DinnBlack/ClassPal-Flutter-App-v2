@@ -31,21 +31,24 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
-        color: backgroundColor ?? kPrimaryColor,
+        color: backgroundColor ?? kTransparentColor,
         child: Column(
           children: [
             SizedBox(
               height: kToolbarHeight,
-              child: Row(
+              child: Stack(
                 children: [
                   // Left Widget
                   if (leftWidget != null) ...[
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: leftWidget,
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: kPaddingMd),
+                        child: leftWidget,
+                      ),
                     ),
                   ],
-                  Expanded(
+                  Center(
                     child: Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -67,9 +70,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
                   // Right Widget
                   if (rightWidget != null) ...[
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: rightWidget,
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: kPaddingMd),
+                        child: rightWidget,
+                      ),
                     ),
                   ],
                 ],
