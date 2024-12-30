@@ -40,7 +40,6 @@ class _CustomListItemState extends State<CustomListItem> {
       isPressed = false;
     });
 
-    // Gọi callback khi thả ngón tay
     if (widget.onTap != null) {
       widget.onTap!();
     }

@@ -1,52 +1,93 @@
-import 'package:classpal_flutter_app/core/config/app_constants.dart';
-import 'package:classpal_flutter_app/core/widgets/custom_avatar.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class CustomAppBar extends StatelessWidget {
-  const CustomAppBar({super.key});
+import '../config/app_constants.dart';
+import '../utils/app_text_style.dart';
+
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String? title;
+  final String? subtitle;
+  final Widget? leftWidget;
+  final Widget? rightWidget;
+  final TextStyle? titleStyle;
+  final TextStyle? subtitleStyle;
+  final Color? backgroundColor;
+  final Widget? bottomWidget;
+  final double additionalHeight;
+
+  const CustomAppBar({
+    super.key,
+    this.title,
+    this.subtitle,
+    this.leftWidget,
+    this.rightWidget,
+    this.titleStyle,
+    this.subtitleStyle,
+    this.backgroundColor,
+    this.bottomWidget,
+    this.additionalHeight = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return  SizedBox(
-      height: 60,
-      child: Stack(
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: GestureDetector(
-              onTap: () {
-
-              },
-              child: const Row(
+    return SafeArea(
+      child: Container(
+        color: backgroundColor ?? kPrimaryColor,
+        child: Column(
+          children: [
+            SizedBox(
+              height: kToolbarHeight,
+              child: Row(
                 children: [
-                  CustomAvatar(
-                    size: 30,
-                    text: 'Đinh Hoàng Phúc',
+                  // Left Widget
+                  if (leftWidget != null) ...[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: leftWidget,
+                    ),
+                  ],
+                  Expanded(
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (title != null)
+                            Text(
+                              title!,
+                              style: titleStyle ?? AppTextStyle.semibold(kTextSizeLg),
+                            ),
+                          if (subtitle != null)
+                            Text(
+                              subtitle!,
+                              style: subtitleStyle ?? AppTextStyle.medium(kTextSizeXs),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
-                  SizedBox(
-                    width: kMarginMd,
-                  ),
-                  Icon(
-                    FontAwesomeIcons.chevronDown,
-                    size: 16,
-                  ),
+
+                  // Right Widget
+                  if (rightWidget != null) ...[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: rightWidget,
+                    ),
+                  ],
                 ],
               ),
             ),
-          ),
-          const Center(
-            child: Text(
-              'CLASSPAL',
-              style: TextStyle(
-                  color: kPrimaryColor,
-                  fontSize: kTextSizeXl,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'ZenDots'),
-            ),
-          ),
-        ],
+
+            if (bottomWidget != null) ...[
+              bottomWidget!,
+            ],
+          ],
+        ),
       ),
     );
+  }
+
+  @override
+  Size get preferredSize {
+    double bottomHeight = bottomWidget == null ? 0 : additionalHeight;
+    return Size.fromHeight(kToolbarHeight + bottomHeight);
   }
 }

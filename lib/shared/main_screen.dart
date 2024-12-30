@@ -1,7 +1,9 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_avatar.dart';
 import 'package:classpal_flutter_app/features/class/views/class_join_screen.dart';
 import 'package:classpal_flutter_app/features/school/views/school_join_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../core/utils/app_text_style.dart';
 import '../core/widgets/custom_app_bar.dart';
@@ -18,13 +20,26 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      appBar: const PreferredSize(
-        preferredSize: Size(double.infinity, 60),
-        child: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
-            child: CustomAppBar(),
-          ),
+      appBar: const CustomAppBar(
+        backgroundColor: kWhiteColor,
+        title: 'CLASSPAL',
+        titleStyle: TextStyle(
+            fontFamily: 'ZenDots',
+            color: kPrimaryColor,
+            fontSize: 16,
+            fontWeight: FontWeight.bold),
+        leftWidget: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomAvatar(
+              text: 'Đinh Hoàng Phúc',
+              size: 30,
+            ),
+            SizedBox(
+              width: kMarginSm,
+            ),
+            Icon(FontAwesomeIcons.chevronDown, size: 16,)
+          ],
         ),
       ),
       body: SafeArea(

@@ -61,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onChanged: (value) {},
                 ),
                 const SizedBox(
-                  height: kMarginLg,
+                  height: kMarginMd,
                 ),
                 CustomTextField(
                   text: 'Mật khẩu',
