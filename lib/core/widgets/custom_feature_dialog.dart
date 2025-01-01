@@ -102,7 +102,7 @@ class _CustomListItemState extends State<_CustomListItem>
     return GestureDetector(
       onTap: () async {
         await _controller.reverse();
-        _controller.forward();
+        await _controller.forward();
         Navigator.of(context).pop();
         widget.onItemTaps[widget.index]();
       },

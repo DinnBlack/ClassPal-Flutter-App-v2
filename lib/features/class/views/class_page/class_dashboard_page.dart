@@ -7,7 +7,7 @@ import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../../core/widgets/custom_bottom_sheet.dart';
 import '../../../student/views/student_group_list_screen.dart';
 import '../../../student/views/student_list_screen.dart';
-import '../class_connect_screen.dart';
+import '../class_connect/class_connect_screen.dart';
 import '../class_management_screen.dart';
 import '../../../../core/widgets/custom_feature_dialog.dart';
 

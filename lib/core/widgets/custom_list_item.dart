@@ -26,40 +26,37 @@ class CustomListItem extends StatefulWidget {
   State<CustomListItem> createState() => _CustomListItemState();
 }
 
-class _CustomListItemState extends State<CustomListItem> {
-  bool isPressed = false;
+class _CustomListItemState extends State<CustomListItem>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
 
-  void _handleTapDown(TapDownDetails details) {
-    setState(() {
-      isPressed = true;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      lowerBound: 0.95,
+      upperBound: 1.0,
+      duration: const Duration(milliseconds: 100),
+    )..value = 1.0;
   }
 
-  void _handleTapUp(TapUpDetails details) {
-    setState(() {
-      isPressed = false;
-    });
-
-    if (widget.onTap != null) {
-      widget.onTap!();
-    }
-  }
-
-  void _handleTapCancel() {
-    setState(() {
-      isPressed = false;
-    });
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: _handleTapDown,
-      onTapUp: _handleTapUp,
-      onTapCancel: _handleTapCancel,
-      child: AnimatedScale(
-        duration: const Duration(milliseconds: 100),
-        scale: isPressed ? 0.95 : 1.0,
+      onTap: () async {
+        await _controller.reverse();
+        await _controller.forward();
+        widget.onTap!();
+      },
+      child: ScaleTransition(
+        scale: _controller,
         child: Container(
           width: double.infinity,
           color: Colors.transparent,

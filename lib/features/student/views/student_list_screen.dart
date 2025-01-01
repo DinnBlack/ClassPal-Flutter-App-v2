@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import '../repository/student_data.dart';
 
 class StudentListScreen extends StatelessWidget {
+  final bool? isListView;
   static const route = 'StudentListScreen';
 
-  const StudentListScreen({super.key});
+  const StudentListScreen({super.key, this.isListView = false});
 
   @override
   Widget build(BuildContext context) {
@@ -19,29 +20,49 @@ class StudentListScreen extends StatelessWidget {
           double itemHeight = 105;
           double itemWidth = (constraints.maxWidth - (4 - 1) * 8.0) / 4;
 
-          return GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              crossAxisSpacing: kPaddingMd,
-              mainAxisSpacing: kPaddingMd,
-              childAspectRatio: itemWidth / itemHeight,
-            ),
-            itemCount: studentData.length,
-            itemBuilder: (context, index) {
-              final student = studentData[index];
-              if (student == null) {
-                return const CustomStudentListItem(
-                  addItem: true,
-                );
-              } else {
-                return CustomStudentListItem(
-                  student: student,
-                );
-              }
-            },
-          );
+          if (isListView ?? false) {
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: studentData.length,
+              itemBuilder: (context, index) {
+                final student = studentData[index];
+                if (student == null) {
+                  return const CustomStudentListItem(
+                    addItem: true,
+                  );
+                } else {
+                  return CustomStudentListItem(
+                    student: student,
+                  );
+                }
+              },
+            );
+          } else {
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                crossAxisSpacing: kPaddingMd,
+                mainAxisSpacing: kPaddingMd,
+                childAspectRatio: itemWidth / itemHeight,
+              ),
+              itemCount: studentData.length,
+              itemBuilder: (context, index) {
+                final student = studentData[index];
+                if (student == null) {
+                  return const CustomStudentListItem(
+                    addItem: true,
+                  );
+                } else {
+                  return CustomStudentListItem(
+                    student: student,
+                  );
+                }
+              },
+            );
+          }
         },
       ),
     );
