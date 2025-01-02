@@ -1,4 +1,5 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_bottom_sheet.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/features/student/views/student_create_screen.dart';
 import 'package:classpal_flutter_app/features/student/views/widgets/custom_student_list_item.dart';
@@ -57,7 +58,7 @@ class StudentListScreen extends StatelessWidget {
                   return CustomStudentListItem(
                     addItem: true,
                     onTap: () {
-                      showCustomDialog(context, const StudentCreateScreen());
+                      CustomBottomSheet.showCustomBottomSheet(context, const StudentCreateScreen());
                     },
                   );
                 } else {

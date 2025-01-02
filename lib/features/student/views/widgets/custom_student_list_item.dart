@@ -7,13 +7,13 @@ import '../../models/student_model.dart';
 class CustomStudentListItem extends StatefulWidget {
   final StudentModel? student;
   final bool? addItem;
-  final VoidCallback? onTap; // Added onTap parameter
+  final VoidCallback? onTap;
 
   const CustomStudentListItem({
     super.key,
     this.student,
     this.addItem = false,
-    this.onTap, // Passing the onTap callback
+    this.onTap,
   });
 
   @override

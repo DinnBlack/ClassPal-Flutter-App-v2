@@ -12,24 +12,19 @@ class StudentCreateScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kTransparentColor,
+      appBar: _buildAppBar(context),
+      body: _buildBody(),
+    );
+  }
+
+  Padding _buildBody() {
     return Padding(
-      padding: const EdgeInsets.all(kPaddingLg),
+      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CustomAppBar(
-            title: 'Thêm học sinh',
-            isSafeArea: false,
-            leftWidget: InkWell(
-              child: const Icon(
-                FontAwesomeIcons.xmark,
-                color: kGreyColor,
-              ),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ),
           const SizedBox(
             height: kMarginXl,
           ),
@@ -56,6 +51,22 @@ class StudentCreateScreen extends StatelessWidget {
             text: 'Thêm',
           ),
         ],
+      ),
+    );
+  }
+
+  CustomAppBar _buildAppBar(BuildContext context) {
+    return CustomAppBar(
+      title: 'Thêm học sinh',
+      isSafeArea: false,
+      leftWidget: InkWell(
+        child: const Icon(
+          FontAwesomeIcons.xmark,
+          color: kGreyColor,
+        ),
+        onTap: () {
+          Navigator.pop(context);
+        },
       ),
     );
   }
