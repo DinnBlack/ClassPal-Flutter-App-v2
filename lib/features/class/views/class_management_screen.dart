@@ -1,13 +1,15 @@
-import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:flutter/material.dart';
-
 import '../../../core/utils/app_text_style.dart';
+import '../../../core/config/app_constants.dart';
+import '../../../core/widgets/custom_bottom_sheet.dart';
+import 'class_attendance_screen.dart';
 
 class ClassManagementScreen extends StatelessWidget {
   final bool? isHorizontal;
 
   ClassManagementScreen({super.key, this.isHorizontal = false});
 
+  // Define a list of features
   final List<String> features = [
     "Điểm danh",
     "Sắp xếp lịch học",
@@ -18,6 +20,47 @@ class ClassManagementScreen extends StatelessWidget {
     "Quản lý giảng viên",
     "Lập kế hoạch học",
   ];
+
+  void onFeatureTapped(BuildContext context, String feature) {
+    switch (feature) {
+      case "Điểm danh":
+        CustomBottomSheet.showCustomBottomSheet(
+          context,
+          const ClassAttendanceScreen(),
+        );
+        break;
+      case "Sắp xếp lịch học":
+        Navigator.pushNamed(context, '/schedule');
+        break;
+      case "Quản lý điểm số":
+        Navigator.pushNamed(
+            context, '/grade-management');
+        break;
+      case "Theo dõi tiến độ học tập":
+        Navigator.pushNamed(context,
+            '/progress-tracking');
+        break;
+      case "Quản lý học sinh":
+        Navigator.pushNamed(context,
+            '/student-management');
+        break;
+      case "Gửi thông báo":
+        Navigator.pushNamed(
+            context, '/send-notification');
+        break;
+      case "Quản lý giảng viên":
+        Navigator.pushNamed(context,
+            '/teacher-management');
+        break;
+      case "Lập kế hoạch học":
+        Navigator.pushNamed(
+            context, '/study-plan');
+        break;
+      default:
+        print("No route for feature: $feature");
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +76,11 @@ class ClassManagementScreen extends StatelessWidget {
                     left: 10,
                     right: index == features.length - 1 ? 10 : 0,
                   ),
-                  child: _CustomHorizontalItem(feature: features[index]),
+                  child: _CustomHorizontalItem(
+                    feature: features[index],
+                    onItemTap: (feature) => onFeatureTapped(
+                        context, feature),
+                  ),
                 );
               },
             ),
@@ -46,15 +93,19 @@ class ClassManagementScreen extends StatelessWidget {
             ),
             itemCount: features.length,
             itemBuilder: (context, index) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: Colors.blueAccent,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Center(
-                  child: Text(
-                    features[index],
-                    style: const TextStyle(color: Colors.white),
+              return GestureDetector(
+                onTap: () => onFeatureTapped(context, features[index]),
+                // Handle tap and navigate here
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Text(
+                      features[index],
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               );
@@ -65,10 +116,12 @@ class ClassManagementScreen extends StatelessWidget {
 
 class _CustomHorizontalItem extends StatefulWidget {
   final String feature;
+  final Function(String) onItemTap;
 
   const _CustomHorizontalItem({
     super.key,
     required this.feature,
+    required this.onItemTap,
   });
 
   @override
@@ -102,6 +155,8 @@ class _CustomHorizontalItemState extends State<_CustomHorizontalItem>
       onTap: () async {
         await _controller.reverse();
         _controller.forward();
+        widget.onItemTap(
+            widget.feature);
       },
       child: ScaleTransition(
         scale: _controller,
@@ -109,7 +164,7 @@ class _CustomHorizontalItemState extends State<_CustomHorizontalItem>
           children: [
             Container(
               height: 45,
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(kPaddingMd),
               decoration: BoxDecoration(
                 color: kGreyLightColor,
                 borderRadius: BorderRadius.circular(kBorderRadiusXl),
@@ -123,7 +178,7 @@ class _CustomHorizontalItemState extends State<_CustomHorizontalItem>
             ),
             Container(
               height: 40,
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(kPaddingMd),
               decoration: BoxDecoration(
                 color: kWhiteColor,
                 borderRadius: BorderRadius.circular(kBorderRadiusXl),

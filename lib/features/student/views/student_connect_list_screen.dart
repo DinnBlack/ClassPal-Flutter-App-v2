@@ -1,43 +1,42 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
-import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_avatar.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_list_item.dart';
+import 'package:classpal_flutter_app/features/student/views/widgets/custom_student_avatar.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/utils/app_text_style.dart';
 import '../../student/models/student_model.dart';
 import '../../student/repository/student_data.dart';
 
-class ParentListScreen extends StatelessWidget {
-  const ParentListScreen({super.key});
+class StudentConnectListScreen extends StatelessWidget {
+  const StudentConnectListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final studentsWithNoParent =
-        students.where((student) => student.parent == null).toList();
+    final studentsNotConnected =
+    students.where((student) => student.userId == null).toList();
     final studentsConnected =
-        students.where((student) => student.parent != null).toList();
+    students.where((student) => student.userId != null).toList();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStudentList('Chưa kết nối', studentsWithNoParent, 'Mời'),
+          _buildStudentList('Chưa kết nối', studentsNotConnected),
           const SizedBox(height: kMarginLg),
-          _buildStudentList('Đã kết nối', studentsConnected, 'Xóa'),
+          _buildStudentList('Đã kết nối', studentsConnected),
         ],
       ),
     );
   }
 
-  Widget _buildStudentList(
-      String title, List<StudentModel> students, String actionText) {
+  Widget _buildStudentList(String title, List<StudentModel> students) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          title,
+          '$title (${students.length})',
           style: AppTextStyle.semibold(kTextSizeMd),
         ),
         const SizedBox(height: kMarginLg),
@@ -52,16 +51,9 @@ class ParentListScreen extends StatelessWidget {
                 return Column(
                   children: [
                     CustomListItem(
-                      title: 'P/h của ${student.name}',
-                      leading: const CustomAvatar(
-                        imageAsset: 'assets/images/parent.jpg',
-                      ),
-                      trailing: InkWell(
-                        child: Text(
-                          actionText,
-                          style: AppTextStyle.medium(kTextSizeSm,
-                              actionText == 'Mời' ? kPrimaryColor : kRedColor),
-                        ),
+                      title: student.name,
+                      leading: CustomStudentAvatar(
+                        student: student,
                       ),
                     ),
                     const SizedBox(height: 10),

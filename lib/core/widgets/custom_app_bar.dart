@@ -13,6 +13,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color? backgroundColor;
   final Widget? bottomWidget;
   final double additionalHeight;
+  final bool isSafeArea;
 
   const CustomAppBar({
     super.key,
@@ -25,70 +26,76 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.backgroundColor,
     this.bottomWidget,
     this.additionalHeight = 0,
+    this.isSafeArea = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Container(
-        color: backgroundColor ?? kTransparentColor,
-        child: Column(
-          children: [
-            SizedBox(
-              height: kToolbarHeight,
-              child: Stack(
-                children: [
-                  // Left Widget
-                  if (leftWidget != null) ...[
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: kPaddingMd),
-                        child: leftWidget,
-                      ),
-                    ),
-                  ],
-                  Center(
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (title != null)
-                            Text(
-                              title!,
-                              style: titleStyle ?? AppTextStyle.semibold(kTextSizeLg),
-                            ),
-                          if (subtitle != null)
-                            Text(
-                              subtitle!,
-                              style: subtitleStyle ?? AppTextStyle.medium(kTextSizeXs),
-                            ),
-                        ],
-                      ),
+    Widget appBarContent = Container(
+      color: backgroundColor ?? kTransparentColor,
+      child: Column(
+        children: [
+          SizedBox(
+            height: kToolbarHeight,
+            child: Stack(
+              children: [
+                // Left Widget
+                if (leftWidget != null) ...[
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: kPaddingMd),
+                      child: leftWidget,
                     ),
                   ),
-
-                  // Right Widget
-                  if (rightWidget != null) ...[
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: kPaddingMd),
-                        child: rightWidget,
-                      ),
-                    ),
-                  ],
                 ],
-              ),
-            ),
+                Center(
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (title != null)
+                          Text(
+                            title!,
+                            style: titleStyle ?? AppTextStyle.semibold(kTextSizeLg),
+                          ),
+                        if (subtitle != null)
+                          Text(
+                            subtitle!,
+                            style: subtitleStyle ?? AppTextStyle.medium(kTextSizeXs),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
 
-            if (bottomWidget != null) ...[
-              bottomWidget!,
-            ],
+                // Right Widget
+                if (rightWidget != null) ...[
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: kPaddingMd),
+                      child: rightWidget,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          if (bottomWidget != null) ...[
+            bottomWidget!,
           ],
-        ),
+        ],
       ),
     );
+
+    // If SafeArea is enabled, wrap the content in SafeArea
+    if (isSafeArea) {
+      appBarContent = SafeArea(child: appBarContent);
+    }
+
+    return appBarContent;
   }
 
   @override

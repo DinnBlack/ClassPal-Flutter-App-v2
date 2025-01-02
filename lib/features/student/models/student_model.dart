@@ -5,16 +5,18 @@ class StudentModel {
   final String gender;
   final DateTime birthDate;
   final String? avatar;
-  final UserModel? parent;
+  final String? parentId;
+  final String? userId;
 
 //<editor-fold desc="Data Methods">
 
-  StudentModel({
+  const StudentModel({
     required this.name,
     required this.gender,
     required this.birthDate,
     this.avatar,
-    this.parent,
+    this.parentId,
+    this.userId,
   });
 
 // Re@override
@@ -26,7 +28,8 @@ class StudentModel {
           gender == other.gender &&
           birthDate == other.birthDate &&
           avatar == other.avatar &&
-          parent == other.parent);
+          parentId == other.parentId &&
+          userId == other.userId);
 
   @override
   int get hashCode =>
@@ -34,7 +37,8 @@ class StudentModel {
       gender.hashCode ^
       birthDate.hashCode ^
       avatar.hashCode ^
-      parent.hashCode;
+      parentId.hashCode ^
+      userId.hashCode;
 
   @override
   String toString() {
@@ -43,7 +47,8 @@ class StudentModel {
         ' gender: $gender,' +
         ' birthDate: $birthDate,' +
         ' avatar: $avatar,' +
-        ' parent: $parent,' +
+        ' parentId: $parentId,' +
+        ' userId: $userId,' +
         '}';
   }
 
@@ -52,14 +57,16 @@ class StudentModel {
     String? gender,
     DateTime? birthDate,
     String? avatar,
-    UserModel? parent,
+    String? parentId,
+    String? userId,
   }) {
     return StudentModel(
       name: name ?? this.name,
       gender: gender ?? this.gender,
       birthDate: birthDate ?? this.birthDate,
       avatar: avatar ?? this.avatar,
-      parent: parent ?? this.parent,
+      parentId: parentId ?? this.parentId,
+      userId: userId ?? this.userId,
     );
   }
 
@@ -69,7 +76,8 @@ class StudentModel {
       'gender': this.gender,
       'birthDate': this.birthDate,
       'avatar': this.avatar,
-      'parent': this.parent,
+      'parentId': this.parentId,
+      'userId': this.userId,
     };
   }
 
@@ -79,7 +87,8 @@ class StudentModel {
       gender: map['gender'] as String,
       birthDate: map['birthDate'] as DateTime,
       avatar: map['avatar'] as String,
-      parent: map['parent'] as UserModel,
+      parentId: map['parentId'] as String,
+      userId: map['userId'] as String,
     );
   }
 

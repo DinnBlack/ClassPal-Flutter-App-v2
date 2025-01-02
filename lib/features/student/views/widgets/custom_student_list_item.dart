@@ -7,11 +7,13 @@ import '../../models/student_model.dart';
 class CustomStudentListItem extends StatefulWidget {
   final StudentModel? student;
   final bool? addItem;
+  final VoidCallback? onTap; // Added onTap parameter
 
   const CustomStudentListItem({
     super.key,
     this.student,
     this.addItem = false,
+    this.onTap, // Passing the onTap callback
   });
 
   @override
@@ -44,7 +46,11 @@ class _CustomStudentListItemState extends State<CustomStudentListItem>
     return GestureDetector(
       onTap: () async {
         await _controller.reverse();
-        _controller.forward();
+        await _controller.forward();
+
+        if (widget.onTap != null) {
+          widget.onTap!();
+        }
       },
       child: ScaleTransition(
         scale: _controller,
@@ -57,38 +63,36 @@ class _CustomStudentListItemState extends State<CustomStudentListItem>
             children: [
               widget.addItem!
                   ? Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: kGreyColor,
-                    width: 1,
-                  ),
-                ),
-                child: const Icon(
-                  Icons.add,
-                  color: kPrimaryColor,
-                ),
-              )
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: kGreyColor,
+                          width: 1,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        color: kPrimaryColor,
+                      ),
+                    )
                   : CircleAvatar(
-                backgroundImage: widget.student?.avatar != null
-                    ? NetworkImage(widget.student!.avatar!)
-                    : AssetImage(
-                  widget.student?.gender == 'Male'
-                      ? 'assets/images/boy.jpg'
-                      : 'assets/images/girl.jpg',
-                ) as ImageProvider,
-                radius: 30,
-              ),
+                      backgroundImage: widget.student?.avatar != null
+                          ? NetworkImage(widget.student!.avatar!)
+                          : AssetImage(
+                              widget.student?.gender == 'Male'
+                                  ? 'assets/images/boy.jpg'
+                                  : 'assets/images/girl.jpg',
+                            ) as ImageProvider,
+                      radius: 30,
+                    ),
               const SizedBox(height: kMarginSm),
               Container(
                 height: 34,
                 alignment: Alignment.center,
                 child: Text(
-                  widget.addItem!
-                      ? "Thêm mới"
-                      : widget.student?.name ?? '',
+                  widget.addItem! ? "Thêm mới" : widget.student?.name ?? '',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/config/app_constants.dart';
 import '../../../../../core/utils/app_text_style.dart';
-import '../../../../parent/views/parent_list_screen.dart';
+import '../../../../parent/views/parent_connect_list_screen.dart';
 
 class ClassConnectParentPage extends StatelessWidget {
   const ClassConnectParentPage({super.key});
@@ -13,7 +13,7 @@ class ClassConnectParentPage extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(
-            height: kMarginLg,
+            height: kMarginXl,
           ),
           Text(
             '56%',
@@ -27,9 +27,9 @@ class ClassConnectParentPage extends StatelessWidget {
             style: AppTextStyle.semibold(kTextSizeSm),
           ),
           const SizedBox(
-            height: kMarginLg,
+            height: kMarginXl,
           ),
-          const ParentListScreen(),
+          const ParentConnectListScreen(),
         ],
       ),
     );

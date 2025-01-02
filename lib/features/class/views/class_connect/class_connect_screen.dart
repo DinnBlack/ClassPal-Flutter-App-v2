@@ -24,7 +24,6 @@ class _ClassConnectScreenState extends State<ClassConnectScreen> {
   void initState() {
     super.initState();
     _currentIndex = widget.pageIndex ?? 0;
-    // Initialize the page controller after the widget tree is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _pageController.jumpToPage(_currentIndex);
     });
@@ -78,13 +77,16 @@ class _ClassConnectScreenState extends State<ClassConnectScreen> {
   }
 
   CustomAppBar _buildAppBar() {
-    return const CustomAppBar(
+    return  CustomAppBar(
       title: 'Kết nối lớp',
       leftWidget: InkWell(
-        child: Icon(
+        child: const Icon(
           FontAwesomeIcons.xmark,
           color: kGreyColor,
         ),
+        onTap: () {
+          Navigator.pop(context);
+        },
       ),
     );
   }
