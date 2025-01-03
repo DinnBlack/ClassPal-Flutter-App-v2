@@ -1,3 +1,4 @@
+import 'package:classpal_flutter_app/core/widgets/custom_feature_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -15,7 +16,8 @@ class CustomTextField extends StatefulWidget {
   final Function(String)? onChanged;
   final bool autofocus;
   final String? defaultValue;
-  final bool isDateTimePicker;
+  final bool isDatePicker;
+  final bool isTimePicker;
   final Widget? suffixIcon;
 
   const CustomTextField({
@@ -29,7 +31,8 @@ class CustomTextField extends StatefulWidget {
     this.onChanged,
     this.autofocus = false,
     this.defaultValue,
-    this.isDateTimePicker = false,
+    this.isDatePicker = false,
+    this.isTimePicker = false,
     this.suffixIcon,
   });
 
@@ -68,65 +71,24 @@ class _CustomTextFieldState extends State<CustomTextField> {
   }
 
   void _showOptionsDialog() {
-    showGeneralDialog(
-      context: context,
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return Center(
-          child: ScaleTransition(
-            scale: CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeInOut,
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: Container(
-                padding: const EdgeInsets.only(bottom: kPaddingXl),
-                width: double.infinity,
-                margin: const EdgeInsets.symmetric(horizontal: kMarginLg),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(kBorderRadiusXl),
-                  color: kWhiteColor,
-                ),
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: widget.options?.length ?? 0,
-                  itemBuilder: (BuildContext context, int index) {
-                    return GestureDetector(
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(kPaddingLg),
-                        child: Center(
-                          child: Text(
-                            widget.options![index],
-                            style: AppTextStyle.medium(kTextSizeMd),
-                          ),
-                        ),
-                      ),
-                      onTap: () {
-                        setState(() {
-                          _selectedOption = widget.options![index];
-                          widget.controller?.text = _selectedOption;
-                        });
-                        if (widget.onChanged != null) {
-                          widget.onChanged!(_selectedOption);
-                        }
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return FadeTransition(
-          opacity: animation,
-          child: child,
-        );
-      },
-      transitionDuration: const Duration(milliseconds: 300),
+    if (widget.options == null) return;
+
+    showCustomFeatureDialog(
+      context,
+      widget.options!,
+      widget.options!.map((option) {
+        return () {
+          setState(() {
+            _selectedOption = option;
+          });
+          if (widget.controller != null) {
+            widget.controller!.text = option;
+          }
+          if (widget.onChanged != null) {
+            widget.onChanged!(option);
+          }
+        };
+      }).toList(),
     );
   }
 
@@ -144,6 +106,30 @@ class _CustomTextFieldState extends State<CustomTextField> {
 
       if (widget.onChanged != null) {
         widget.onChanged!(formattedDate);
+      }
+    }
+  }
+
+  Future<void> _selectTime() async {
+    TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime != null) {
+      final now = DateTime.now();
+      final selectedTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        pickedTime.hour,
+        pickedTime.minute,
+      );
+      String formattedTime = DateFormat('hh:mm a').format(selectedTime);
+      widget.controller?.text = formattedTime;
+
+      if (widget.onChanged != null) {
+        widget.onChanged!(formattedTime);
       }
     }
   }
@@ -172,10 +158,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
             controller: widget.controller,
             focusNode: _focusNode,
             autofocus: widget.autofocus,
-            textAlignVertical: isOptionMode || widget.isPassword || widget.suffixIcon != null ? TextAlignVertical.center : null,
-            keyboardType: widget.isNumber ? TextInputType.number : TextInputType.text,
+            textAlignVertical:
+                isOptionMode || widget.isPassword || widget.suffixIcon != null
+                    ? TextAlignVertical.center
+                    : null,
+            keyboardType:
+                widget.isNumber ? TextInputType.number : TextInputType.text,
             obscureText: widget.isPassword && _isObscured,
-            readOnly: isOptionMode || widget.isDateTimePicker,
+            readOnly:
+                isOptionMode || widget.isDatePicker || widget.isTimePicker,
             decoration: InputDecoration(
               hintText: widget.defaultValue ?? (widget.text ?? ''),
               hintStyle: AppTextStyle.medium(kTextSizeSm, kGreyColor),
@@ -184,31 +175,38 @@ class _CustomTextFieldState extends State<CustomTextField> {
               suffixIcon: widget.suffixIcon ??
                   (isOptionMode
                       ? const Icon(
-                    Icons.arrow_drop_down_circle_outlined,
-                    color: kGreyColor,
-                    size: 16,
-                  )
+                          Icons.arrow_drop_down_circle_outlined,
+                          color: kGreyColor,
+                          size: 20,
+                        )
                       : (widget.isPassword
-                      ? InkWell(
-                    child: Icon(
-                      _isObscured
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      size: 16,
-                      color: kGreyColor,
-                    ),
-                    onTap: () {
-                      setState(() {
-                        _isObscured = !_isObscured;
-                      });
-                    },
-                  )
-                      : null)),
-              contentPadding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+                          ? InkWell(
+                              child: Icon(
+                                _isObscured
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                size: 20,
+                                color: kGreyColor,
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  _isObscured = !_isObscured;
+                                });
+                              },
+                            )
+                          : null)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: kPaddingMd),
             ),
             style: AppTextStyle.medium(kTextSizeSm, kGreyColor),
-            onTap: widget.isDateTimePicker ? _selectDate : (isOptionMode ? _showOptionsDialog : null),
-            inputFormatters: widget.isNumber ? [FilteringTextInputFormatter.digitsOnly] : null,
+            onTap: widget.isDatePicker
+                ? _selectDate
+                : (widget.isTimePicker
+                    ? _selectTime
+                    : (isOptionMode ? _showOptionsDialog : null)),
+            inputFormatters: widget.isNumber
+                ? [FilteringTextInputFormatter.digitsOnly]
+                : null,
           ),
         ),
       ],

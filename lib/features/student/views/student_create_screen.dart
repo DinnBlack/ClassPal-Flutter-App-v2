@@ -42,7 +42,7 @@ class StudentCreateScreen extends StatelessWidget {
           ),
           const CustomTextField(
             text: 'Ngày sinh',
-            isDateTimePicker: true,
+            isDatePicker: true,
           ),
           const SizedBox(
             height: kMarginLg,

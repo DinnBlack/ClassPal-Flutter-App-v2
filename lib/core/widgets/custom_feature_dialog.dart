@@ -3,7 +3,7 @@ import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:flutter/material.dart';
 
 class CustomFeatureDialog extends StatelessWidget {
-  final List<String> features;
+  final List<String>? features;
   final List<Function()> onItemTaps;
 
   const CustomFeatureDialog({
@@ -33,16 +33,16 @@ class CustomFeatureDialog extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: List.generate(
-                  features.length,
+                  features!.length,
                       (index) {
                     return Column(
                       children: [
                         _CustomListItem(
                           index: index,
-                          feature: features[index],
+                          feature: features![index],
                           onItemTaps: onItemTaps,
                         ),
-                        if (index < features.length - 1)
+                        if (index < features!.length - 1)
                           Container(
                             height: 1.0,
                             color: kGreyLightColor,
@@ -125,7 +125,7 @@ class _CustomListItemState extends State<_CustomListItem>
 }
 
 void showCustomFeatureDialog(
-    BuildContext context, List<String> features, List<Function()> onItemTaps) {
+    BuildContext context, List<String>? features, List<Function()> onItemTaps) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,

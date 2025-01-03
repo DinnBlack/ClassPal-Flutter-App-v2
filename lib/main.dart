@@ -1,4 +1,5 @@
 import 'package:device_preview/device_preview.dart';
+import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'core/config/app_routes.dart';
@@ -26,6 +27,9 @@ class MyApp extends StatelessWidget {
       locale: DevicePreview.locale(context),
       builder: DevicePreview.appBuilder,
       theme: lightTheme,
+      localizationsDelegates: const [
+        EasyDateTimelineLocalizations.delegate,
+      ],
       darkTheme: darkTheme,
       themeMode: ThemeMode.system,
       onGenerateRoute: routes,
