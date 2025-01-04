@@ -1,15 +1,17 @@
 class UserModel {
-  final String id;
+  final String userId;
   final String name;
   final String email;
   final String phoneNumber;
+  final String password;
 
 //<editor-fold desc="Data Methods">
   const UserModel({
-    required this.id,
+    required this.userId,
     required this.name,
     required this.email,
     required this.phoneNumber,
+    required this.password,
   });
 
   @override
@@ -17,54 +19,64 @@ class UserModel {
       identical(this, other) ||
       (other is UserModel &&
           runtimeType == other.runtimeType &&
-          id == other.id &&
+          userId == other.userId &&
           name == other.name &&
           email == other.email &&
-          phoneNumber == other.phoneNumber);
+          phoneNumber == other.phoneNumber &&
+          password == other.password);
 
   @override
   int get hashCode =>
-      id.hashCode ^ name.hashCode ^ email.hashCode ^ phoneNumber.hashCode;
+      userId.hashCode ^
+      name.hashCode ^
+      email.hashCode ^
+      phoneNumber.hashCode ^
+      password.hashCode;
 
   @override
   String toString() {
     return 'UserModel{' +
-        ' id: $id,' +
+        ' userId: $userId,' +
         ' name: $name,' +
         ' email: $email,' +
         ' phoneNumber: $phoneNumber,' +
+        ' password: $password,' +
         '}';
   }
 
   UserModel copyWith({
-    String? id,
+    String? userId,
     String? name,
     String? email,
     String? phoneNumber,
+    String? password,
   }) {
     return UserModel(
-      id: id ?? this.id,
+      userId: userId ?? this.userId,
       name: name ?? this.name,
       email: email ?? this.email,
       phoneNumber: phoneNumber ?? this.phoneNumber,
+      password: password ?? this.password,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'id': this.id,
+      'userId': this.userId,
       'name': this.name,
       'email': this.email,
       'phoneNumber': this.phoneNumber,
+      'password': this.password,
     };
   }
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-      id: map['id'] as String,
+      userId: map['userId'] as String,
       name: map['name'] as String,
       email: map['email'] as String,
       phoneNumber: map['phoneNumber'] as String,
+      password: map['password'] as String,
     );
   }
 

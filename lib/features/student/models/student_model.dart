@@ -1,5 +1,3 @@
-import '../../auth/models/user_model.dart';
-
 class StudentModel {
   final String name;
   final String gender;

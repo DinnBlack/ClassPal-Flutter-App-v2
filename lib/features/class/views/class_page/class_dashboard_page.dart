@@ -1,3 +1,4 @@
+import 'package:classpal_flutter_app/features/class/views/class_information_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -35,29 +36,41 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
         () {
           CustomBottomSheet.showCustomBottomSheet(
             context,
-            const ClassConnectScreen(pageIndex: 0,),
+            const ClassConnectScreen(
+              pageIndex: 0,
+            ),
           );
         },
         () {
           CustomBottomSheet.showCustomBottomSheet(
             context,
-            const ClassConnectScreen(pageIndex: 1,),
+            const ClassConnectScreen(
+              pageIndex: 1,
+            ),
           );
         },
         () {
           CustomBottomSheet.showCustomBottomSheet(
             context,
-            const ClassConnectScreen(pageIndex: 2,),
+            const ClassConnectScreen(
+              pageIndex: 2,
+            ),
           );
         },
         () {
-          print('Học sinh');
+          CustomBottomSheet.showCustomBottomSheet(
+            context,
+            const ClassInformationScreen(),
+          );
         },
         () {
           print('Môn học');
         },
         () {
-          print('Thông tin lớp học');
+          CustomBottomSheet.showCustomBottomSheet(
+            context,
+            const ClassInformationScreen(),
+          );
         },
         () {
           print('Kết thúc lớp học');

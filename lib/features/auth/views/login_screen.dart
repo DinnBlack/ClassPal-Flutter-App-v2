@@ -4,8 +4,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/widgets/custom_button.dart';
+import '../../../core/widgets/custom_loading_dialog.dart';
 import '../../../core/widgets/custom_text_field.dart';
+import '../bloc/auth_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
   static const route = 'LoginScreen';
@@ -31,18 +34,14 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(
-                  height: kMarginXxl,
-                ),
+                const SizedBox(height: kMarginXxl),
                 Center(
                   child: Image.asset(
                     'assets/images/classpal_logo.png',
                     width: 150,
                   ),
                 ),
-                const SizedBox(
-                  height: kMarginXxl,
-                ),
+                const SizedBox(height: kMarginXxl),
                 Text(
                   'Đăng nhập tài khoản của bạn',
                   style: AppTextStyle.semibold(kTextSizeMd, kGreyColor),
@@ -51,27 +50,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   'Đăng nhập',
                   style: AppTextStyle.semibold(kTextSizeXxl),
                 ),
-                const SizedBox(
-                  height: kMarginLg,
-                ),
-
+                const SizedBox(height: kMarginLg),
                 CustomTextField(
                   text: 'Email hoặc số điện thoại',
                   controller: _emailOrPhoneNumberController,
-                  onChanged: (value) {},
                 ),
-                const SizedBox(
-                  height: kMarginMd,
-                ),
+                const SizedBox(height: kMarginMd),
                 CustomTextField(
                   text: 'Mật khẩu',
                   controller: _passwordController,
                   isPassword: true,
-                  onChanged: (value) {},
                 ),
-                const SizedBox(
-                  height: kMarginMd,
-                ),
+                const SizedBox(height: kMarginMd),
                 Align(
                   alignment: Alignment.center,
                   child: Text(
@@ -80,18 +70,40 @@ class _LoginScreenState extends State<LoginScreen> {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                const SizedBox(
-                  height: kMarginLg,
-                ),
-                CustomButton(
-                  text: 'Đăng nhập',
-                  onTap: () {
-                    Navigator.pushNamed(context, SelectRoleScreen.route);
+                const SizedBox(height: kMarginLg),
+                BlocConsumer<AuthBloc, AuthState>(
+                  listener: (context, state) {
+                    if (state is AuthLoginInProgress) {
+                      CustomLoadingDialog.show(context);
+                    } else {
+                      CustomLoadingDialog.dismiss(context);
+                    }
+
+                    if (state is AuthLoginSuccess) {
+                      Navigator.pushNamed(context, SelectRoleScreen.route);
+                    } else if (state is AuthLoginFailure) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Đăng nhập thất bại')),
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    return CustomButton(
+                      text: 'Đăng nhập',
+                      onTap: () {
+                        final emailOrPhoneNumber = _emailOrPhoneNumberController.text;
+                        final password = _passwordController.text;
+                        context.read<AuthBloc>().add(
+                          AuthLoginStarted(
+                            emailOrPhoneNumber: emailOrPhoneNumber,
+                            password: password,
+                          ),
+                        );
+                      },
+                    );
                   },
                 ),
-                const SizedBox(
-                  height: kMarginLg,
-                ),
+                const SizedBox(height: kMarginLg),
                 Align(
                   alignment: Alignment.center,
                   child: RichText(
@@ -110,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),
