@@ -2,6 +2,7 @@ import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_avatar.dart';
 import 'package:classpal_flutter_app/features/class/views/class_join_screen.dart';
 import 'package:classpal_flutter_app/features/school/views/school_join_screen.dart';
+import 'package:classpal_flutter_app/features/school/views/school_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -69,6 +70,7 @@ class MainScreen extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
               ),
+              onTap: () => Navigator.pushNamed(context, SchoolScreen.route),
             ),
             const SizedBox(
               height: kMarginLg,

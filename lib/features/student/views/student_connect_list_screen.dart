@@ -14,9 +14,9 @@ class StudentConnectListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final studentsNotConnected =
-    students.where((student) => student.userId == null).toList();
+    sampleStudent_1.where((student) => student.userId == null).toList();
     final studentsConnected =
-    students.where((student) => student.userId != null).toList();
+    sampleStudent_1.where((student) => student.userId != null).toList();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),

@@ -1,10 +1,10 @@
-class TeacherModel {
+class PrincipalModel {
   final String userId;
   final String name;
   final bool isAccepted;
 
 //<editor-fold desc="Data Methods">
-  const TeacherModel({
+  const PrincipalModel({
     required this.userId,
     required this.name,
     required this.isAccepted,
@@ -13,7 +13,7 @@ class TeacherModel {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is TeacherModel &&
+      (other is PrincipalModel &&
           runtimeType == other.runtimeType &&
           userId == other.userId &&
           name == other.name &&
@@ -24,19 +24,19 @@ class TeacherModel {
 
   @override
   String toString() {
-    return 'TeacherModel{' +
+    return 'PrincipalModel{' +
         ' userId: $userId,' +
         ' name: $name,' +
         ' isAccepted: $isAccepted,' +
         '}';
   }
 
-  TeacherModel copyWith({
+  PrincipalModel copyWith({
     String? userId,
     String? name,
     bool? isAccepted,
   }) {
-    return TeacherModel(
+    return PrincipalModel(
       userId: userId ?? this.userId,
       name: name ?? this.name,
       isAccepted: isAccepted ?? this.isAccepted,
@@ -51,8 +51,8 @@ class TeacherModel {
     };
   }
 
-  factory TeacherModel.fromMap(Map<String, dynamic> map) {
-    return TeacherModel(
+  factory PrincipalModel.fromMap(Map<String, dynamic> map) {
+    return PrincipalModel(
       userId: map['userId'] as String,
       name: map['name'] as String,
       isAccepted: map['isAccepted'] as bool,

@@ -4,6 +4,8 @@ class UserModel {
   final String email;
   final String phoneNumber;
   final String password;
+  final List<String> schoolIds;
+  final List<String> classIds;
 
 //<editor-fold desc="Data Methods">
   const UserModel({
@@ -12,6 +14,8 @@ class UserModel {
     required this.email,
     required this.phoneNumber,
     required this.password,
+    required this.schoolIds,
+    required this.classIds,
   });
 
   @override
@@ -23,7 +27,9 @@ class UserModel {
           name == other.name &&
           email == other.email &&
           phoneNumber == other.phoneNumber &&
-          password == other.password);
+          password == other.password &&
+          schoolIds == other.schoolIds &&
+          classIds == other.classIds);
 
   @override
   int get hashCode =>
@@ -31,7 +37,9 @@ class UserModel {
       name.hashCode ^
       email.hashCode ^
       phoneNumber.hashCode ^
-      password.hashCode;
+      password.hashCode ^
+      schoolIds.hashCode ^
+      classIds.hashCode;
 
   @override
   String toString() {
@@ -41,6 +49,8 @@ class UserModel {
         ' email: $email,' +
         ' phoneNumber: $phoneNumber,' +
         ' password: $password,' +
+        ' schoolIds: $schoolIds,' +
+        ' classIds: $classIds,' +
         '}';
   }
 
@@ -50,6 +60,8 @@ class UserModel {
     String? email,
     String? phoneNumber,
     String? password,
+    List<String>? schoolIds,
+    List<String>? classIds,
   }) {
     return UserModel(
       userId: userId ?? this.userId,
@@ -57,6 +69,8 @@ class UserModel {
       email: email ?? this.email,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       password: password ?? this.password,
+      schoolIds: schoolIds ?? this.schoolIds,
+      classIds: classIds ?? this.classIds,
     );
   }
 
@@ -67,6 +81,8 @@ class UserModel {
       'email': this.email,
       'phoneNumber': this.phoneNumber,
       'password': this.password,
+      'schoolIds': this.schoolIds,
+      'classIds': this.classIds,
     };
   }
 
@@ -77,6 +93,8 @@ class UserModel {
       email: map['email'] as String,
       phoneNumber: map['phoneNumber'] as String,
       password: map['password'] as String,
+      schoolIds: map['schoolIds'] as List<String>,
+      classIds: map['classIds'] as List<String>,
     );
   }
 

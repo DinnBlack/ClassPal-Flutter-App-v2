@@ -21,34 +21,40 @@ class CustomSelectRoleItem extends StatefulWidget {
   _CustomSelectRoleItemState createState() => _CustomSelectRoleItemState();
 }
 
-class _CustomSelectRoleItemState extends State<CustomSelectRoleItem> {
-  bool isPressed = false;
+class _CustomSelectRoleItemState extends State<CustomSelectRoleItem>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
 
-  void _handleTapDown(TapDownDetails details) {
-    setState(() {
-      isPressed = true;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      lowerBound: 0.9,
+      upperBound: 1.0,
+      duration: const Duration(milliseconds: 100),
+    )..value = 1.0;
   }
 
-  void _handleTapUp(TapUpDetails details) {
-    setState(() {
-      isPressed = false;
-    });
-
-    if (widget.onTap != null) {
-      widget.onTap!();
-    }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: _handleTapDown,
-      onTapUp: _handleTapUp,
-      onTap: widget.onTap,
-      child: AnimatedScale(
-        duration: const Duration(milliseconds: 100),
-        scale: isPressed ? 0.95 : 1.0,
+      onTap: () async {
+        await _controller.reverse();
+        await _controller.forward();
+
+        if (widget.onTap != null) {
+          widget.onTap!();
+        }
+      },
+      child: ScaleTransition(
+        scale: _controller,
         child: Stack(
           children: [
             Container(

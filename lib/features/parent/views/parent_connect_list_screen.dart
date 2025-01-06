@@ -14,9 +14,9 @@ class ParentConnectListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final studentsWithNoParent =
-    students.where((student) => student.parentId == null).toList();
+    sampleStudent_1.where((student) => student.parentId == null).toList();
     final studentsConnected =
-    students.where((student) => student.parentId != null).toList();
+    sampleStudent_1.where((student) => student.parentId != null).toList();
 
     void showInviteDialog(BuildContext context, String name) {
       showCustomInviteDialog(context, 'Gửi lời mời', 'Đến P/h của $name');

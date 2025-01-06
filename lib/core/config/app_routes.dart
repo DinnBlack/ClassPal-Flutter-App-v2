@@ -9,6 +9,7 @@ import '../../features/class/views/class_create_screen.dart';
 import '../../features/class/views/class_join_screen.dart';
 import '../../features/class/views/class_screen.dart';
 import '../../features/school/views/school_join_screen.dart';
+import '../../features/school/views/school_screen.dart';
 import '../../features/student/views/student_list_screen.dart';
 import '../../shared/main_screen.dart';
 
@@ -24,6 +25,8 @@ Route<dynamic> routes(RouteSettings settings) {
       return MaterialPageRoute(builder: (context) => const SelectRoleScreen());
 
     // School
+    case SchoolScreen.route:
+      return MaterialPageRoute(builder: (context) => const SchoolScreen());
     case SchoolCreateScreen.route:
       return MaterialPageRoute(builder: (context) => const SchoolCreateScreen());
     case SchoolJoinScreen.route:

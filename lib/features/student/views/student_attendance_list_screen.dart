@@ -14,7 +14,7 @@ class StudentAttendanceListScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final studentData = [...students, null];
+          final studentData = [...sampleStudent_1, null];
           return ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),

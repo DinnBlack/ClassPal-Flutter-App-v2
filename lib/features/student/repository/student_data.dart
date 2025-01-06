@@ -1,6 +1,6 @@
 import '../models/student_model.dart';
 
-List<StudentModel> students = [
+final sampleStudent_1 = [
   StudentModel(
     name: "Đinh Hoàng Phúc",
     gender: "Male",

@@ -19,7 +19,7 @@ class StudentListScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final studentData = [...students, null];
+          final studentData = [...sampleStudent_1, null];
           double itemHeight = 105;
           double itemWidth = (constraints.maxWidth - (4 - 1) * 8.0) / 4;
 
