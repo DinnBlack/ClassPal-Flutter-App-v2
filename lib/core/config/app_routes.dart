@@ -1,13 +1,14 @@
-import 'package:classpal_flutter_app/features/school/views/school_create_screen.dart';
-import 'package:classpal_flutter_app/features/school/views/school_create_screen.dart';
+import 'package:classpal_flutter_app/features/school/models/school_model.dart';
 import 'package:flutter/material.dart';
 
+import '../../features/auth/models/user_model.dart';
 import '../../features/auth/views/login_screen.dart';
 import '../../features/auth/views/register_screen.dart';
 import '../../features/auth/views/select_role_screen.dart';
 import '../../features/class/views/class_create_screen.dart';
 import '../../features/class/views/class_join_screen.dart';
 import '../../features/class/views/class_screen.dart';
+import '../../features/school/views/school_create_screen.dart';
 import '../../features/school/views/school_join_screen.dart';
 import '../../features/school/views/school_screen.dart';
 import '../../features/student/views/student_list_screen.dart';
@@ -15,20 +16,24 @@ import '../../shared/main_screen.dart';
 
 Route<dynamic> routes(RouteSettings settings) {
   switch (settings.name) {
-
     // Authentication
     case LoginScreen.route:
       return MaterialPageRoute(builder: (context) => const LoginScreen());
     case RegisterScreen.route:
       return MaterialPageRoute(builder: (context) => const RegisterScreen());
     case SelectRoleScreen.route:
-      return MaterialPageRoute(builder: (context) => const SelectRoleScreen());
+      final args = settings.arguments as Map<String, dynamic>?;
+      final UserModel user = args?['user'];
+      return MaterialPageRoute(builder: (context) => SelectRoleScreen(user: user,));
 
     // School
     case SchoolScreen.route:
-      return MaterialPageRoute(builder: (context) => const SchoolScreen());
+      final args = settings.arguments as Map<String, dynamic>?;
+      final SchoolModel school = args?['school'];
+      return MaterialPageRoute(builder: (context) => SchoolScreen(school: school,));
     case SchoolCreateScreen.route:
-      return MaterialPageRoute(builder: (context) => const SchoolCreateScreen());
+      return MaterialPageRoute(
+          builder: (context) => const SchoolCreateScreen());
     case SchoolJoinScreen.route:
       return MaterialPageRoute(builder: (context) => const SchoolJoinScreen());
 
@@ -39,7 +44,8 @@ Route<dynamic> routes(RouteSettings settings) {
       final args = settings.arguments as Map<String, dynamic>?;
       final isClassCreateFirst = args?['isClassCreateFirst'] ?? false;
       return MaterialPageRoute(
-        builder: (context) => ClassCreateScreen(isClassCreateFirst: isClassCreateFirst),
+        builder: (context) =>
+            ClassCreateScreen(isClassCreateFirst: isClassCreateFirst),
       );
     case ClassJoinScreen.route:
       return MaterialPageRoute(builder: (context) => const ClassJoinScreen());
@@ -48,8 +54,17 @@ Route<dynamic> routes(RouteSettings settings) {
     case StudentListScreen.route:
       return MaterialPageRoute(builder: (context) => const StudentListScreen());
 
-    // Default
+// Default
     default:
-      return MaterialPageRoute(builder: (context) => const MainScreen());
+      final args = settings.arguments as Map<String, dynamic>?;
+      final UserModel user = args?['user'];
+      final String role = args?['role'];
+
+      return MaterialPageRoute(
+        builder: (context) => MainScreen(
+          user: user,
+          role: role,
+        ),
+      );
   }
 }

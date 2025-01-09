@@ -4,7 +4,8 @@ import '../sub_features/attendance/models/atttendance_model.dart';
 import '../sub_features/schedule/models/schedule_model.dart';
 
 class ClassModel {
-  String className;
+  String classId;
+  String name;
   List<TeacherModel> teachers;
   DateTime creationDate;
   Map<DateTime, List<AttendanceModel>> attendanceRecords;
@@ -13,7 +14,8 @@ class ClassModel {
 
 //<editor-fold desc="Data Methods">
   ClassModel({
-    required this.className,
+    required this.classId,
+    required this.name,
     required this.teachers,
     required this.creationDate,
     required this.attendanceRecords,
@@ -26,7 +28,8 @@ class ClassModel {
       identical(this, other) ||
       (other is ClassModel &&
           runtimeType == other.runtimeType &&
-          className == other.className &&
+          classId == other.classId &&
+          name == other.name &&
           teachers == other.teachers &&
           creationDate == other.creationDate &&
           attendanceRecords == other.attendanceRecords &&
@@ -35,7 +38,8 @@ class ClassModel {
 
   @override
   int get hashCode =>
-      className.hashCode ^
+      classId.hashCode ^
+      name.hashCode ^
       teachers.hashCode ^
       creationDate.hashCode ^
       attendanceRecords.hashCode ^
@@ -45,7 +49,8 @@ class ClassModel {
   @override
   String toString() {
     return 'ClassModel{' +
-        ' className: $className,' +
+        ' classId: $classId,' +
+        ' name: $name,' +
         ' teachers: $teachers,' +
         ' creationDate: $creationDate,' +
         ' attendanceRecords: $attendanceRecords,' +
@@ -55,7 +60,8 @@ class ClassModel {
   }
 
   ClassModel copyWith({
-    String? className,
+    String? classId,
+    String? name,
     List<TeacherModel>? teachers,
     DateTime? creationDate,
     Map<DateTime, List<AttendanceModel>>? attendanceRecords,
@@ -63,7 +69,8 @@ class ClassModel {
     List<ScheduleModel>? schedule,
   }) {
     return ClassModel(
-      className: className ?? this.className,
+      classId: classId ?? this.classId,
+      name: name ?? this.name,
       teachers: teachers ?? this.teachers,
       creationDate: creationDate ?? this.creationDate,
       attendanceRecords: attendanceRecords ?? this.attendanceRecords,
@@ -74,7 +81,8 @@ class ClassModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'className': this.className,
+      'classId': this.classId,
+      'name': this.name,
       'teachers': this.teachers,
       'creationDate': this.creationDate,
       'attendanceRecords': this.attendanceRecords,
@@ -85,7 +93,8 @@ class ClassModel {
 
   factory ClassModel.fromMap(Map<String, dynamic> map) {
     return ClassModel(
-      className: map['className'] as String,
+      classId: map['classId'] as String,
+      name: map['name'] as String,
       teachers: map['teachers'] as List<TeacherModel>,
       creationDate: map['creationDate'] as DateTime,
       attendanceRecords:

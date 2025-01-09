@@ -1,35 +1,24 @@
-
+import 'package:classpal_flutter_app/features/auth/models/user_model.dart';
 import 'package:classpal_flutter_app/features/auth/views/widgets/custom_select_role_item.dart';
-import 'package:classpal_flutter_app/features/school/views/school_create_screen.dart';
+import 'package:classpal_flutter_app/shared/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
-import '../../class/views/class_create_screen.dart';
 
 class SelectRoleScreen extends StatefulWidget {
   static const route = 'SelectRoleScreen';
+  final UserModel user;
 
-  const SelectRoleScreen({super.key});
+  const SelectRoleScreen({super.key, required this.user});
 
   @override
   State<SelectRoleScreen> createState() => _SelectRoleScreenState();
 }
 
 class _SelectRoleScreenState extends State<SelectRoleScreen> {
-  final _methodLoginController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  void _updateLoginMethod(String value) {
-    setState(() {
-      _methodLoginController.text = value;
-      _emailController.text =
-          value == 'Đăng nhập bằng Email' ? '' : _emailController.text;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    print(widget.user);
     return Scaffold(
       backgroundColor: kBackgroundColor,
       body: SafeArea(
@@ -67,7 +56,11 @@ class _SelectRoleScreenState extends State<SelectRoleScreen> {
                   subTitle: 'Quản lý trường học của bạn',
                   image: 'directors_role.png',
                   onTap: () {
-                    Navigator.pushNamed(context, SchoolCreateScreen.route);
+                    Navigator.pushNamed(
+                      context,
+                      MainScreen.route,
+                      arguments: {'user': widget.user, 'role': 'principal'},
+                    );
                   },
                 ),
                 const SizedBox(
@@ -80,26 +73,40 @@ class _SelectRoleScreenState extends State<SelectRoleScreen> {
                   onTap: () {
                     Navigator.pushNamed(
                       context,
-                      ClassCreateScreen.route,
-                      arguments: {'isClassCreateFirst': true},
+                      MainScreen.route,
+                      arguments: {'user': widget.user, 'role': 'teacher'},
                     );
                   },
                 ),
                 const SizedBox(
                   height: kMarginLg,
                 ),
-                const CustomSelectRoleItem(
+                CustomSelectRoleItem(
                   title: 'Phụ huynh',
-                  subTitle: 'kết nối với các con của bạn',
+                  subTitle: 'Kết nối với các con của bạn',
                   image: 'parent_role.png',
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      MainScreen.route,
+                      arguments: {'user': widget.user, 'role': 'parent'},
+                    );
+                  },
                 ),
                 const SizedBox(
                   height: kMarginLg,
                 ),
-                const CustomSelectRoleItem(
+                CustomSelectRoleItem(
                   title: 'Học sinh',
                   subTitle: 'Tham gia học tập lớp học của bạn',
                   image: 'student_role.png',
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      MainScreen.route,
+                      arguments: {'user': widget.user, 'role': 'student'},
+                    );
+                  },
                 ),
               ],
             ),

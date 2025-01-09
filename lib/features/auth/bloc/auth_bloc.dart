@@ -1,49 +1,87 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
+import '../models/user_model.dart';
+import '../repository/user_service.dart';
+
 part 'auth_event.dart';
 
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
+  final UserService userService = UserService();
+
   AuthBloc() : super(AuthInitial()) {
     on<AuthLoginStarted>(_onAuthLoginStarted);
     on<AuthRegisterStarted>(_onAuthRegisterStarted);
     on<AuthLogoutStarted>(_onAuthLogoutStarted);
+    on<AuthRoleSelected>(_onAuthRoleSelected);
   }
 
+  // Xử lý sự kiện đăng nhập
   Future<void> _onAuthLoginStarted(
       AuthLoginStarted event, Emitter<AuthState> emit) async {
     emit(AuthLoginInProgress());
     try {
-      print(event.emailOrPhoneNumber);
-      print(event.password);
-      await Future.delayed(const Duration(seconds: 2));
-      emit(AuthLoginSuccess());
+      final user =
+          await userService.login(event.emailOrPhoneNumber, event.password);
+      if (user != null) {
+        emit(AuthLoginSuccess(user));
+      } else {
+        emit(AuthLoginFailure("Invalid credentials"));
+      }
     } catch (error) {
-      emit(AuthLoginFailure());
+      emit(AuthLoginFailure(error.toString()));
     }
   }
 
+  // Xử lý sự kiện đăng ký
   Future<void> _onAuthRegisterStarted(
       AuthRegisterStarted event, Emitter<AuthState> emit) async {
     emit(AuthRegisterInProgress());
     try {
-      await Future.delayed(const Duration(seconds: 2));
-      emit(AuthRegisterSuccess());
+      final success = await userService.register(
+        event.name,
+        event.email,
+        event.phoneNumber,
+        event.password,
+      );
+      if (success) {
+        emit(AuthRegisterSuccess());
+      } else {
+        emit(AuthRegisterFailure("Email already exists"));
+      }
     } catch (error) {
-      emit(AuthRegisterFailure());
+      emit(AuthRegisterFailure(error.toString()));
     }
   }
 
+  // Xử lý sự kiện đăng xuất
   Future<void> _onAuthLogoutStarted(
       AuthLogoutStarted event, Emitter<AuthState> emit) async {
     emit(AuthLogoutInProgress());
     try {
-      await Future.delayed(const Duration(seconds: 2));
+      await userService.logout();
       emit(AuthLogoutSuccess());
     } catch (error) {
-      emit(AuthLogoutFailure());
+      emit(AuthLogoutFailure(error.toString()));
+    }
+  }
+
+  // Xử lý sự kiện chọn vai trò
+  Future<void> _onAuthRoleSelected(
+      AuthRoleSelected event, Emitter<AuthState> emit) async {
+    emit(AuthRoleSelectionInProgress());
+    try {
+      final hasPermission = await userService.hasPermission(event.role);
+      print(hasPermission);
+      if (hasPermission) {
+        emit(AuthRoleSelectionSuccess());
+      } else {
+        emit(AuthRoleSelectionFailure("Role selection failed"));
+      }
+    } catch (error) {
+      emit(AuthRoleSelectionFailure(error.toString()));
     }
   }
 }

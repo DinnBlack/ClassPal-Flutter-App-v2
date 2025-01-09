@@ -4,6 +4,7 @@ class UserModel {
   final String email;
   final String phoneNumber;
   final String password;
+  final String? avatar;
   final List<String> schoolIds;
   final List<String> classIds;
 
@@ -14,6 +15,7 @@ class UserModel {
     required this.email,
     required this.phoneNumber,
     required this.password,
+    this.avatar,
     required this.schoolIds,
     required this.classIds,
   });
@@ -28,6 +30,7 @@ class UserModel {
           email == other.email &&
           phoneNumber == other.phoneNumber &&
           password == other.password &&
+          avatar == other.avatar &&
           schoolIds == other.schoolIds &&
           classIds == other.classIds);
 
@@ -38,6 +41,7 @@ class UserModel {
       email.hashCode ^
       phoneNumber.hashCode ^
       password.hashCode ^
+      avatar.hashCode ^
       schoolIds.hashCode ^
       classIds.hashCode;
 
@@ -49,6 +53,7 @@ class UserModel {
         ' email: $email,' +
         ' phoneNumber: $phoneNumber,' +
         ' password: $password,' +
+        ' avatar: $avatar,' +
         ' schoolIds: $schoolIds,' +
         ' classIds: $classIds,' +
         '}';
@@ -60,6 +65,7 @@ class UserModel {
     String? email,
     String? phoneNumber,
     String? password,
+    String? avatar,
     List<String>? schoolIds,
     List<String>? classIds,
   }) {
@@ -69,6 +75,7 @@ class UserModel {
       email: email ?? this.email,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       password: password ?? this.password,
+      avatar: avatar ?? this.avatar,
       schoolIds: schoolIds ?? this.schoolIds,
       classIds: classIds ?? this.classIds,
     );
@@ -81,6 +88,7 @@ class UserModel {
       'email': this.email,
       'phoneNumber': this.phoneNumber,
       'password': this.password,
+      'avatar': this.avatar,
       'schoolIds': this.schoolIds,
       'classIds': this.classIds,
     };
@@ -93,6 +101,7 @@ class UserModel {
       email: map['email'] as String,
       phoneNumber: map['phoneNumber'] as String,
       password: map['password'] as String,
+      avatar: map['avatar'] as String,
       schoolIds: map['schoolIds'] as List<String>,
       classIds: map['classIds'] as List<String>,
     );

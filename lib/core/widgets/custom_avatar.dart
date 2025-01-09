@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import '../config/app_constants.dart';
 
 class CustomAvatar extends StatelessWidget {
+  final dynamic user;
   final String? imageAsset;
-  final String? text;
   final Color backgroundColor;
   final double size;
 
   const CustomAvatar({
     Key? key,
+    this.user,
     this.imageAsset,
-    this.text,
     this.backgroundColor = kPrimaryColor,
     this.size = 40.0,
   }) : super(key: key);
@@ -24,6 +24,25 @@ class CustomAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (imageAsset != null && imageAsset!.isNotEmpty) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: backgroundColor,
+        ),
+        child: ClipOval(
+          child: Image.asset(
+            imageAsset!,
+            fit: BoxFit.cover,
+          ),
+        ),
+      );
+    }
+
+    String avatarUrl = user?.avatar ?? '';
+
     return Container(
       width: size,
       height: size,
@@ -32,14 +51,14 @@ class CustomAvatar extends StatelessWidget {
         color: backgroundColor,
       ),
       child: ClipOval(
-        child: imageAsset != null
-            ? Image.asset(
-          imageAsset!,
+        child: avatarUrl.isNotEmpty
+            ? Image.network(
+          avatarUrl,
           fit: BoxFit.cover,
         )
             : Center(
           child: Text(
-            text != null ? _getInitials(text!) : '',
+            _getInitials(user?.name ?? ''),
             style: TextStyle(
               fontSize: size * 0.4,
               color: Colors.white,

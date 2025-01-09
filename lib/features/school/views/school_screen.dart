@@ -1,5 +1,6 @@
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:awesome_bottom_bar/tab_item.dart';
+import 'package:classpal_flutter_app/features/school/models/school_model.dart';
 import 'package:classpal_flutter_app/features/school/views/school_page/school_directory_page.dart';
 import 'package:classpal_flutter_app/features/school/views/school_page/school_story_page.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +11,9 @@ import '../../../core/utils/app_text_style.dart';
 
 class SchoolScreen extends StatefulWidget {
   static const route = 'SchoolScreen';
+  final SchoolModel school;
 
-  const SchoolScreen({super.key});
+  const SchoolScreen({super.key, required this.school});
 
   @override
   State<SchoolScreen> createState() => _SchoolScreenState();
@@ -29,8 +31,12 @@ class _SchoolScreenState extends State<SchoolScreen> {
     _pageController = PageController(initialPage: _currentIndex);
 
     _pages = [
-      const SchoolStoryPage(),
-      const SchoolDirectoryPage(),
+      SchoolStoryPage(
+        school: widget.school,
+      ),
+      SchoolDirectoryPage(
+        school: widget.school,
+      ),
     ];
   }
 

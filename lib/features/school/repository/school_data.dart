@@ -13,4 +13,13 @@ List<SchoolModel> sampleSchool_1 = [
     principals: samplePrincipal_1,
     classes: sampleClass_1,
   ),
+  SchoolModel(
+    schoolId: 'SCH002',
+    name: 'Tiểu học Quốc Thái',
+    address: 'Xã Quốc Thái, Huyện An Phú, Tỉnh An Giang',
+    createdDate: DateTime(2020, 5, 20),
+    teachers: sampleTeacher_2,
+    principals: samplePrincipal_2,
+    classes: sampleClass_1,
+  ),
 ];

@@ -1,3 +1,4 @@
+import 'package:classpal_flutter_app/features/school/bloc/school_bloc.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:flutter/foundation.dart';
@@ -27,6 +28,9 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<AuthBloc>(
           create: (context) => AuthBloc(),
+        ),
+        BlocProvider<SchoolBloc>(
+          create: (context) => SchoolBloc(),
         ),
       ],
       child: MaterialApp(

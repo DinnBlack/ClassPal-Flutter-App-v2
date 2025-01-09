@@ -3,10 +3,15 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../core/config/app_constants.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
+import '../../../../core/widgets/custom_list_item.dart';
 import '../../../../core/widgets/custom_tab_bar.dart';
+import '../../../teacher/views/teacher_list_screen.dart';
+import '../../models/school_model.dart';
 
 class SchoolDirectoryPage extends StatefulWidget {
-  const SchoolDirectoryPage({super.key});
+  final SchoolModel school;
+
+  const SchoolDirectoryPage({super.key, required this.school});
 
   @override
   State<SchoolDirectoryPage> createState() => _SchoolDirectoryPageState();
@@ -59,9 +64,9 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
                   _currentIndex = index;
                 });
               },
-              children: const [
-                Placeholder(),
-                Placeholder()
+              children: [
+                _buildClassesTab(),
+                _buildTeachersTab(),
               ],
             ),
           ),
@@ -80,6 +85,34 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
           Navigator.pop(context);
         },
       ),
+    );
+  }
+
+  Widget _buildClassesTab() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(kPaddingLg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: widget.school.classes.map((classItem) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: CustomListItem(
+                leading: const Icon(Icons.class_),
+                title: classItem.name,
+                subtitle: 'Số lượng học sinh: ${classItem.teachers}',
+                onTap: () {},
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTeachersTab() {
+    return Expanded(
+      child: TeacherListScreen(teachers: widget.school.teachers),
     );
   }
 }

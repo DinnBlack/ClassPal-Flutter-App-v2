@@ -19,6 +19,7 @@ class CustomTextField extends StatefulWidget {
   final bool isDatePicker;
   final bool isTimePicker;
   final Widget? suffixIcon;
+  final String? Function(String?)? validator; // Validator function
 
   const CustomTextField({
     super.key,
@@ -34,6 +35,7 @@ class CustomTextField extends StatefulWidget {
     this.isDatePicker = false,
     this.isTimePicker = false,
     this.suffixIcon,
+    this.validator,
   });
 
   @override
@@ -44,6 +46,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   bool _isObscured = true;
   late FocusNode _focusNode;
   String _selectedOption = "";
+  String? _errorText; // To hold validation error messages
 
   @override
   void initState() {
@@ -70,6 +73,14 @@ class _CustomTextFieldState extends State<CustomTextField> {
     super.dispose();
   }
 
+  void _validateInput(String value) {
+    if (widget.validator != null) {
+      setState(() {
+        _errorText = widget.validator!(value);
+      });
+    }
+  }
+
   void _showOptionsDialog() {
     if (widget.options == null) return;
 
@@ -80,6 +91,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         return () {
           setState(() {
             _selectedOption = option;
+            _errorText = null; // Clear error when valid input is selected
           });
           if (widget.controller != null) {
             widget.controller!.text = option;
@@ -107,6 +119,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       if (widget.onChanged != null) {
         widget.onChanged!(formattedDate);
       }
+      _validateInput(formattedDate);
     }
   }
 
@@ -131,6 +144,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
       if (widget.onChanged != null) {
         widget.onChanged!(formattedTime);
       }
+      _validateInput(formattedTime);
     }
   }
 
@@ -138,77 +152,102 @@ class _CustomTextFieldState extends State<CustomTextField> {
   Widget build(BuildContext context) {
     final isOptionMode = widget.options != null;
 
-    return Stack(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          height: widget.height + 5,
-          decoration: BoxDecoration(
-              color: kGreyLightColor,
-              borderRadius: BorderRadius.circular(kBorderRadiusMd)),
-        ),
-        Container(
-          height: widget.height,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: kWhiteColor,
-            border: Border.all(width: 2, color: kGreyMediumColor),
-            borderRadius: BorderRadius.circular(kBorderRadiusMd),
-          ),
-          child: TextField(
-            controller: widget.controller,
-            focusNode: _focusNode,
-            autofocus: widget.autofocus,
-            textAlignVertical:
-                isOptionMode || widget.isPassword || widget.suffixIcon != null
+        Stack(
+          children: [
+            Container(
+              height: widget.height + 5,
+              decoration: BoxDecoration(
+                color: kGreyLightColor,
+                borderRadius: BorderRadius.circular(kBorderRadiusMd),
+              ),
+            ),
+            Container(
+              height: widget.height,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: kWhiteColor,
+                border: Border.all(
+                  width: 2,
+                  color: _errorText != null ? Colors.red : kGreyMediumColor,
+                ),
+                borderRadius: BorderRadius.circular(kBorderRadiusMd),
+              ),
+              child: TextField(
+                controller: widget.controller,
+                focusNode: _focusNode,
+                autofocus: widget.autofocus,
+                textAlignVertical: isOptionMode ||
+                    widget.isPassword ||
+                    widget.suffixIcon != null
                     ? TextAlignVertical.center
                     : null,
-            keyboardType:
-                widget.isNumber ? TextInputType.number : TextInputType.text,
-            obscureText: widget.isPassword && _isObscured,
-            readOnly:
+                keyboardType: widget.isNumber
+                    ? TextInputType.number
+                    : TextInputType.text,
+                obscureText: widget.isPassword && _isObscured,
+                readOnly:
                 isOptionMode || widget.isDatePicker || widget.isTimePicker,
-            decoration: InputDecoration(
-              hintText: widget.defaultValue ?? (widget.text ?? ''),
-              hintStyle: AppTextStyle.medium(kTextSizeSm, kGreyColor),
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              suffixIcon: widget.suffixIcon ??
-                  (isOptionMode
-                      ? const Icon(
-                          Icons.arrow_drop_down_circle_outlined,
-                          color: kGreyColor,
-                          size: 20,
-                        )
-                      : (widget.isPassword
+                decoration: InputDecoration(
+                  hintText: widget.defaultValue ?? (widget.text ?? ''),
+                  hintStyle: AppTextStyle.medium(kTextSizeSm, kGreyColor),
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  suffixIcon: widget.suffixIcon ??
+                      (isOptionMode
+                          ? const Icon(
+                        Icons.arrow_drop_down_circle_outlined,
+                        color: kGreyColor,
+                        size: 20,
+                      )
+                          : (widget.isPassword
                           ? InkWell(
-                              child: Icon(
-                                _isObscured
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                                size: 20,
-                                color: kGreyColor,
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  _isObscured = !_isObscured;
-                                });
-                              },
-                            )
+                        child: Icon(
+                          _isObscured
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          size: 20,
+                          color: kGreyColor,
+                        ),
+                        onTap: () {
+                          setState(() {
+                            _isObscured = !_isObscured;
+                          });
+                        },
+                      )
                           : null)),
-              contentPadding:
+                  contentPadding:
                   const EdgeInsets.symmetric(horizontal: kPaddingMd),
-            ),
-            style: AppTextStyle.medium(kTextSizeSm, kGreyColor),
-            onTap: widget.isDatePicker
-                ? _selectDate
-                : (widget.isTimePicker
+                ),
+                style: AppTextStyle.medium(kTextSizeSm, kGreyColor),
+                onTap: widget.isDatePicker
+                    ? _selectDate
+                    : (widget.isTimePicker
                     ? _selectTime
                     : (isOptionMode ? _showOptionsDialog : null)),
-            inputFormatters: widget.isNumber
-                ? [FilteringTextInputFormatter.digitsOnly]
-                : null,
-          ),
+                inputFormatters: widget.isNumber
+                    ? [FilteringTextInputFormatter.digitsOnly]
+                    : null,
+                onChanged: (value) {
+                  if (widget.onChanged != null) {
+                    widget.onChanged!(value);
+                  }
+                  _validateInput(value);
+                },
+              ),
+            ),
+          ],
         ),
+        if (_errorText != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 5.0),
+            child: Text(
+              _errorText!,
+              style: AppTextStyle.regular(kTextSizeXs, Colors.red),
+            ),
+          ),
       ],
     );
   }

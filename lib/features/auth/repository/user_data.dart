@@ -3,10 +3,10 @@ import '../models/user_model.dart';
 List<UserModel> users = [
   UserModel(
     userId: 'U001',
-    name: 'Alice Johnson',
-    email: 'alice.johnson@example.com',
+    name: 'Trần Thị Thảo Vy',
+    email: 'tttv1503@test.com',
     phoneNumber: '1234567890',
-    password: 'Alice@123',
+    password: '111111',
     schoolIds: ['SCH001'],
     classIds: ['class_001'],
   ),
@@ -45,5 +45,14 @@ List<UserModel> users = [
     password: 'Ethan@007',
     schoolIds: ['school_002'],
     classIds: ['class_002'],
+  ),
+  UserModel(
+    userId: 'U006',
+    name: 'Đinh Hoàng Phúc',
+    email: 'test@test.com',
+    phoneNumber: '1234567890',
+    password: '111111',
+    schoolIds: ['SCH001'],
+    classIds: ['CLA005'],
   ),
 ];

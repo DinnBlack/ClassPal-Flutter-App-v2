@@ -78,9 +78,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     } else {
                       CustomLoadingDialog.dismiss(context);
                     }
-
                     if (state is AuthLoginSuccess) {
-                      Navigator.pushNamed(context, SelectRoleScreen.route);
+                      Navigator.pushNamed(context, SelectRoleScreen.route, arguments: {'user': state.user});
                     } else if (state is AuthLoginFailure) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Đăng nhập thất bại')),
@@ -91,14 +90,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     return CustomButton(
                       text: 'Đăng nhập',
                       onTap: () {
-                        final emailOrPhoneNumber = _emailOrPhoneNumberController.text;
+                        final emailOrPhoneNumber =
+                            _emailOrPhoneNumberController.text;
                         final password = _passwordController.text;
                         context.read<AuthBloc>().add(
-                          AuthLoginStarted(
-                            emailOrPhoneNumber: emailOrPhoneNumber,
-                            password: password,
-                          ),
-                        );
+                              AuthLoginStarted(
+                                emailOrPhoneNumber: emailOrPhoneNumber,
+                                password: password,
+                              ),
+                            );
                       },
                     );
                   },
@@ -110,13 +110,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     text: TextSpan(
                       style: AppTextStyle.semibold(kTextSizeSm, kGreyColor),
                       children: <TextSpan>[
-                        TextSpan(text: 'Bạn chưa có tài khoản? ', style: AppTextStyle.semibold(kTextSizeSm, kGreyColor)),
+                        TextSpan(
+                            text: 'Bạn chưa có tài khoản? ',
+                            style:
+                                AppTextStyle.semibold(kTextSizeSm, kGreyColor)),
                         TextSpan(
                           text: 'Đăng ký',
-                          style: AppTextStyle.semibold(kTextSizeSm, kPrimaryColor),
+                          style:
+                              AppTextStyle.semibold(kTextSizeSm, kPrimaryColor),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              Navigator.pushNamed(context, RegisterScreen.route);
+                              Navigator.pushNamed(
+                                  context, RegisterScreen.route);
                             },
                         ),
                       ],

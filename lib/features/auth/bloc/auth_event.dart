@@ -28,3 +28,9 @@ class AuthRegisterStarted extends AuthEvent {
 }
 
 class AuthLogoutStarted extends AuthEvent {}
+
+class AuthRoleSelected extends AuthEvent {
+  final String role;
+
+  AuthRoleSelected({required this.role});
+}
