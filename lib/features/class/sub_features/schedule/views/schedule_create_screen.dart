@@ -15,7 +15,7 @@ class ScheduleCreateScreen extends StatefulWidget {
 }
 
 class _ScheduleCreateScreenState extends State<ScheduleCreateScreen> {
-  Color selectedColor = Colors.blue; // Màu mặc định
+  Color selectedColor = Colors.blue;
   final List<Color> colorOptions = [
     Colors.blue,
     Colors.red,
@@ -30,66 +30,70 @@ class _ScheduleCreateScreenState extends State<ScheduleCreateScreen> {
     return Scaffold(
       backgroundColor: kTransparentColor,
       appBar: _buildAppBar(context),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
-          child: Column(
-            children: [
-              const SizedBox(height: kMarginLg),
-              const CustomTextField(text: 'Tiêu đề'),
-              const SizedBox(height: kMarginLg),
-              const CustomTextField(text: 'Ghi chú'),
-              const SizedBox(height: kMarginLg),
-              CustomTextField(
-                text: 'Ngày tháng',
-                defaultValue: DateFormat("d/M/y").format(DateTime.now()),
-                isDatePicker: true,
-                suffixIcon: const Icon(
-                  FontAwesomeIcons.calendarDays,
-                  color: kGreyColor,
-                  size: 20,
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+        child: Column(
+          children: [
+            const SizedBox(height: kMarginLg),
+            const CustomTextField(text: 'Tiêu đề'),
+            const SizedBox(height: kMarginLg),
+            const CustomTextField(text: 'Ghi chú'),
+            const SizedBox(height: kMarginLg),
+            CustomTextField(
+              text: 'Ngày tháng',
+              defaultValue: DateFormat("d/M/y").format(DateTime.now()),
+              isDatePicker: true,
+              suffixIcon: const Icon(
+                FontAwesomeIcons.calendarDays,
+                color: kGreyColor,
+                size: 20,
+              ),
+            ),
+            const SizedBox(height: kMarginLg),
+            Row(
+              children: [
+                Expanded(
+                  child: CustomTextField(
+                    text: 'Bắt đầu',
+                    defaultValue: DateFormat("HH:mm").format(DateTime.now()),
+                    isTimePicker: true,
+                    suffixIcon: const Icon(
+                      FontAwesomeIcons.clockFour,
+                      color: kGreyColor,
+                      size: 20,
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: kMarginLg),
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomTextField(
-                      text: 'Bắt đầu',
-                      defaultValue: DateFormat("HH:mm").format(DateTime.now()),
-                      isTimePicker: true,
-                      suffixIcon: const Icon(
-                        FontAwesomeIcons.clockFour,
-                        color: kGreyColor,
-                        size: 20,
-                      ),
+                const SizedBox(width: kMarginLg),
+                Expanded(
+                  child: CustomTextField(
+                    text: 'Kết thúc',
+                    defaultValue: DateFormat("HH:mm").format(DateTime.now()),
+                    isTimePicker: true,
+                    suffixIcon: const Icon(
+                      FontAwesomeIcons.clockFour,
+                      color: kGreyColor,
+                      size: 20,
                     ),
                   ),
-                  const SizedBox(width: kMarginLg),
-                  Expanded(
-                    child: CustomTextField(
-                      text: 'Kết thúc',
-                      defaultValue: DateFormat("HH:mm").format(DateTime.now()),
-                      isTimePicker: true,
-                      suffixIcon: const Icon(
-                        FontAwesomeIcons.clockFour,
-                        color: kGreyColor,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: kMarginLg),
-              const CustomTextField(
-                text: 'Lặp lại',
-                options: ['Không', 'Mỗi ngày', 'Mỗi tuần', 'Mỗi tháng'],
-              ),
-              const SizedBox(height: kMarginLg),
-              _buildHorizontalColorPicker(),
-              const SizedBox(height: kMarginLg),
-            ],
-          ),
+                ),
+              ],
+            ),
+            const SizedBox(height: kMarginLg),
+            const CustomTextField(
+              text: 'Lặp lại',
+              options: ['Không', 'Mỗi ngày', 'Mỗi tuần', 'Mỗi tháng'],
+            ),
+            const SizedBox(height: kMarginLg),
+            _buildHorizontalColorPicker(),
+            const SizedBox(height: kMarginLg),
+          ],
         ),
       ),
     );
@@ -157,7 +161,7 @@ class _ScheduleCreateScreenState extends State<ScheduleCreateScreen> {
     return CustomAppBar(
       title: 'Tạo lịch học',
       leftWidget: InkWell(
-        child: const Icon(FontAwesomeIcons.xmark, color: kGreyColor),
+        child: const Icon(FontAwesomeIcons.xmark),
         onTap: () => Navigator.pop(context),
       ),
       rightWidget: GestureDetector(

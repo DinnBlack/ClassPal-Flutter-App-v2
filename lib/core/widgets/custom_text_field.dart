@@ -1,10 +1,9 @@
-import 'package:classpal_flutter_app/core/widgets/custom_feature_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-
 import '../config/app_constants.dart';
 import '../utils/app_text_style.dart';
+import 'custom_feature_dialog.dart';
 
 class CustomTextField extends StatefulWidget {
   final String? title;
@@ -93,7 +92,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
         return () {
           setState(() {
             _selectedOption = option;
-            _errorText = null;
           });
           if (widget.controller != null) {
             widget.controller!.text = option;
@@ -121,7 +119,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
       if (widget.onChanged != null) {
         widget.onChanged!(formattedDate);
       }
-      _validateInput(formattedDate);
     }
   }
 
@@ -146,7 +143,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
       if (widget.onChanged != null) {
         widget.onChanged!(formattedTime);
       }
-      _validateInput(formattedTime);
     }
   }
 
@@ -170,7 +166,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
             Container(
               height: widget.height + 5,
               decoration: BoxDecoration(
-                color: kGreyLightColor,
+                color:
+                    _focusNode.hasFocus ? kPrimaryLightColor : kGreyLightColor,
                 borderRadius: BorderRadius.circular(kBorderRadiusMd),
               ),
             ),
@@ -192,52 +189,53 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 focusNode: _focusNode,
                 autofocus: widget.autofocus,
                 textAlignVertical: isOptionMode ||
-                        widget.isPassword ||
-                        widget.suffixIcon != null
+                    widget.isPassword ||
+                    widget.suffixIcon != null
                     ? TextAlignVertical.center
                     : null,
                 keyboardType:
-                    widget.isNumber ? TextInputType.number : TextInputType.text,
+                widget.isNumber ? TextInputType.number : TextInputType.text,
                 obscureText: widget.isPassword && _isObscured,
                 readOnly:
-                    isOptionMode || widget.isDatePicker || widget.isTimePicker,
+                isOptionMode || widget.isDatePicker || widget.isTimePicker,
                 decoration: InputDecoration(
-                  hintText: widget.defaultValue ?? (widget.text ?? ''),
-                  hintStyle: AppTextStyle.medium(kTextSizeSm, kGreyColor),
+                  hintText: widget.text ?? '',
+                  hintStyle: AppTextStyle.medium(kTextSizeSm, _focusNode.hasFocus ? kPrimaryColor : kGreyColor),
                   enabledBorder: InputBorder.none,
                   focusedBorder: InputBorder.none,
                   suffixIcon: widget.suffixIcon ??
                       (isOptionMode
                           ? const Icon(
-                              Icons.arrow_drop_down_circle_outlined,
-                              color: kGreyColor,
-                              size: 20,
-                            )
+                        Icons.arrow_drop_down_circle_outlined,
+                        color: kGreyColor,
+                        size: 20,
+                      )
                           : (widget.isPassword
-                              ? InkWell(
-                                  child: Icon(
-                                    _isObscured
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                    size: 20,
-                                    color: kGreyColor,
-                                  ),
-                                  onTap: () {
-                                    setState(() {
-                                      _isObscured = !_isObscured;
-                                    });
-                                  },
-                                )
-                              : null)),
+                          ? InkWell(
+                        child: Icon(
+                          _isObscured
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          size: 20,
+                          color: kGreyColor,
+                        ),
+                        onTap: () {
+                          setState(() {
+                            _isObscured = !_isObscured;
+                          });
+                        },
+                      )
+                          : null)),
                   contentPadding:
-                      const EdgeInsets.symmetric(horizontal: kPaddingMd),
+                  const EdgeInsets.symmetric(horizontal: kPaddingMd),
                 ),
-                style: AppTextStyle.medium(kTextSizeSm, kGreyColor),
+                style: AppTextStyle.medium(
+                    kTextSizeSm, _focusNode.hasFocus ? kPrimaryColor : kGreyColor),
                 onTap: widget.isDatePicker
                     ? _selectDate
                     : (widget.isTimePicker
-                        ? _selectTime
-                        : (isOptionMode ? _showOptionsDialog : null)),
+                    ? _selectTime
+                    : (isOptionMode ? _showOptionsDialog : null)),
                 inputFormatters: widget.isNumber
                     ? [FilteringTextInputFormatter.digitsOnly]
                     : null,

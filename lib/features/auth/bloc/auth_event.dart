@@ -15,22 +15,15 @@ class AuthLoginStarted extends AuthEvent {
 
 class AuthRegisterStarted extends AuthEvent {
   final String name;
-  final String email;
-  final String phoneNumber;
+  final String emailOrPhoneNumber;
   final String password;
 
   AuthRegisterStarted({
     required this.name,
-    required this.email,
-    required this.phoneNumber,
+    required this.emailOrPhoneNumber,
     required this.password,
   });
 }
 
 class AuthLogoutStarted extends AuthEvent {}
 
-class AuthRoleSelected extends AuthEvent {
-  final String role;
-
-  AuthRoleSelected({required this.role});
-}

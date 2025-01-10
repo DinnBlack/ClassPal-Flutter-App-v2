@@ -47,7 +47,6 @@ class ScheduleListScreen extends StatelessWidget {
         ? const Center(child: Text('Không có lịch cho ngày này.'))
         : ListView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
       itemCount: filteredSchedules.length,
       itemBuilder: (context, index) {
         final schedule = filteredSchedules[index];

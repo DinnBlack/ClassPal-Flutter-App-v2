@@ -43,7 +43,7 @@ class _CustomListItemState extends State<CustomListItem>
       vsync: this,
       lowerBound: 0.95,
       upperBound: 1.0,
-      duration: const Duration(milliseconds: 50),
+      duration: const Duration(milliseconds: 100),
     )..value = 1.0;
   }
 

@@ -8,6 +8,7 @@ class CustomButton extends StatefulWidget {
   final String? text;
   final VoidCallback? onTap;
   final bool isValid;
+  final Color? backgroundColor;
 
   const CustomButton({
     super.key,
@@ -15,6 +16,7 @@ class CustomButton extends StatefulWidget {
     this.text = '',
     this.onTap,
     this.isValid = true,
+    this.backgroundColor,
   });
 
   @override
@@ -44,6 +46,8 @@ class _CustomButtonState extends State<CustomButton>
 
   @override
   Widget build(BuildContext context) {
+    final buttonColor = widget.backgroundColor ?? kPrimaryColor;
+
     return GestureDetector(
       onTap: () async {
         await _controller.reverse();
@@ -58,8 +62,8 @@ class _CustomButtonState extends State<CustomButton>
               height: widget.height! + 5,
               decoration: BoxDecoration(
                 color: widget.isValid
-                    ? kPrimaryLightColor
-                    : kPrimaryLightColor.withOpacity(0.5),
+                    ? buttonColor.withOpacity(0.5)
+                    : buttonColor.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(kBorderRadiusMd),
               ),
             ),
@@ -68,8 +72,8 @@ class _CustomButtonState extends State<CustomButton>
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: widget.isValid
-                    ? kPrimaryColor
-                    : kPrimaryLightColor.withOpacity(0.5),
+                    ? buttonColor
+                    : buttonColor.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(kBorderRadiusMd),
               ),
               child: Text(

@@ -1,8 +1,10 @@
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_avatar.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_bottom_sheet.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_feature_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_list_item.dart';
 import 'package:classpal_flutter_app/features/student/views/student_create_screen.dart';
+import 'package:classpal_flutter_app/features/student/views/student_edit_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/features/student/views/widgets/custom_student_list_item.dart';
@@ -62,17 +64,39 @@ class StudentListScreen extends StatelessWidget {
             leading: CustomAvatar(
               user: student,
             ),
-            trailing: GestureDetector(
-              onTap: () {
-                print(1);
-              },
-              child: CustomScaleEffect(
-                child: Container(
-                  padding: const EdgeInsets.all(kPaddingMd),
-                  decoration: BoxDecoration(
-                    color: kPrimaryLightColor,
-                    shape: BoxShape.circle,
-                  ),
+            trailing: CustomScaleEffect(
+              child: Container(
+                height: 40,
+                width: 40,
+                decoration:  BoxDecoration(
+                  color: kPrimaryLightColor.withOpacity(0.5),
+                  shape: BoxShape.circle,
+                ),
+                child: GestureDetector(
+                  onTap: () {
+                    showCustomFeatureDialog(
+                      context,
+                      ['Chỉnh sửa học sinh', 'Hủy bỏ học sinh'],
+                      [
+                        () {
+                          CustomBottomSheet.showCustomBottomSheet(
+                            context,
+                            StudentEditScreen(
+                              student: student,
+                            ),
+                          );
+                        },
+                        () {
+                          CustomBottomSheet.showCustomBottomSheet(
+                            context,
+                            StudentEditScreen(
+                              student: student,
+                            ),
+                          );
+                        },
+                      ],
+                    );
+                  },
                   child: const Icon(
                     FontAwesomeIcons.pencil,
                     size: 16,
@@ -87,7 +111,6 @@ class StudentListScreen extends StatelessWidget {
       separatorBuilder: (context, index) => const SizedBox(height: kMarginLg),
     );
   }
-
 
   Widget _buildStudentListView(BuildContext context) {
     return Padding(
@@ -129,8 +152,8 @@ class StudentListScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildGridView(List<StudentModel?> studentData, double itemHeight,
-      double itemWidth) {
+  Widget _buildGridView(
+      List<StudentModel?> studentData, double itemHeight, double itemWidth) {
     // GridView layout
     return GridView.builder(
       shrinkWrap: true,
@@ -161,4 +184,3 @@ class StudentListScreen extends StatelessWidget {
     );
   }
 }
-

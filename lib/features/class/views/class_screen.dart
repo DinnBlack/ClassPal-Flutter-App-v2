@@ -1,5 +1,6 @@
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:awesome_bottom_bar/tab_item.dart';
+import 'package:classpal_flutter_app/features/class/views/class_page/class_homework_page.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -7,7 +8,7 @@ import '../../../core/config/app_constants.dart';
 import '../../../core/utils/app_text_style.dart';
 import '../models/class_model.dart';
 import 'class_page/class_dashboard_page.dart';
-import 'class_page/class_schedule_page.dart';
+import '../sub_features/schedule/views/schedule_screen.dart';
 import 'class_page/class_message_page.dart';
 import 'class_page/class_board_page.dart';
 
@@ -36,7 +37,7 @@ class _ClassScreenState extends State<ClassScreen> {
       ClassDashboardPage(currentClass: widget.currentClass),
       ClassBoardPage(currentClass: widget.currentClass),
       const SizedBox.shrink(),
-      ClassSchedulePage(currentClass: widget.currentClass),
+      ClassHomeworkPage(currentClass: widget.currentClass),
       ClassMessagePage(currentClass: widget.currentClass),
     ];
   }
@@ -77,8 +78,8 @@ class _ClassScreenState extends State<ClassScreen> {
       title: '',
     ),
     TabItem(
-      icon: FontAwesomeIcons.calendar,
-      title: 'Lịch Học',
+      icon: FontAwesomeIcons.handPaper,
+      title: 'Bài tập',
     ),
     TabItem(
       icon: FontAwesomeIcons.message,

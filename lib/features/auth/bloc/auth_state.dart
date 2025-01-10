@@ -41,15 +41,3 @@ final class AuthLogoutFailure extends AuthState {
 
   AuthLogoutFailure(this.message);
 }
-
-// Role Selection State
-final class AuthRoleSelectionInProgress extends AuthState {}
-
-final class AuthRoleSelectionSuccess extends AuthState {
-}
-
-final class AuthRoleSelectionFailure extends AuthState {
-  final String message;
-
-  AuthRoleSelectionFailure(this.message);
-}

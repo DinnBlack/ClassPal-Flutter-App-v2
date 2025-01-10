@@ -15,7 +15,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLoginStarted>(_onAuthLoginStarted);
     on<AuthRegisterStarted>(_onAuthRegisterStarted);
     on<AuthLogoutStarted>(_onAuthLogoutStarted);
-    on<AuthRoleSelected>(_onAuthRoleSelected);
   }
 
   // Xử lý sự kiện đăng nhập
@@ -42,8 +41,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final success = await userService.register(
         event.name,
-        event.email,
-        event.phoneNumber,
+        event.emailOrPhoneNumber,
         event.password,
       );
       if (success) {
@@ -68,20 +66,4 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // Xử lý sự kiện chọn vai trò
-  Future<void> _onAuthRoleSelected(
-      AuthRoleSelected event, Emitter<AuthState> emit) async {
-    emit(AuthRoleSelectionInProgress());
-    try {
-      final hasPermission = await userService.hasPermission(event.role);
-      print(hasPermission);
-      if (hasPermission) {
-        emit(AuthRoleSelectionSuccess());
-      } else {
-        emit(AuthRoleSelectionFailure("Role selection failed"));
-      }
-    } catch (error) {
-      emit(AuthRoleSelectionFailure(error.toString()));
-    }
-  }
 }

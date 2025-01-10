@@ -12,13 +12,10 @@ class ClassManagementScreen extends StatelessWidget {
   // Define a list of features
   final List<String> features = [
     "Điểm danh",
-    "Sắp xếp lịch học",
+    "Phân loại học sinh",
     "Quản lý điểm số",
-    "Theo dõi tiến độ học tập",
     "Quản lý học sinh",
     "Gửi thông báo",
-    "Quản lý giảng viên",
-    "Lập kế hoạch học",
   ];
 
   void onFeatureTapped(BuildContext context, String feature) {

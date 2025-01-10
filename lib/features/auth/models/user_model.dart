@@ -1,8 +1,7 @@
 class UserModel {
   final String userId;
   final String name;
-  final String email;
-  final String phoneNumber;
+  final String emailOrPhoneNumber;
   final String password;
   final String? avatar;
   final List<String> schoolIds;
@@ -12,8 +11,7 @@ class UserModel {
   const UserModel({
     required this.userId,
     required this.name,
-    required this.email,
-    required this.phoneNumber,
+    required this.emailOrPhoneNumber,
     required this.password,
     this.avatar,
     required this.schoolIds,
@@ -27,8 +25,7 @@ class UserModel {
           runtimeType == other.runtimeType &&
           userId == other.userId &&
           name == other.name &&
-          email == other.email &&
-          phoneNumber == other.phoneNumber &&
+          emailOrPhoneNumber == other.emailOrPhoneNumber &&
           password == other.password &&
           avatar == other.avatar &&
           schoolIds == other.schoolIds &&
@@ -38,8 +35,7 @@ class UserModel {
   int get hashCode =>
       userId.hashCode ^
       name.hashCode ^
-      email.hashCode ^
-      phoneNumber.hashCode ^
+      emailOrPhoneNumber.hashCode ^
       password.hashCode ^
       avatar.hashCode ^
       schoolIds.hashCode ^
@@ -50,8 +46,7 @@ class UserModel {
     return 'UserModel{' +
         ' userId: $userId,' +
         ' name: $name,' +
-        ' email: $email,' +
-        ' phoneNumber: $phoneNumber,' +
+        ' emailOrPhoneNumber: $emailOrPhoneNumber,' +
         ' password: $password,' +
         ' avatar: $avatar,' +
         ' schoolIds: $schoolIds,' +
@@ -62,8 +57,7 @@ class UserModel {
   UserModel copyWith({
     String? userId,
     String? name,
-    String? email,
-    String? phoneNumber,
+    String? emailOrPhoneNumber,
     String? password,
     String? avatar,
     List<String>? schoolIds,
@@ -72,8 +66,7 @@ class UserModel {
     return UserModel(
       userId: userId ?? this.userId,
       name: name ?? this.name,
-      email: email ?? this.email,
-      phoneNumber: phoneNumber ?? this.phoneNumber,
+      emailOrPhoneNumber: emailOrPhoneNumber ?? this.emailOrPhoneNumber,
       password: password ?? this.password,
       avatar: avatar ?? this.avatar,
       schoolIds: schoolIds ?? this.schoolIds,
@@ -85,8 +78,7 @@ class UserModel {
     return {
       'userId': this.userId,
       'name': this.name,
-      'email': this.email,
-      'phoneNumber': this.phoneNumber,
+      'emailOrPhoneNumber': this.emailOrPhoneNumber,
       'password': this.password,
       'avatar': this.avatar,
       'schoolIds': this.schoolIds,
@@ -98,8 +90,7 @@ class UserModel {
     return UserModel(
       userId: map['userId'] as String,
       name: map['name'] as String,
-      email: map['email'] as String,
-      phoneNumber: map['phoneNumber'] as String,
+      emailOrPhoneNumber: map['emailOrPhoneNumber'] as String,
       password: map['password'] as String,
       avatar: map['avatar'] as String,
       schoolIds: map['schoolIds'] as List<String>,
