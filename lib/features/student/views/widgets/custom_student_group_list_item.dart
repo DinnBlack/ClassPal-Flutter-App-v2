@@ -7,11 +7,13 @@ import '../../models/student_model.dart';
 class CustomStudentGroupListItem extends StatefulWidget {
   final StudentGroupModel? group;
   final bool? addItem;
+  final VoidCallback? onTap; // Add onTap callback
 
   const CustomStudentGroupListItem({
     super.key,
     this.group,
     this.addItem = false,
+    this.onTap, // Pass the onTap callback in constructor
   });
 
   @override
@@ -124,7 +126,10 @@ class _CustomStudentGroupListItemState extends State<CustomStudentGroupListItem>
     return GestureDetector(
       onTap: () async {
         await _controller.reverse();
-        _controller.forward();
+        await _controller.forward();
+        if (widget.onTap != null) {
+          widget.onTap!();
+        }
       },
       child: ScaleTransition(
         scale: _controller,

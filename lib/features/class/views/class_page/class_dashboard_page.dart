@@ -1,4 +1,7 @@
+import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_text_field.dart';
 import 'package:classpal_flutter_app/features/class/views/class_information_screen.dart';
+import 'package:classpal_flutter_app/features/student/views/student_create_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -15,6 +18,7 @@ import '../../../../core/widgets/custom_feature_dialog.dart';
 
 class ClassDashboardPage extends StatefulWidget {
   final ClassModel currentClass;
+
   const ClassDashboardPage({super.key, required this.currentClass});
 
   @override
@@ -35,7 +39,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
         'Kết thúc lớp học'
       ],
       [
-        () {
+            () {
           CustomBottomSheet.showCustomBottomSheet(
             context,
             const ClassConnectScreen(
@@ -43,7 +47,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
             ),
           );
         },
-        () {
+            () {
           CustomBottomSheet.showCustomBottomSheet(
             context,
             const ClassConnectScreen(
@@ -51,7 +55,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
             ),
           );
         },
-        () {
+            () {
           CustomBottomSheet.showCustomBottomSheet(
             context,
             const ClassConnectScreen(
@@ -59,22 +63,22 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
             ),
           );
         },
-        () {
+            () {
           CustomBottomSheet.showCustomBottomSheet(
             context,
-            const ClassInformationScreen(),
+            StudentCreateScreen(students: widget.currentClass.students,),
           );
         },
-        () {
+            () {
           print('Môn học');
         },
-        () {
+            () {
           CustomBottomSheet.showCustomBottomSheet(
             context,
             const ClassInformationScreen(),
           );
         },
-        () {
+            () {
           print('Kết thúc lớp học');
         },
       ],
@@ -85,38 +89,82 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: SingleChildScrollView(
+      body: widget.currentClass.students.isEmpty
+          ? _buildEmptyStudentView()
+          : _buildStudentListView(),
+    );
+  }
+
+  Widget _buildEmptyStudentView() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+      child: Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(
-              height: kMarginMd,
+            Image.asset(
+              'assets/images/empty_student_view.png',
+              height: 200,
             ),
-             StudentListScreen(students: widget.currentClass.students,),
-            const SizedBox(
-              height: kMarginLg,
+            const SizedBox(height: kMarginLg),
+            Text(
+              'Thêm học sinh của bạn nào!',
+              style: AppTextStyle.bold(kTextSizeLg),
+              textAlign: TextAlign.center,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
-              child: Text(
-                'Nhóm',
-                style: AppTextStyle.semibold(kTextSizeMd),
-              ),
+            const SizedBox(height: kMarginSm),
+            Text(
+              'Khiến học sinh thu hút với phản hồi tức thời và bắt đầu xây dựng cộng đồng lớp học của mình nào',
+              style: AppTextStyle.medium(kTextSizeXs),
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(
-              height: kMarginLg,
-            ),
-            const StudentGroupListScreen(),
-            const SizedBox(
-              height: kMarginLg,
-            ),
+            const SizedBox(height: kMarginLg),
+            CustomButton(
+              text: 'Thêm học viên',
+              onTap: () {
+                CustomBottomSheet.showCustomBottomSheet(context, StudentCreateScreen(students: widget.currentClass.students,));
+              },
+            )
           ],
         ),
       ),
     );
   }
 
+  Widget _buildStudentListView() {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(
+            height: kMarginMd,
+          ),
+          StudentListScreen(students: widget.currentClass.students),
+          const SizedBox(
+            height: kMarginLg,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+            child: Text(
+              'Nhóm',
+              style: AppTextStyle.semibold(kTextSizeMd),
+            ),
+          ),
+          const SizedBox(
+            height: kMarginLg,
+          ),
+           StudentGroupListScreen(currentClass: widget.currentClass,),
+          const SizedBox(
+            height: kMarginLg,
+          ),
+        ],
+      ),
+    );
+  }
+
   CustomAppBar _buildAppBar(BuildContext context) {
+    bool hasStudents = widget.currentClass.students.isNotEmpty;
+
     return CustomAppBar(
       backgroundColor: kWhiteColor,
       title: widget.currentClass.name,
@@ -132,10 +180,9 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
           _showFeatureDialog(context);
         },
       ),
-      bottomWidget: ClassManagementScreen(
-        isHorizontal: true,
-      ),
-      additionalHeight: 55,
+      bottomWidget:
+      hasStudents ? ClassManagementScreen(isHorizontal: true) : null,
+      additionalHeight: hasStudents ? 55 : 0,
     );
   }
 }

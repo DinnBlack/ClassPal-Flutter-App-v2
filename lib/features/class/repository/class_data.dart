@@ -1,6 +1,7 @@
 import 'package:classpal_flutter_app/features/student/repository/student_data.dart';
 import 'package:classpal_flutter_app/features/teacher/repository/teacher_data.dart';
 
+import '../../student/repository/student_group_data.dart';
 import '../models/class_model.dart';
 
 final sampleClass_1 = [
@@ -11,8 +12,9 @@ final sampleClass_1 = [
     teachers: [sampleTeacher_1[0], sampleTeacher_1[1]],
     creationDate: DateTime(2023, 1, 6),
     attendanceRecords: {},
-    students: [],
+    students: sampleStudent_1,
     schedule: [],
+    studentGroups: studentGroups,
   ),
   ClassModel(
     classId: 'CLA002',
@@ -23,6 +25,7 @@ final sampleClass_1 = [
     attendanceRecords: {},
     students: [],
     schedule: [],
+    studentGroups: [],
   ),
 ];
 
@@ -36,6 +39,7 @@ final sampleClass_2 = [
     attendanceRecords: {},
     students: sampleStudent_1,
     schedule: [],
+    studentGroups: [],
   ),
   ClassModel(
     classId: 'CLA004',
@@ -46,6 +50,7 @@ final sampleClass_2 = [
     attendanceRecords: {},
     students: [],
     schedule: [],
+    studentGroups: [],
   ),
 ];
 
@@ -59,6 +64,7 @@ final sampleClass_3 = [
     attendanceRecords: {},
     students: sampleStudent_1,
     schedule: [],
+    studentGroups: [],
   ),
   ClassModel(
     classId: 'CLA006',
@@ -69,5 +75,6 @@ final sampleClass_3 = [
     attendanceRecords: {},
     students: [],
     schedule: [],
+    studentGroups: [],
   ),
 ];

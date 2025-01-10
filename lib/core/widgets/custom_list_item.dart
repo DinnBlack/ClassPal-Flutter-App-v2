@@ -12,7 +12,8 @@ class CustomListItem extends StatefulWidget {
   final Widget? leading;
   final Widget? trailing;
   final VoidCallback? onTap;
-  final bool? hasTrailingArrow; // Thêm trường mới
+  final bool? hasTrailingArrow;
+  final bool isAnimation;
 
   const CustomListItem({
     Key? key,
@@ -23,7 +24,8 @@ class CustomListItem extends StatefulWidget {
     this.leading,
     this.trailing,
     this.onTap,
-    this.hasTrailingArrow, // Gán trường mới
+    this.hasTrailingArrow,
+    this.isAnimation = true,
   }) : super(key: key);
 
   @override
@@ -41,7 +43,7 @@ class _CustomListItemState extends State<CustomListItem>
       vsync: this,
       lowerBound: 0.95,
       upperBound: 1.0,
-      duration: const Duration(milliseconds: 100),
+      duration: const Duration(milliseconds: 50),
     )..value = 1.0;
   }
 
@@ -55,58 +57,67 @@ class _CustomListItemState extends State<CustomListItem>
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () async {
-        await _controller.reverse();
-        await _controller.forward();
+        if (widget.isAnimation) {
+          await _controller.reverse();
+          await _controller.forward();
+        }
         if (widget.onTap != null) {
           widget.onTap!();
         }
       },
-      child: ScaleTransition(
+      child: widget.isAnimation
+          ? ScaleTransition(
         scale: _controller,
-        child: Container(
-          width: double.infinity,
-          color: Colors.transparent,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              if (widget.leading != null) ...[
-                widget.leading!,
-                const SizedBox(width: kMarginMd),
+        child: _buildContent(),
+      )
+          : _buildContent(),
+    );
+  }
+
+  Widget _buildContent() {
+    return Container(
+      width: double.infinity,
+      color: Colors.transparent,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (widget.leading != null) ...[
+            widget.leading!,
+            const SizedBox(width: kMarginMd),
+          ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (widget.title != null)
+                  Text(
+                    widget.title!,
+                    style: widget.titleStyle ??
+                        AppTextStyle.semibold(kTextSizeSm),
+                  ),
+                if (widget.subtitle != null)
+                  Text(
+                    widget.subtitle!,
+                    style: widget.subtitleStyle ??
+                        AppTextStyle.medium(kTextSizeXs, kGreyColor),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
               ],
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (widget.title != null)
-                      Text(
-                        widget.title!,
-                        style: widget.titleStyle ??
-                            AppTextStyle.semibold(kTextSizeSm),
-                      ),
-                    if (widget.subtitle != null)
-                      Text(
-                        widget.subtitle!,
-                        style: widget.subtitleStyle ??
-                            AppTextStyle.medium(kTextSizeXs, kGreyColor),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                  ],
-                ),
-              ),
-              if (widget.trailing != null || widget.hasTrailingArrow == true) ...[
-                const SizedBox(width: kMarginMd),
-                widget.trailing ??
-                    const Icon(
-                      FontAwesomeIcons.chevronRight,
-                      size: 14,
-                    ),
-              ],
-            ],
+            ),
           ),
-        ),
+          if (widget.trailing != null || widget.hasTrailingArrow == true) ...[
+            const SizedBox(width: kMarginMd),
+            widget.trailing ??
+                const Icon(
+                  FontAwesomeIcons.chevronRight,
+                  size: 14,
+                ),
+          ],
+        ],
       ),
     );
   }
 }
+

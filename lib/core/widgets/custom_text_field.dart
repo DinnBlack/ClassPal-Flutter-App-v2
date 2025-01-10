@@ -181,7 +181,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 color: kWhiteColor,
                 border: Border.all(
                   width: 2,
-                  color: _errorText != null ? Colors.red : kGreyMediumColor,
+                  color: _focusNode.hasFocus
+                      ? kPrimaryColor
+                      : (_errorText != null ? Colors.red : kGreyMediumColor),
                 ),
                 borderRadius: BorderRadius.circular(kBorderRadiusMd),
               ),

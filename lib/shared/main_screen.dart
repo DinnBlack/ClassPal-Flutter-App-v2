@@ -1,7 +1,6 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_avatar.dart';
 import 'package:classpal_flutter_app/features/auth/models/user_model.dart';
-import 'package:classpal_flutter_app/features/class/views/class_join_screen.dart';
 import 'package:classpal_flutter_app/features/school/views/school_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -50,146 +49,151 @@ class _MainScreenState extends State<MainScreen> {
   Padding _buildBody(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(
-            height: kMarginLg,
-          ),
-          Text(
-            'Trường học',
-            style: AppTextStyle.semibold(kTextSizeMd),
-          ),
-          BlocBuilder<SchoolBloc, SchoolState>(
-            builder: (context, state) {
-              if (state is SchoolFetchByUserInProgress) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (state is SchoolFetchByUserSuccess) {
-                final schools = state.schools;
-                if (schools.isEmpty) {
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(
+              height: kMarginLg,
+            ),
+            Text(
+              'Trường học',
+              style: AppTextStyle.semibold(kTextSizeMd),
+            ),
+            const SizedBox(
+              height: kMarginLg,
+            ),
+            BlocBuilder<SchoolBloc, SchoolState>(
+              builder: (context, state) {
+                if (state is SchoolFetchByUserInProgress) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (state is SchoolFetchByUserSuccess) {
+                  final schools = state.schools;
+                  if (schools.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'Chưa tham gia trường học nào!',
+                        style: AppTextStyle.semibold(kTextSizeMd),
+                      ),
+                    );
+                  }
+                  return Column(
+                    children: [
+                      for (var school in schools) ...[
+                        CustomListItem(
+                          title: school.name,
+                          subtitle: school.address,
+                          hasTrailingArrow: true,
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: const BoxDecoration(
+                              color: kPrimaryColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.pushNamed(context, SchoolScreen.route,
+                                arguments: {'school': school});
+                          },
+                        ),
+                        const SizedBox(
+                          height: kMarginLg,
+                        ),
+                      ]
+                    ],
+                  );
+                }
+                if (state is SchoolFetchByUserFailure) {
                   return Center(
                     child: Text(
-                      'Chưa tham gia trường học nào!',
+                      state.error,
                       style: AppTextStyle.semibold(kTextSizeMd),
                     ),
                   );
                 }
-                return Column(
-                  children: [
-                    for (var school in schools) ...[
-                      const SizedBox(
-                        height: kMarginLg,
-                      ),
-                      CustomListItem(
-                        title: school.name,
-                        subtitle: school.address,
-                        hasTrailingArrow: true,
-                        leading: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: const BoxDecoration(
-                            color: kPrimaryColor,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.pushNamed(context, SchoolScreen.route,
-                              arguments: {'school': school});
-                        },
-                      ),
-                    ]
-                  ],
-                );
-              }
-              if (state is SchoolFetchByUserFailure) {
-                return Center(
-                  child: Text(
-                    state.error,
-                    style: AppTextStyle.semibold(kTextSizeMd),
-                  ),
-                );
-              }
-              return Container();
-            },
-          ),
-          const SizedBox(
-            height: kMarginXl,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Lớp học cá nhân',
-                style: AppTextStyle.semibold(kTextSizeMd),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    ClassCreateScreen.route,
-                  );
-                },
-                child: Text(
-                  '+ Thêm lớp học',
-                  style: AppTextStyle.semibold(kTextSizeSm, kPrimaryColor),
+                return Container();
+              },
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Lớp học cá nhân',
+                  style: AppTextStyle.semibold(kTextSizeMd),
                 ),
-              ),
-            ],
-          ),
-          BlocBuilder<ClassBloc, ClassState>(
-            builder: (context, state) {
-              if (state is ClassFetchByUserInProgress) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (state is ClassFetchByUserSuccess) {
-                final classes = state.classes;
-                if (classes.isEmpty) {
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      ClassCreateScreen.route,
+                    );
+                  },
+                  child: Text(
+                    '+ Thêm lớp học',
+                    style: AppTextStyle.semibold(kTextSizeSm, kPrimaryColor),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: kMarginLg,
+            ),
+            BlocBuilder<ClassBloc, ClassState>(
+              builder: (context, state) {
+                if (state is ClassFetchByUserInProgress) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (state is ClassFetchByUserSuccess) {
+                  final classes = state.classes;
+                  if (classes.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'Chưa có lớp học cá nhân nào!',
+                        style: AppTextStyle.semibold(kTextSizeMd),
+                      ),
+                    );
+                  }
+                  return Column(
+                    children: [
+                      for (var currentClass in classes) ...[
+                        CustomListItem(
+                          title: currentClass.name,
+                          hasTrailingArrow: true,
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: const BoxDecoration(
+                              color: kPrimaryColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.pushNamed(context, ClassScreen.route,
+                                arguments: {'currentClass': currentClass});
+                          },
+                        ),
+                        const SizedBox(
+                          height: kMarginLg,
+                        ),
+                      ]
+                    ],
+                  );
+                }
+                if (state is ClassFetchByUserFailure) {
                   return Center(
                     child: Text(
-                      'Chưa có lớp học cá nhân nào!',
+                      state.error,
                       style: AppTextStyle.semibold(kTextSizeMd),
                     ),
                   );
                 }
-                return Column(
-                  children: [
-                    for (var currentClass in classes) ...[
-                      const SizedBox(
-                        height: kMarginLg,
-                      ),
-                      CustomListItem(
-                        title: currentClass.name,
-                        hasTrailingArrow: true,
-                        leading: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: const BoxDecoration(
-                            color: kPrimaryColor,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.pushNamed(context, ClassScreen.route,
-                              arguments: {'currentClass': currentClass});
-                        },
-                      ),
-                    ]
-                  ],
-                );
-              }
-              if (state is ClassFetchByUserFailure) {
-                return Center(
-                  child: Text(
-                    state.error,
-                    style: AppTextStyle.semibold(kTextSizeMd),
-                  ),
-                );
-              }
-              return Container();
-            },
-          ),
-        ],
+                return Container();
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

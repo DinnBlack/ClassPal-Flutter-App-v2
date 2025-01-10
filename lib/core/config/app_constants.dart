@@ -7,7 +7,7 @@ const String WELCOME_MESSAGE =
 
 // App Colors
 const Color kPrimaryColor = Color(0xFF21A9B7);
-const Color kPrimaryLightColor = Color(0xFF90D4DB);
+ Color kPrimaryLightColor = Color(0xFF90D4DB).withOpacity(0.2);
 const Color kBackgroundColor = Color(0xFFFFFFFF);
 const Color kGreyColor = Colors.grey;
 const Color kGreyMediumColor = Color(0xFFD8D8D8);

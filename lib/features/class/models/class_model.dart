@@ -1,3 +1,5 @@
+import 'package:classpal_flutter_app/features/student/models/student_group_model.dart';
+
 import '../../student/models/student_model.dart';
 import '../../teacher/models/teacher_model.dart';
 import '../sub_features/attendance/models/atttendance_model.dart';
@@ -7,12 +9,12 @@ class ClassModel {
   final String classId;
   final String name;
   final String avatar;
-
   final List<TeacherModel> teachers;
   final DateTime creationDate;
   final Map<DateTime, List<AttendanceModel>> attendanceRecords;
   final List<StudentModel> students;
   final List<ScheduleModel> schedule;
+  final List<StudentGroupModel> studentGroups;
 
 //<editor-fold desc="Data Methods">
   const ClassModel({
@@ -24,6 +26,7 @@ class ClassModel {
     required this.attendanceRecords,
     required this.students,
     required this.schedule,
+    required this.studentGroups,
   });
 
   @override
@@ -38,7 +41,8 @@ class ClassModel {
           creationDate == other.creationDate &&
           attendanceRecords == other.attendanceRecords &&
           students == other.students &&
-          schedule == other.schedule);
+          schedule == other.schedule &&
+          studentGroups == other.studentGroups);
 
   @override
   int get hashCode =>
@@ -49,7 +53,8 @@ class ClassModel {
       creationDate.hashCode ^
       attendanceRecords.hashCode ^
       students.hashCode ^
-      schedule.hashCode;
+      schedule.hashCode ^
+      studentGroups.hashCode;
 
   @override
   String toString() {
@@ -62,6 +67,7 @@ class ClassModel {
         ' attendanceRecords: $attendanceRecords,' +
         ' students: $students,' +
         ' schedule: $schedule,' +
+        ' studentGroups: $studentGroups,' +
         '}';
   }
 
@@ -74,6 +80,7 @@ class ClassModel {
     Map<DateTime, List<AttendanceModel>>? attendanceRecords,
     List<StudentModel>? students,
     List<ScheduleModel>? schedule,
+    List<StudentGroupModel>? studentGroups,
   }) {
     return ClassModel(
       classId: classId ?? this.classId,
@@ -84,6 +91,7 @@ class ClassModel {
       attendanceRecords: attendanceRecords ?? this.attendanceRecords,
       students: students ?? this.students,
       schedule: schedule ?? this.schedule,
+      studentGroups: studentGroups ?? this.studentGroups,
     );
   }
 
@@ -97,6 +105,7 @@ class ClassModel {
       'attendanceRecords': this.attendanceRecords,
       'students': this.students,
       'schedule': this.schedule,
+      'studentGroups': this.studentGroups,
     };
   }
 
@@ -111,6 +120,7 @@ class ClassModel {
           map['attendanceRecords'] as Map<DateTime, List<AttendanceModel>>,
       students: map['students'] as List<StudentModel>,
       schedule: map['schedule'] as List<ScheduleModel>,
+      studentGroups: map['studentGroups'] as List<StudentGroupModel>,
     );
   }
 

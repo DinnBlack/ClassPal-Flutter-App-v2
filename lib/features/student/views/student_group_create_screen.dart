@@ -6,17 +6,17 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import 'student_list_screen.dart';
 
-class StudentCreateScreen extends StatefulWidget {
-  static const route = 'StudentCreateScreen';
+class StudentGroupCreateScreen extends StatefulWidget {
+  static const route = 'StudentGroupCreateScreen';
   final List<StudentModel> students;
 
-  const StudentCreateScreen({super.key, required this.students});
+  const StudentGroupCreateScreen({super.key, required this.students});
 
   @override
-  _StudentCreateScreenState createState() => _StudentCreateScreenState();
+  _StudentGroupCreateScreenState createState() => _StudentGroupCreateScreenState();
 }
 
-class _StudentCreateScreenState extends State<StudentCreateScreen> {
+class _StudentGroupCreateScreenState extends State<StudentGroupCreateScreen> {
   final TextEditingController _controller = TextEditingController();
 
   bool _hasText = false;
@@ -36,7 +36,7 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
     );
   }
 
-  Widget _buildBody() {
+  Padding _buildBody() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
       child: Column(
@@ -66,7 +66,10 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
               ),
             ),
           ),
-          Expanded(child: StudentListScreen(students: widget.students,isCreateListView: true,)),
+          const SizedBox(
+            height: kMarginLg,
+          ),
+          StudentListScreen(students: widget.students,isCreateListView: false, ),
         ],
       ),
     );
@@ -74,7 +77,7 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
 
   CustomAppBar _buildAppBar(BuildContext context) {
     return CustomAppBar(
-      title: 'Chỉnh sửa học sinh',
+      title: 'Thêm nhóm',
       isSafeArea: false,
       leftWidget: InkWell(
         child: const Icon(

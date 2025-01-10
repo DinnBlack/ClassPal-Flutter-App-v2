@@ -13,6 +13,7 @@ import '../../features/class/views/class_screen.dart';
 import '../../features/school/views/school_create_screen.dart';
 import '../../features/school/views/school_join_screen.dart';
 import '../../features/school/views/school_screen.dart';
+import '../../features/student/views/student_create_screen.dart';
 import '../../features/student/views/student_list_screen.dart';
 import '../../shared/main_screen.dart';
 
@@ -74,6 +75,13 @@ Route<dynamic> routes(RouteSettings settings) {
           isListView: isListView,
         ),
       );
+    case StudentCreateScreen.route:
+      final args = settings.arguments as Map<String, dynamic>?;
+      final students = args?['students'] as List<StudentModel>? ?? [];
+      return MaterialPageRoute(
+          builder: (context) => StudentCreateScreen(
+                students: students,
+              ));
 
 // Default
     default:
