@@ -1,6 +1,8 @@
-import 'package:classpal_flutter_app/core/config/app_constants.dart';
-import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import '../config/app_constants.dart';
+import '../utils/app_text_style.dart';
 
 class CustomListItem extends StatefulWidget {
   final String? title;
@@ -10,6 +12,7 @@ class CustomListItem extends StatefulWidget {
   final Widget? leading;
   final Widget? trailing;
   final VoidCallback? onTap;
+  final bool? hasTrailingArrow; // Thêm trường mới
 
   const CustomListItem({
     Key? key,
@@ -20,6 +23,7 @@ class CustomListItem extends StatefulWidget {
     this.leading,
     this.trailing,
     this.onTap,
+    this.hasTrailingArrow, // Gán trường mới
   }) : super(key: key);
 
   @override
@@ -53,7 +57,9 @@ class _CustomListItemState extends State<CustomListItem>
       onTap: () async {
         await _controller.reverse();
         await _controller.forward();
-        widget.onTap!();
+        if (widget.onTap != null) {
+          widget.onTap!();
+        }
       },
       child: ScaleTransition(
         scale: _controller,
@@ -83,13 +89,19 @@ class _CustomListItemState extends State<CustomListItem>
                         widget.subtitle!,
                         style: widget.subtitleStyle ??
                             AppTextStyle.medium(kTextSizeXs, kGreyColor),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                   ],
                 ),
               ),
-              if (widget.trailing != null) ...[
+              if (widget.trailing != null || widget.hasTrailingArrow == true) ...[
                 const SizedBox(width: kMarginMd),
-                widget.trailing!,
+                widget.trailing ??
+                    const Icon(
+                      FontAwesomeIcons.chevronRight,
+                      size: 14,
+                    ),
               ],
             ],
           ),

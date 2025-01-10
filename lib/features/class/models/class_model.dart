@@ -4,18 +4,21 @@ import '../sub_features/attendance/models/atttendance_model.dart';
 import '../sub_features/schedule/models/schedule_model.dart';
 
 class ClassModel {
-  String classId;
-  String name;
-  List<TeacherModel> teachers;
-  DateTime creationDate;
-  Map<DateTime, List<AttendanceModel>> attendanceRecords;
-  List<StudentModel> students;
-  List<ScheduleModel> schedule;
+  final String classId;
+  final String name;
+  final String avatar;
+
+  final List<TeacherModel> teachers;
+  final DateTime creationDate;
+  final Map<DateTime, List<AttendanceModel>> attendanceRecords;
+  final List<StudentModel> students;
+  final List<ScheduleModel> schedule;
 
 //<editor-fold desc="Data Methods">
-  ClassModel({
+  const ClassModel({
     required this.classId,
     required this.name,
+    required this.avatar,
     required this.teachers,
     required this.creationDate,
     required this.attendanceRecords,
@@ -30,6 +33,7 @@ class ClassModel {
           runtimeType == other.runtimeType &&
           classId == other.classId &&
           name == other.name &&
+          avatar == other.avatar &&
           teachers == other.teachers &&
           creationDate == other.creationDate &&
           attendanceRecords == other.attendanceRecords &&
@@ -40,6 +44,7 @@ class ClassModel {
   int get hashCode =>
       classId.hashCode ^
       name.hashCode ^
+      avatar.hashCode ^
       teachers.hashCode ^
       creationDate.hashCode ^
       attendanceRecords.hashCode ^
@@ -51,6 +56,7 @@ class ClassModel {
     return 'ClassModel{' +
         ' classId: $classId,' +
         ' name: $name,' +
+        ' avatar: $avatar,' +
         ' teachers: $teachers,' +
         ' creationDate: $creationDate,' +
         ' attendanceRecords: $attendanceRecords,' +
@@ -62,6 +68,7 @@ class ClassModel {
   ClassModel copyWith({
     String? classId,
     String? name,
+    String? avatar,
     List<TeacherModel>? teachers,
     DateTime? creationDate,
     Map<DateTime, List<AttendanceModel>>? attendanceRecords,
@@ -71,6 +78,7 @@ class ClassModel {
     return ClassModel(
       classId: classId ?? this.classId,
       name: name ?? this.name,
+      avatar: avatar ?? this.avatar,
       teachers: teachers ?? this.teachers,
       creationDate: creationDate ?? this.creationDate,
       attendanceRecords: attendanceRecords ?? this.attendanceRecords,
@@ -83,6 +91,7 @@ class ClassModel {
     return {
       'classId': this.classId,
       'name': this.name,
+      'avatar': this.avatar,
       'teachers': this.teachers,
       'creationDate': this.creationDate,
       'attendanceRecords': this.attendanceRecords,
@@ -95,6 +104,7 @@ class ClassModel {
     return ClassModel(
       classId: map['classId'] as String,
       name: map['name'] as String,
+      avatar: map['avatar'] as String,
       teachers: map['teachers'] as List<TeacherModel>,
       creationDate: map['creationDate'] as DateTime,
       attendanceRecords:

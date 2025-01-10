@@ -5,10 +5,12 @@ import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/config/app_constants.dart';
+import '../../models/class_model.dart';
 import '../../sub_features/schedule/views/schedule_list_screen.dart';
 
 class ClassSchedulePage extends StatefulWidget {
-  const ClassSchedulePage({super.key});
+  final ClassModel currentClass;
+  const ClassSchedulePage({super.key, required this.currentClass});
 
   @override
   State<ClassSchedulePage> createState() => _ClassSchedulePageState();

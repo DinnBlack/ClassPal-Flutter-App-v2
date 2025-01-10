@@ -8,12 +8,14 @@ import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../../core/widgets/custom_bottom_sheet.dart';
 import '../../../student/views/student_group_list_screen.dart';
 import '../../../student/views/student_list_screen.dart';
+import '../../models/class_model.dart';
 import '../class_connect/class_connect_screen.dart';
 import '../class_management_screen.dart';
 import '../../../../core/widgets/custom_feature_dialog.dart';
 
 class ClassDashboardPage extends StatefulWidget {
-  const ClassDashboardPage({super.key});
+  final ClassModel currentClass;
+  const ClassDashboardPage({super.key, required this.currentClass});
 
   @override
   State<ClassDashboardPage> createState() => _ClassDashboardPageState();
@@ -90,7 +92,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
             const SizedBox(
               height: kMarginMd,
             ),
-            const StudentListScreen(),
+             StudentListScreen(students: widget.currentClass.students,),
             const SizedBox(
               height: kMarginLg,
             ),
@@ -117,7 +119,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
   CustomAppBar _buildAppBar(BuildContext context) {
     return CustomAppBar(
       backgroundColor: kWhiteColor,
-      title: 'Toán nâng cao',
+      title: widget.currentClass.name,
       leftWidget: InkWell(
         child: const Icon(FontAwesomeIcons.arrowLeft),
         onTap: () {

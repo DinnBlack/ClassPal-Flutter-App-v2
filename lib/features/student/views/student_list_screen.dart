@@ -1,17 +1,19 @@
-import 'package:classpal_flutter_app/core/config/app_constants.dart';
-import 'package:classpal_flutter_app/core/widgets/custom_bottom_sheet.dart';
-import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
-import 'package:classpal_flutter_app/features/student/views/student_create_screen.dart';
-import 'package:classpal_flutter_app/features/student/views/widgets/custom_student_list_item.dart';
 import 'package:flutter/material.dart';
+import 'package:classpal_flutter_app/core/config/app_constants.dart';
+import 'package:classpal_flutter_app/features/student/views/widgets/custom_student_list_item.dart';
 
-import '../repository/student_data.dart';
+import '../models/student_model.dart';
 
 class StudentListScreen extends StatelessWidget {
-  final bool? isListView;
+  final bool isListView;
+  final List<StudentModel> students;
   static const route = 'StudentListScreen';
 
-  const StudentListScreen({super.key, this.isListView = false});
+  const StudentListScreen({
+    super.key,
+    this.isListView = false,
+    required this.students,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,11 +21,12 @@ class StudentListScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final studentData = [...sampleStudent_1, null];
+          final studentData = [...students, null];
           double itemHeight = 105;
-          double itemWidth = (constraints.maxWidth - (4 - 1) * 8.0) / 4;
+          double itemWidth = (constraints.maxWidth - (4 - 1) * kPaddingMd) / 4;
 
-          if (isListView ?? false) {
+          if (isListView) {
+            // ListView layout
             return ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -42,6 +45,7 @@ class StudentListScreen extends StatelessWidget {
               },
             );
           } else {
+            // GridView layout
             return GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -55,11 +59,9 @@ class StudentListScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 final student = studentData[index];
                 if (student == null) {
-                  return CustomStudentListItem(
+                  // Add item button for GridView
+                  return const CustomStudentListItem(
                     addItem: true,
-                    onTap: () {
-                      CustomBottomSheet.showCustomBottomSheet(context, const StudentCreateScreen());
-                    },
                   );
                 } else {
                   return CustomStudentListItem(

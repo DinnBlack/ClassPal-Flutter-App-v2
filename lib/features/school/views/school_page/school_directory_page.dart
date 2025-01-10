@@ -5,6 +5,7 @@ import '../../../../core/config/app_constants.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../../core/widgets/custom_list_item.dart';
 import '../../../../core/widgets/custom_tab_bar.dart';
+import '../../../class/views/class_list_screen.dart';
 import '../../../teacher/views/teacher_list_screen.dart';
 import '../../models/school_model.dart';
 
@@ -89,30 +90,17 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
   }
 
   Widget _buildClassesTab() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(kPaddingLg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: widget.school.classes.map((classItem) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: CustomListItem(
-                leading: const Icon(Icons.class_),
-                title: classItem.name,
-                subtitle: 'Số lượng học sinh: ${classItem.teachers}',
-                onTap: () {},
-              ),
-            );
-          }).toList(),
-        ),
-      ),
+    return Expanded(
+      child: ClassListScreen(classes: widget.school.classes),
     );
   }
 
   Widget _buildTeachersTab() {
     return Expanded(
-      child: TeacherListScreen(teachers: widget.school.teachers),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+        child: TeacherListScreen(teachers: widget.school.teachers),
+      ),
     );
   }
 }

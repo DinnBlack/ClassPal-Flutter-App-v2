@@ -1,4 +1,6 @@
+import 'package:classpal_flutter_app/features/class/models/class_model.dart';
 import 'package:classpal_flutter_app/features/school/models/school_model.dart';
+import 'package:classpal_flutter_app/features/student/models/student_model.dart';
 import 'package:flutter/material.dart';
 
 import '../../features/auth/models/user_model.dart';
@@ -24,13 +26,19 @@ Route<dynamic> routes(RouteSettings settings) {
     case SelectRoleScreen.route:
       final args = settings.arguments as Map<String, dynamic>?;
       final UserModel user = args?['user'];
-      return MaterialPageRoute(builder: (context) => SelectRoleScreen(user: user,));
+      return MaterialPageRoute(
+          builder: (context) => SelectRoleScreen(
+                user: user,
+              ));
 
     // School
     case SchoolScreen.route:
       final args = settings.arguments as Map<String, dynamic>?;
       final SchoolModel school = args?['school'];
-      return MaterialPageRoute(builder: (context) => SchoolScreen(school: school,));
+      return MaterialPageRoute(
+          builder: (context) => SchoolScreen(
+                school: school,
+              ));
     case SchoolCreateScreen.route:
       return MaterialPageRoute(
           builder: (context) => const SchoolCreateScreen());
@@ -39,7 +47,12 @@ Route<dynamic> routes(RouteSettings settings) {
 
     // Class
     case ClassScreen.route:
-      return MaterialPageRoute(builder: (context) => const ClassScreen());
+      final args = settings.arguments as Map<String, dynamic>?;
+      final ClassModel currentClass = args?['currentClass'];
+      return MaterialPageRoute(
+          builder: (context) => ClassScreen(
+                currentClass: currentClass,
+              ));
     case ClassCreateScreen.route:
       final args = settings.arguments as Map<String, dynamic>?;
       final isClassCreateFirst = args?['isClassCreateFirst'] ?? false;
@@ -52,7 +65,15 @@ Route<dynamic> routes(RouteSettings settings) {
 
     // Student
     case StudentListScreen.route:
-      return MaterialPageRoute(builder: (context) => const StudentListScreen());
+      final args = settings.arguments as Map<String, dynamic>?;
+      final students = args?['students'] as List<StudentModel>? ?? [];
+      final isListView = args?['isListView'] as bool? ?? false;
+      return MaterialPageRoute(
+        builder: (context) => StudentListScreen(
+          students: students,
+          isListView: isListView,
+        ),
+      );
 
 // Default
     default:

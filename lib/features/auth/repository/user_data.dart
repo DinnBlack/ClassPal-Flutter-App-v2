@@ -53,6 +53,6 @@ List<UserModel> users = [
     phoneNumber: '1234567890',
     password: '111111',
     schoolIds: ['SCH001'],
-    classIds: ['CLA005'],
+    classIds: ['CLA001'],
   ),
 ];

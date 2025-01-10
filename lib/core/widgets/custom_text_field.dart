@@ -7,6 +7,7 @@ import '../config/app_constants.dart';
 import '../utils/app_text_style.dart';
 
 class CustomTextField extends StatefulWidget {
+  final String? title;
   final String? text;
   final bool isPassword;
   final bool isNumber;
@@ -19,10 +20,11 @@ class CustomTextField extends StatefulWidget {
   final bool isDatePicker;
   final bool isTimePicker;
   final Widget? suffixIcon;
-  final String? Function(String?)? validator; // Validator function
+  final String? Function(String?)? validator;
 
   const CustomTextField({
     super.key,
+    this.title,
     this.text,
     this.isPassword = false,
     this.isNumber = false,
@@ -46,7 +48,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   bool _isObscured = true;
   late FocusNode _focusNode;
   String _selectedOption = "";
-  String? _errorText; // To hold validation error messages
+  String? _errorText;
 
   @override
   void initState() {
@@ -91,7 +93,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         return () {
           setState(() {
             _selectedOption = option;
-            _errorText = null; // Clear error when valid input is selected
+            _errorText = null;
           });
           if (widget.controller != null) {
             widget.controller!.text = option;
@@ -155,6 +157,14 @@ class _CustomTextFieldState extends State<CustomTextField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (widget.title != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 5.0),
+            child: Text(
+              widget.title!,
+              style: AppTextStyle.medium(kTextSizeSm),
+            ),
+          ),
         Stack(
           children: [
             Container(
@@ -180,16 +190,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 focusNode: _focusNode,
                 autofocus: widget.autofocus,
                 textAlignVertical: isOptionMode ||
-                    widget.isPassword ||
-                    widget.suffixIcon != null
+                        widget.isPassword ||
+                        widget.suffixIcon != null
                     ? TextAlignVertical.center
                     : null,
-                keyboardType: widget.isNumber
-                    ? TextInputType.number
-                    : TextInputType.text,
+                keyboardType:
+                    widget.isNumber ? TextInputType.number : TextInputType.text,
                 obscureText: widget.isPassword && _isObscured,
                 readOnly:
-                isOptionMode || widget.isDatePicker || widget.isTimePicker,
+                    isOptionMode || widget.isDatePicker || widget.isTimePicker,
                 decoration: InputDecoration(
                   hintText: widget.defaultValue ?? (widget.text ?? ''),
                   hintStyle: AppTextStyle.medium(kTextSizeSm, kGreyColor),
@@ -198,35 +207,35 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   suffixIcon: widget.suffixIcon ??
                       (isOptionMode
                           ? const Icon(
-                        Icons.arrow_drop_down_circle_outlined,
-                        color: kGreyColor,
-                        size: 20,
-                      )
+                              Icons.arrow_drop_down_circle_outlined,
+                              color: kGreyColor,
+                              size: 20,
+                            )
                           : (widget.isPassword
-                          ? InkWell(
-                        child: Icon(
-                          _isObscured
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                          size: 20,
-                          color: kGreyColor,
-                        ),
-                        onTap: () {
-                          setState(() {
-                            _isObscured = !_isObscured;
-                          });
-                        },
-                      )
-                          : null)),
+                              ? InkWell(
+                                  child: Icon(
+                                    _isObscured
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                    size: 20,
+                                    color: kGreyColor,
+                                  ),
+                                  onTap: () {
+                                    setState(() {
+                                      _isObscured = !_isObscured;
+                                    });
+                                  },
+                                )
+                              : null)),
                   contentPadding:
-                  const EdgeInsets.symmetric(horizontal: kPaddingMd),
+                      const EdgeInsets.symmetric(horizontal: kPaddingMd),
                 ),
                 style: AppTextStyle.medium(kTextSizeSm, kGreyColor),
                 onTap: widget.isDatePicker
                     ? _selectDate
                     : (widget.isTimePicker
-                    ? _selectTime
-                    : (isOptionMode ? _showOptionsDialog : null)),
+                        ? _selectTime
+                        : (isOptionMode ? _showOptionsDialog : null)),
                 inputFormatters: widget.isNumber
                     ? [FilteringTextInputFormatter.digitsOnly]
                     : null,

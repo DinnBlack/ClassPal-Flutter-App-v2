@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/config/app_constants.dart';
 import '../../../core/utils/app_text_style.dart';
+import '../models/class_model.dart';
 import 'class_page/class_dashboard_page.dart';
 import 'class_page/class_schedule_page.dart';
 import 'class_page/class_message_page.dart';
@@ -12,8 +13,9 @@ import 'class_page/class_board_page.dart';
 
 class ClassScreen extends StatefulWidget {
   static const route = 'ClassScreen';
+  final ClassModel currentClass;
 
-  const ClassScreen({super.key });
+  const ClassScreen({super.key, required this.currentClass});
 
   @override
   State<ClassScreen> createState() => _ClassScreenState();
@@ -31,11 +33,11 @@ class _ClassScreenState extends State<ClassScreen> {
     _pageController = PageController(initialPage: _currentIndex);
 
     _pages = [
-      const ClassDashboardPage(),
-      const ClassBoardPage(),
+      ClassDashboardPage(currentClass: widget.currentClass),
+      ClassBoardPage(currentClass: widget.currentClass),
       const SizedBox.shrink(),
-      const ClassSchedulePage(),
-      const ClassMessagePage(),
+      ClassSchedulePage(currentClass: widget.currentClass),
+      ClassMessagePage(currentClass: widget.currentClass),
     ];
   }
 

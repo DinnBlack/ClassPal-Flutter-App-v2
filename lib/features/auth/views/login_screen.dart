@@ -52,11 +52,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: kMarginLg),
                 CustomTextField(
+                  // title: 'Tên đăng nhập',
                   text: 'Email hoặc số điện thoại',
                   controller: _emailOrPhoneNumberController,
                 ),
-                const SizedBox(height: kMarginMd),
+                const SizedBox(height: kMarginLg),
                 CustomTextField(
+                  // title: 'Mật khẩu',
                   text: 'Mật khẩu',
                   controller: _passwordController,
                   isPassword: true,

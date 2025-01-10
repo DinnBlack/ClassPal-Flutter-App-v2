@@ -8,6 +8,8 @@ import 'core/config/app_routes.dart';
 import 'core/config/app_themes.dart';
 import 'features/auth/views/login_screen.dart';
 import 'features/auth/bloc/auth_bloc.dart';
+import 'features/class/bloc/class_bloc.dart';
+import 'features/student/bloc/student_bloc.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +33,12 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<SchoolBloc>(
           create: (context) => SchoolBloc(),
+        ),
+        BlocProvider<ClassBloc>(
+          create: (context) => ClassBloc(),
+        ),
+        BlocProvider<StudentBloc>(
+          create: (context) => StudentBloc(),
         ),
       ],
       child: MaterialApp(
