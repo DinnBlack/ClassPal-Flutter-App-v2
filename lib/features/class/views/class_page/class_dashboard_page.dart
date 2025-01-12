@@ -10,6 +10,7 @@ import '../../../../core/config/app_constants.dart';
 import '../../../../core/utils/app_text_style.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../../core/widgets/custom_bottom_sheet.dart';
+import '../../../../core/widgets/custom_page_transition.dart';
 import '../../../student/views/student_group_list_screen.dart';
 import '../../../student/views/student_list_screen.dart';
 import '../../models/class_model.dart';
@@ -42,51 +43,58 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
       ],
       [
         () {
-          CustomBottomSheet.showCustomBottomSheet(
-            context,
-            const ClassConnectScreen(
+          CustomPageTransition.navigateTo(
+            context: context,
+            page: const ClassConnectScreen(
               pageIndex: 0,
             ),
+            transitionType: PageTransitionType.slideFromBottom,
           );
         },
         () {
-          CustomBottomSheet.showCustomBottomSheet(
-            context,
-            const ClassConnectScreen(
+          CustomPageTransition.navigateTo(
+            context: context,
+            page: const ClassConnectScreen(
               pageIndex: 1,
             ),
+            transitionType: PageTransitionType.slideFromBottom,
           );
         },
         () {
-          CustomBottomSheet.showCustomBottomSheet(
-            context,
-            const ClassConnectScreen(
+          CustomPageTransition.navigateTo(
+            context: context,
+            page: const ClassConnectScreen(
               pageIndex: 2,
             ),
+            transitionType: PageTransitionType.slideFromBottom,
           );
         },
         () {
-          CustomBottomSheet.showCustomBottomSheet(
-            context,
-            StudentCreateScreen(
+          CustomPageTransition.navigateTo(
+            context: context,
+            page: const StudentCreateScreen(
               students: [],
             ),
+            transitionType: PageTransitionType.slideFromBottom,
           );
         },
-            () {
-          CustomBottomSheet.showCustomBottomSheet(
-            context,
-            ScheduleScreen(currentClass: widget.currentClass,
+        () {
+          CustomPageTransition.navigateTo(
+            context: context,
+            page: ScheduleScreen(
+              currentClass: widget.currentClass,
             ),
+            transitionType: PageTransitionType.slideFromBottom,
           );
         },
         () {
           print('Môn học');
         },
         () {
-          CustomBottomSheet.showCustomBottomSheet(
-            context,
-            const ClassInformationScreen(),
+          CustomPageTransition.navigateTo(
+            context: context,
+            page: const ClassInformationScreen(),
+            transitionType: PageTransitionType.slideFromBottom,
           );
         },
         () {
@@ -100,9 +108,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: [].isEmpty
-          ? _buildEmptyStudentView()
-          : _buildStudentListView(),
+      body: [].isEmpty ? _buildEmptyStudentView() : _buildStudentListView(),
     );
   }
 
@@ -133,13 +139,15 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
             CustomButton(
               text: 'Thêm học viên',
               onTap: () {
-                CustomBottomSheet.showCustomBottomSheet(
-                    context,
-                    StudentCreateScreen(
-                      students: [],
-                    ));
+                CustomPageTransition.navigateTo(
+                  context: context,
+                  page: const StudentCreateScreen(
+                    students: [],
+                  ),
+                  transitionType: PageTransitionType.slideFromBottom,
+                );
               },
-            )
+            ),
           ],
         ),
       ),

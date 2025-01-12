@@ -27,7 +27,13 @@ class AuthRegisterStarted extends AuthEvent {
   });
 }
 
-class AuthLogoutStarted extends AuthEvent {}
+class AuthLogoutStarted extends AuthEvent {
+  final BuildContext context;
+
+  AuthLogoutStarted({
+    required this.context,
+  });
+}
 
 class AuthForgotPasswordStarted extends AuthEvent {
   final String email;

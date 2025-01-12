@@ -11,18 +11,23 @@ class CustomBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FractionallySizedBox(
-      alignment: Alignment.bottomCenter,
-      heightFactor: 0.96,
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(kBorderRadiusLg),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxHeight = constraints.maxHeight - MediaQuery.of(context).padding.top;
+
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: maxHeight,
           ),
-        ),
-        child: child,
-      ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(
+              top: Radius.circular(kBorderRadiusLg),
+            ),
+          ),
+          child: child,
+        );
+      },
     );
   }
 

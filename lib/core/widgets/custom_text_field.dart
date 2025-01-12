@@ -161,93 +161,81 @@ class _CustomTextFieldState extends State<CustomTextField> {
               style: AppTextStyle.medium(kTextSizeSm),
             ),
           ),
-        Stack(
-          children: [
-            Container(
-              height: widget.height + 5,
-              decoration: BoxDecoration(
-                color:
-                    _focusNode.hasFocus ? kPrimaryLightColor : kGreyLightColor,
-                borderRadius: BorderRadius.circular(kBorderRadiusMd),
-              ),
+        Container(
+          height: widget.height,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: kWhiteColor,
+            border: Border.all(
+              width: 2,
+              color: _focusNode.hasFocus
+                  ? kPrimaryColor
+                  : (_errorText != null ? Colors.red : kGreyColor),
             ),
-            Container(
-              height: widget.height,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: kWhiteColor,
-                border: Border.all(
-                  width: 2,
-                  color: _focusNode.hasFocus
-                      ? kPrimaryColor
-                      : (_errorText != null ? Colors.red : kGreyMediumColor),
-                ),
-                borderRadius: BorderRadius.circular(kBorderRadiusMd),
-              ),
-              child: TextField(
-                controller: widget.controller,
-                focusNode: _focusNode,
-                autofocus: widget.autofocus,
-                textAlignVertical: isOptionMode ||
-                    widget.isPassword ||
-                    widget.suffixIcon != null
-                    ? TextAlignVertical.center
-                    : null,
-                keyboardType:
-                widget.isNumber ? TextInputType.number : TextInputType.text,
-                obscureText: widget.isPassword && _isObscured,
-                readOnly:
-                isOptionMode || widget.isDatePicker || widget.isTimePicker,
-                decoration: InputDecoration(
-                  hintText: widget.text ?? '',
-                  hintStyle: AppTextStyle.medium(kTextSizeSm, _focusNode.hasFocus ? kPrimaryColor : kGreyColor),
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                  suffixIcon: widget.suffixIcon ??
-                      (isOptionMode
-                          ? const Icon(
-                        Icons.arrow_drop_down_circle_outlined,
-                        color: kGreyColor,
-                        size: 20,
-                      )
-                          : (widget.isPassword
-                          ? InkWell(
-                        child: Icon(
-                          _isObscured
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                          size: 20,
-                          color: kGreyColor,
-                        ),
-                        onTap: () {
-                          setState(() {
-                            _isObscured = !_isObscured;
-                          });
-                        },
-                      )
-                          : null)),
-                  contentPadding:
-                  const EdgeInsets.symmetric(horizontal: kPaddingMd),
-                ),
-                style: AppTextStyle.medium(
-                    kTextSizeSm, _focusNode.hasFocus ? kPrimaryColor : kGreyColor),
-                onTap: widget.isDatePicker
-                    ? _selectDate
-                    : (widget.isTimePicker
-                    ? _selectTime
-                    : (isOptionMode ? _showOptionsDialog : null)),
-                inputFormatters: widget.isNumber
-                    ? [FilteringTextInputFormatter.digitsOnly]
-                    : null,
-                onChanged: (value) {
-                  if (widget.onChanged != null) {
-                    widget.onChanged!(value);
-                  }
-                  _validateInput(value);
-                },
-              ),
+            borderRadius: BorderRadius.circular(kBorderRadiusMd),
+          ),
+          child: TextField(
+            controller: widget.controller,
+            focusNode: _focusNode,
+            autofocus: widget.autofocus,
+            textAlignVertical: isOptionMode ||
+                widget.isPassword ||
+                widget.suffixIcon != null
+                ? TextAlignVertical.center
+                : null,
+            keyboardType:
+            widget.isNumber ? TextInputType.number : TextInputType.text,
+            obscureText: widget.isPassword && _isObscured,
+            readOnly:
+            isOptionMode || widget.isDatePicker || widget.isTimePicker,
+            decoration: InputDecoration(
+              hintText: widget.text ?? '',
+              hintStyle: AppTextStyle.medium(kTextSizeSm, kGreyColor),
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              suffixIcon: widget.suffixIcon ??
+                  (isOptionMode
+                      ? const Icon(
+                    Icons.arrow_drop_down_circle_outlined,
+                    color: kGreyColor,
+                    size: 20,
+                  )
+                      : (widget.isPassword
+                      ? InkWell(
+                    child: Icon(
+                      _isObscured
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                      size: 20,
+                      color: kGreyColor,
+                    ),
+                    onTap: () {
+                      setState(() {
+                        _isObscured = !_isObscured;
+                      });
+                    },
+                  )
+                      : null)),
+              contentPadding:
+              const EdgeInsets.symmetric(horizontal: kPaddingMd),
             ),
-          ],
+            style: AppTextStyle.medium(
+                kTextSizeSm),
+            onTap: widget.isDatePicker
+                ? _selectDate
+                : (widget.isTimePicker
+                ? _selectTime
+                : (isOptionMode ? _showOptionsDialog : null)),
+            inputFormatters: widget.isNumber
+                ? [FilteringTextInputFormatter.digitsOnly]
+                : null,
+            onChanged: (value) {
+              if (widget.onChanged != null) {
+                widget.onChanged!(value);
+              }
+              _validateInput(value);
+            },
+          ),
         ),
         if (_errorText != null)
           Padding(

@@ -9,7 +9,7 @@ class ClassInformationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kTransparentColor,
+      backgroundColor: kBackgroundColor,
       appBar: _buildAppBar(),
       body: Column(
         children: [

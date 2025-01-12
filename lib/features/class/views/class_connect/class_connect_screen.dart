@@ -43,7 +43,7 @@ class _ClassConnectScreenState extends State<ClassConnectScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kTransparentColor,
+      backgroundColor: kBackgroundColor,
       appBar: _buildAppBar(),
       body: Column(
         children: [

@@ -7,7 +7,7 @@ class AppTextStyle {
     return TextStyle(
       color: color,
       fontSize: size,
-      fontWeight: FontWeight.w100,
+      fontWeight: FontWeight.w300,
     );
   }
 
@@ -15,7 +15,7 @@ class AppTextStyle {
     return TextStyle(
       color: color,
       fontSize: size,
-      fontWeight: FontWeight.w300,
+      fontWeight: FontWeight.w400,
     );
   }
 
@@ -31,7 +31,7 @@ class AppTextStyle {
     return TextStyle(
       color: color,
       fontSize: size,
-      fontWeight: FontWeight.w700,
+      fontWeight: FontWeight.w600,
     );
   }
 
@@ -39,7 +39,15 @@ class AppTextStyle {
     return TextStyle(
       color: color,
       fontSize: size,
-      fontWeight: FontWeight.w900,
+      fontWeight: FontWeight.w700,
+    );
+  }
+
+  static TextStyle extraBold(double size, [Color color = kBlackColor]) {
+    return TextStyle(
+      color: color,
+      fontSize: size,
+      fontWeight: FontWeight.w800,
     );
   }
 }

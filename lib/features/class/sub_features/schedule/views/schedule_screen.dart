@@ -31,7 +31,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kTransparentColor,
+      backgroundColor: kBackgroundColor,
       appBar: _buildAppBar(context),
       body: Column(
         children: [

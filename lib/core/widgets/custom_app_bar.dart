@@ -61,7 +61,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                           if (title != null)
                             Text(
                               title!,
-                              style: titleStyle ?? AppTextStyle.semibold(kTextSizeLg),
+                              style: titleStyle ?? AppTextStyle.bold(kTextSizeLg),
                             ),
                           if (subtitle != null)
                             Text(

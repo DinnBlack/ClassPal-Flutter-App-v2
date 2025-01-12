@@ -10,6 +10,7 @@ const Color kPrimaryColor = Color(0xFF21A9B7);
  Color kPrimaryLightColor = Color(0xFF90D4DB);
 const Color kBackgroundColor = Color(0xFFFFFFFF);
 const Color kGreyColor = Colors.grey;
+const Color kGreyDarkColor = Color(0xFF5A5A5A);
 const Color kGreyMediumColor = Color(0xFFD8D8D8);
 const Color kGreyLightColor = Color(0xFFEFEFEF);
 const Color kTransparentColor = Colors.transparent;

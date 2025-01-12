@@ -38,7 +38,7 @@ dependencies:
   bloc: ^8.1.4
   flutter_bloc: ^8.1.6
   flutter_screenutil: ^5.9.3
-  shared_preferences: ^2.3.4
+  shared_preferences: ^2.3.5
   device_preview: ^1.2.0
   font_awesome_flutter: ^10.8.0
   image_picker: ^1.1.2
@@ -99,6 +99,15 @@ flutter:
         - asset: assets/fonts/NotoSans-Medium.ttf
         - asset: assets/fonts/NotoSans-SemiBold.ttf
         - asset: assets/fonts/NotoSans-Bold.ttf
+
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito-Light.ttf
+        - asset: assets/fonts/Nunito-Regular.ttf
+        - asset: assets/fonts/Nunito-Medium.ttf
+        - asset: assets/fonts/Nunito-SemiBold.ttf
+        - asset: assets/fonts/Nunito-Bold.ttf
+        - asset: assets/fonts/Nunito-ExtraBold.ttf
 
     - family: ZenDots
       fonts:

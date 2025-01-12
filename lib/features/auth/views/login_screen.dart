@@ -1,15 +1,17 @@
-import 'package:classpal_flutter_app/features/auth/views/forgot_password_screen.dart';
-import 'package:classpal_flutter_app/features/auth/views/register_screen.dart';
-import 'package:classpal_flutter_app/features/auth/views/select_role_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/custom_loading_dialog.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../bloc/auth_bloc.dart';
+import 'forgot_password_screen.dart';
+import 'register_screen.dart';
+import 'select_role_screen.dart';
+import 'widgets/custom_button_google.dart';
 
 class LoginScreen extends StatefulWidget {
   static const route = 'LoginScreen';
@@ -33,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: kMarginXxl),
                 Center(
@@ -45,11 +47,25 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: kMarginXxl),
                 Text(
                   'Đăng nhập',
-                  style: AppTextStyle.semibold(kTextSizeXxl),
+                  style: AppTextStyle.bold(kTextSizeXl),
                 ),
-                Text(
-                  'Đăng nhập tài khoản của bạn',
-                  style: AppTextStyle.semibold(kTextSizeMd, kGreyColor),
+                const SizedBox(height: kMarginSm),
+                RichText(
+                  text: TextSpan(
+                    children: <TextSpan>[
+                      TextSpan(
+                          text: 'Bạn chưa có tài khoản? ',
+                          style: AppTextStyle.medium(kTextSizeXs)),
+                      TextSpan(
+                        text: 'Đăng ký',
+                        style: AppTextStyle.medium(kTextSizeXs, kPrimaryColor),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.pushNamed(context, RegisterScreen.route);
+                          },
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: kMarginLg),
                 CustomTextField(
@@ -63,19 +79,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   text: 'Mật khẩu',
                   controller: _passwordController,
                   isPassword: true,
-                ),
-                const SizedBox(height: kMarginMd),
-                Align(
-                  alignment: Alignment.center,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, ForgotPasswordScreen.route);
-                    },
-                    child: Text(
-                      'Bạn quên mật khẩu?',
-                      style: AppTextStyle.semibold(kTextSizeSm, kGreyColor),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: kMarginLg),
                 BlocConsumer<AuthBloc, AuthState>(
@@ -114,28 +117,43 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: kMarginLg),
                 Align(
                   alignment: Alignment.center,
-                  child: RichText(
-                    text: TextSpan(
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, ForgotPasswordScreen.route);
+                    },
+                    child: Text(
+                      'Quên mật khẩu?',
                       style: AppTextStyle.semibold(kTextSizeSm, kGreyColor),
-                      children: <TextSpan>[
-                        TextSpan(
-                            text: 'Bạn chưa có tài khoản? ',
-                            style:
-                                AppTextStyle.semibold(kTextSizeSm, kGreyColor)),
-                        TextSpan(
-                          text: 'Đăng ký',
-                          style:
-                              AppTextStyle.semibold(kTextSizeSm, kPrimaryColor),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              Navigator.pushNamed(
-                                  context, RegisterScreen.route);
-                            },
-                        ),
-                      ],
                     ),
                   ),
                 ),
+                const SizedBox(height: kMarginLg),
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Divider(
+                        color: kGreyColor,
+                        thickness: 1,
+                      ),
+                    ),
+                    Padding(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: kPaddingMd),
+                      child: Text(
+                        'HOẶC',
+                        style: AppTextStyle.medium(kTextSizeXs, kGreyColor),
+                      ),
+                    ),
+                    const Expanded(
+                      child: Divider(
+                        color: kGreyColor,
+                        thickness: 1,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: kMarginLg),
+                const CustomButtonGoogle(),
               ],
             ),
           ),

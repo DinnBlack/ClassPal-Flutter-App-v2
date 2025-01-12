@@ -9,14 +9,16 @@ class CustomButton extends StatefulWidget {
   final VoidCallback? onTap;
   final bool isValid;
   final Color? backgroundColor;
+  final bool isBackground;
 
   const CustomButton({
     super.key,
-    this.height = 50,
+    this.height = 50.0,
     this.text = '',
     this.onTap,
     this.isValid = true,
     this.backgroundColor,
+    this.isBackground = false,
   });
 
   @override
@@ -58,15 +60,17 @@ class _CustomButtonState extends State<CustomButton>
         scale: _controller,
         child: Stack(
           children: [
-            Container(
-              height: widget.height! + 5,
-              decoration: BoxDecoration(
-                color: widget.isValid
-                    ? buttonColor.withOpacity(0.5)
-                    : buttonColor.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(kBorderRadiusMd),
+            // Thêm lớp nền nếu isBackground = true
+            if (widget.isBackground)
+              Container(
+                height: widget.height! + 5,
+                decoration: BoxDecoration(
+                  color: widget.isValid
+                      ? buttonColor.withOpacity(0.5)
+                      : buttonColor.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(kBorderRadiusXl),
+                ),
               ),
-            ),
             Container(
               height: widget.height,
               alignment: Alignment.center,
@@ -74,11 +78,11 @@ class _CustomButtonState extends State<CustomButton>
                 color: widget.isValid
                     ? buttonColor
                     : buttonColor.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(kBorderRadiusMd),
+                borderRadius: BorderRadius.circular(kBorderRadiusXl),
               ),
               child: Text(
                 widget.text!,
-                style: AppTextStyle.semibold(kTextSizeMd, kWhiteColor),
+                style: AppTextStyle.semibold(kTextSizeSm, kWhiteColor),
               ),
             ),
           ],

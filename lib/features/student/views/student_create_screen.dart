@@ -30,7 +30,7 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kTransparentColor,
+      backgroundColor: kWhiteColor,
       appBar: _buildAppBar(context),
       body: _buildBody(),
     );
@@ -75,7 +75,6 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
   CustomAppBar _buildAppBar(BuildContext context) {
     return CustomAppBar(
       title: 'Chỉnh sửa học sinh',
-      isSafeArea: false,
       leftWidget: InkWell(
         child: const Icon(
           FontAwesomeIcons.xmark,
