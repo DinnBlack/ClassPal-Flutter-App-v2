@@ -1,6 +1,4 @@
-import 'package:classpal_flutter_app/features/auth/views/forgot_password_screen.dart';
 import 'package:classpal_flutter_app/features/auth/views/register_screen.dart';
-import 'package:classpal_flutter_app/features/auth/views/select_role_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
@@ -11,18 +9,20 @@ import '../../../core/widgets/custom_loading_dialog.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../bloc/auth_bloc.dart';
 
-class LoginScreen extends StatefulWidget {
-  static const route = 'LoginScreen';
+class ResetPasswordScreen extends StatefulWidget {
+  final String email;
+  final String otp;
+  static const route = 'ResetPasswordScreen';
 
-  const LoginScreen({super.key});
+  const ResetPasswordScreen({super.key, required this.email, required this.otp});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _emailOrPhoneNumberController = TextEditingController();
+class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -44,69 +44,54 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: kMarginXxl),
                 Text(
-                  'Đăng nhập',
+                  'Mật khẩu mới',
                   style: AppTextStyle.semibold(kTextSizeXxl),
                 ),
                 Text(
-                  'Đăng nhập tài khoản của bạn',
+                  'Thiết lập mật khẩu mới của bạn',
                   style: AppTextStyle.semibold(kTextSizeMd, kGreyColor),
                 ),
                 const SizedBox(height: kMarginLg),
                 CustomTextField(
-                  // title: 'Tên đăng nhập',
-                  text: 'Email hoặc số điện thoại',
-                  controller: _emailOrPhoneNumberController,
+                  text: 'Mật khẩu',
+                  isPassword: true,
+                  controller: _passwordController,
                 ),
                 const SizedBox(height: kMarginLg),
                 CustomTextField(
-                  // title: 'Mật khẩu',
-                  text: 'Mật khẩu',
-                  controller: _passwordController,
+                  text: 'Nhập lại mật khẩu',
                   isPassword: true,
-                ),
-                const SizedBox(height: kMarginMd),
-                Align(
-                  alignment: Alignment.center,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, ForgotPasswordScreen.route);
-                    },
-                    child: Text(
-                      'Bạn quên mật khẩu?',
-                      style: AppTextStyle.semibold(kTextSizeSm, kGreyColor),
-                    ),
-                  ),
+                  controller: _confirmPasswordController,
                 ),
                 const SizedBox(height: kMarginLg),
                 BlocConsumer<AuthBloc, AuthState>(
                   listener: (context, state) {
-                    if (state is AuthLoginInProgress) {
+                    if (state is AuthResetPasswordInProgress) {
                       CustomLoadingDialog.show(context);
                     } else {
                       CustomLoadingDialog.dismiss(context);
                     }
-                    if (state is AuthLoginSuccess) {
-                      Navigator.pushNamed(context, SelectRoleScreen.route,
-                          arguments: {'user': state.user});
-                    } else if (state is AuthLoginFailure) {
+                    if (state is AuthResetPasswordSuccess) {
+                      Navigator.pop(context);
+                    } else if (state is AuthResetPasswordFailure) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Đăng nhập thất bại')),
+                        const SnackBar(
+                            content: Text('Khôi phục tài khoản thất bại')),
                       );
                     }
                   },
                   builder: (context, state) {
                     return CustomButton(
-                      text: 'Đăng nhập',
+                      text: 'Khôi phục lại mật khẩu',
                       onTap: () {
-                        final emailOrPhoneNumber =
-                            _emailOrPhoneNumberController.text;
                         final password = _passwordController.text;
                         context.read<AuthBloc>().add(
-                              AuthLoginStarted(
-                                emailOrPhoneNumber: emailOrPhoneNumber,
-                                password: password,
-                              ),
-                            );
+                          AuthResetPasswordStarted(
+                            email: widget.email,
+                            otp: widget.otp,
+                            password: password,
+                          ),
+                        );
                       },
                     );
                   },
@@ -119,13 +104,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: AppTextStyle.semibold(kTextSizeSm, kGreyColor),
                       children: <TextSpan>[
                         TextSpan(
-                            text: 'Bạn chưa có tài khoản? ',
+                            text: 'Bạn nhớ mật khẩu? ',
                             style:
-                                AppTextStyle.semibold(kTextSizeSm, kGreyColor)),
+                            AppTextStyle.semibold(kTextSizeSm, kGreyColor)),
                         TextSpan(
-                          text: 'Đăng ký',
+                          text: 'Đăng nhập',
                           style:
-                              AppTextStyle.semibold(kTextSizeSm, kPrimaryColor),
+                          AppTextStyle.semibold(kTextSizeSm, kPrimaryColor),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
                               Navigator.pushNamed(

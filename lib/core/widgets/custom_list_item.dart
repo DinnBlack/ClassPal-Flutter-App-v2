@@ -112,7 +112,7 @@ class _CustomListItemState extends State<CustomListItem>
             widget.trailing ??
                 const Icon(
                   FontAwesomeIcons.chevronRight,
-                  size: 14,
+                  size: 12,
                 ),
           ],
         ],

@@ -1,100 +1,146 @@
+import 'social_media_account_model.dart';
+
+enum USER_ROLE { ADMIN, USER }
+
+enum USER_STATUS { ACTIVE, INACTIVE }
+
 class UserModel {
-  final String userId;
+  final String _id;
   final String name;
-  final String emailOrPhoneNumber;
+  final String email;
   final String password;
-  final String? avatar;
-  final List<String> schoolIds;
-  final List<String> classIds;
+  final String? phoneNumber;
+  final String avatarUrl;
+  final int role;
+  final int status;
+  final List<SocialMediaAccount> socialMediaAccounts;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
 //<editor-fold desc="Data Methods">
   const UserModel({
-    required this.userId,
     required this.name,
-    required this.emailOrPhoneNumber,
+    required this.email,
     required this.password,
-    this.avatar,
-    required this.schoolIds,
-    required this.classIds,
-  });
+    this.phoneNumber,
+    required this.avatarUrl,
+    required this.role,
+    required this.status,
+    required this.socialMediaAccounts,
+    required this.createdAt,
+    required this.updatedAt,
+    required String id,
+  }) : _id = id;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is UserModel &&
           runtimeType == other.runtimeType &&
-          userId == other.userId &&
+          _id == other._id &&
           name == other.name &&
-          emailOrPhoneNumber == other.emailOrPhoneNumber &&
+          email == other.email &&
           password == other.password &&
-          avatar == other.avatar &&
-          schoolIds == other.schoolIds &&
-          classIds == other.classIds);
+          phoneNumber == other.phoneNumber &&
+          avatarUrl == other.avatarUrl &&
+          role == other.role &&
+          status == other.status &&
+          socialMediaAccounts == other.socialMediaAccounts &&
+          createdAt == other.createdAt &&
+          updatedAt == other.updatedAt);
 
   @override
   int get hashCode =>
-      userId.hashCode ^
+      _id.hashCode ^
       name.hashCode ^
-      emailOrPhoneNumber.hashCode ^
+      email.hashCode ^
       password.hashCode ^
-      avatar.hashCode ^
-      schoolIds.hashCode ^
-      classIds.hashCode;
+      phoneNumber.hashCode ^
+      avatarUrl.hashCode ^
+      role.hashCode ^
+      status.hashCode ^
+      socialMediaAccounts.hashCode ^
+      createdAt.hashCode ^
+      updatedAt.hashCode;
 
   @override
   String toString() {
     return 'UserModel{' +
-        ' userId: $userId,' +
+        ' _id: $_id,' +
         ' name: $name,' +
-        ' emailOrPhoneNumber: $emailOrPhoneNumber,' +
+        ' email: $email,' +
         ' password: $password,' +
-        ' avatar: $avatar,' +
-        ' schoolIds: $schoolIds,' +
-        ' classIds: $classIds,' +
+        ' phoneNumber: $phoneNumber,' +
+        ' avatarUrl: $avatarUrl,' +
+        ' role: $role,' +
+        ' status: $status,' +
+        ' socialMediaAccounts: $socialMediaAccounts,' +
+        ' createdAt: $createdAt,' +
+        ' updatedAt: $updatedAt,' +
         '}';
   }
 
   UserModel copyWith({
-    String? userId,
+    String? id,
     String? name,
-    String? emailOrPhoneNumber,
+    String? email,
     String? password,
-    String? avatar,
-    List<String>? schoolIds,
-    List<String>? classIds,
+    String? phoneNumber,
+    String? avatarUrl,
+    int? role,
+    int? status,
+    List<SocialMediaAccount>? socialMediaAccounts,
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return UserModel(
-      userId: userId ?? this.userId,
+      id: id ?? this._id,
       name: name ?? this.name,
-      emailOrPhoneNumber: emailOrPhoneNumber ?? this.emailOrPhoneNumber,
+      email: email ?? this.email,
       password: password ?? this.password,
-      avatar: avatar ?? this.avatar,
-      schoolIds: schoolIds ?? this.schoolIds,
-      classIds: classIds ?? this.classIds,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      role: role ?? this.role,
+      status: status ?? this.status,
+      socialMediaAccounts: socialMediaAccounts ?? this.socialMediaAccounts,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'userId': this.userId,
+      '_id': this._id,
       'name': this.name,
-      'emailOrPhoneNumber': this.emailOrPhoneNumber,
+      'email': this.email,
       'password': this.password,
-      'avatar': this.avatar,
-      'schoolIds': this.schoolIds,
-      'classIds': this.classIds,
+      'phoneNumber': this.phoneNumber,
+      'avatarUrl': this.avatarUrl,
+      'role': this.role,
+      'status': this.status,
+      'socialMediaAccounts': this.socialMediaAccounts,
+      'createdAt': this.createdAt,
+      'updatedAt': this.updatedAt,
     };
   }
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
+    var socialMediaList = (map['socialMediaAccounts'] as List<dynamic>)
+        .map((item) => SocialMediaAccount.fromMap(item))
+        .toList();
+
     return UserModel(
-      userId: map['userId'] as String,
+      id: map['_id'] as String,
       name: map['name'] as String,
-      emailOrPhoneNumber: map['emailOrPhoneNumber'] as String,
-      password: map['password'] as String,
-      avatar: map['avatar'] as String,
-      schoolIds: map['schoolIds'] as List<String>,
-      classIds: map['classIds'] as List<String>,
+      email: map['email'] as String,
+      password: map['password'] ?? '',
+      phoneNumber: map['phoneNumber'] as String?,
+      avatarUrl: map['avatarUrl'] as String,
+      role: map['role'] as int,
+      status: map['status'] as int,
+      socialMediaAccounts: socialMediaList,  // Use the mapped list
+      createdAt: DateTime.parse(map['createdAt'] as String),
+      updatedAt: DateTime.parse(map['updatedAt'] as String),
     );
   }
 

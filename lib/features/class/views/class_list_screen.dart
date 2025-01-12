@@ -20,11 +20,11 @@ class ClassListScreen extends StatelessWidget {
       itemBuilder: (context, index) {
         final currentClass = classes[index];
         String teachersText =
-            currentClass.teachers.map((teacher) => 'Gv. ${teacher.name}').join(', ');
+            currentClass.name;
 
         return CustomListItem(
           leading: CustomAvatar(
-            user: currentClass,
+            profile: currentClass,
           ),
           title: currentClass.name,
           subtitle: teachersText,

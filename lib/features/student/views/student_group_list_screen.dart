@@ -17,7 +17,7 @@ class StudentGroupListScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final groupData = currentClass.studentGroups;
+          final groupData = [];
 
           double itemHeight = 105;
           double itemWidth = (constraints.maxWidth - (2 - 1) * 8.0) / 2;
@@ -41,7 +41,7 @@ class StudentGroupListScreen extends StatelessWidget {
                 return CustomStudentGroupListItem(
                   addItem: true,
                   onTap: () {
-                    CustomBottomSheet.showCustomBottomSheet(context, StudentGroupCreateScreen(students: currentClass.students));
+                    CustomBottomSheet.showCustomBottomSheet(context, StudentGroupCreateScreen(students: []));
                   },
 
                 );

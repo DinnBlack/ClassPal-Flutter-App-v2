@@ -41,3 +41,40 @@ final class AuthLogoutFailure extends AuthState {
 
   AuthLogoutFailure(this.message);
 }
+
+// Forgot Password State
+final class AuthForgotPasswordInProgress extends AuthState {}
+
+final class AuthForgotPasswordSuccess extends AuthState {}
+
+final class AuthForgotPasswordFailure extends AuthState {
+  final String message;
+
+  AuthForgotPasswordFailure(this.message);
+}
+
+// Reset Password State
+final class AuthResetPasswordInProgress extends AuthState {}
+
+final class AuthResetPasswordSuccess extends AuthState {}
+
+final class AuthResetPasswordFailure extends AuthState {
+  final String message;
+
+  AuthResetPasswordFailure(this.message);
+}
+
+// Get Roles State
+final class AuthGetRolesInProgress extends AuthState {}
+
+final class AuthGetRolesSuccess extends AuthState {
+  final List<String> roles;
+
+  AuthGetRolesSuccess(this.roles);
+}
+
+final class AuthGetRolesFailure extends AuthState {
+  final String message;
+
+  AuthGetRolesFailure(this.message);
+}

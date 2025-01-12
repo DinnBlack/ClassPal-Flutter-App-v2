@@ -91,7 +91,7 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
 
   Widget _buildClassesTab() {
     return Expanded(
-      child: ClassListScreen(classes: widget.school.classes),
+      child: ClassListScreen(classes: []),
     );
   }
 
@@ -99,7 +99,7 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
-        child: TeacherListScreen(teachers: widget.school.teachers),
+        child: TeacherListScreen(teachers: []),
       ),
     );
   }

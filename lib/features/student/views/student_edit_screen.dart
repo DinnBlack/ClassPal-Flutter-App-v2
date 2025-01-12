@@ -52,7 +52,7 @@ class _StudentEditScreenState extends State<StudentEditScreen> {
             height: kMarginXl,
           ),
           CustomAvatar(
-            user: widget.student,
+            profile: widget.student,
             size: 100,
           ),
           const SizedBox(

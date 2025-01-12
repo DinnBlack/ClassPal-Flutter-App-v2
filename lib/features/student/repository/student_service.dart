@@ -7,7 +7,7 @@ class StudentService {
       ClassModel currentClass) async {
     await Future.delayed(const Duration(seconds: 2));
     try {
-      return currentClass.students;
+      return [];
     } catch (e) {
       return [];
     }

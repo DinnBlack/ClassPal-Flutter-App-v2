@@ -4,8 +4,10 @@ import 'package:classpal_flutter_app/features/student/models/student_model.dart'
 import 'package:flutter/material.dart';
 
 import '../../features/auth/models/user_model.dart';
+import '../../features/auth/views/forgot_password_screen.dart';
 import '../../features/auth/views/login_screen.dart';
 import '../../features/auth/views/register_screen.dart';
+import '../../features/auth/views/reset_password_screen.dart';
 import '../../features/auth/views/select_role_screen.dart';
 import '../../features/class/views/class_create_screen.dart';
 import '../../features/class/views/class_join_screen.dart';
@@ -22,6 +24,13 @@ Route<dynamic> routes(RouteSettings settings) {
     // Authentication
     case LoginScreen.route:
       return MaterialPageRoute(builder: (context) => const LoginScreen());
+    case ForgotPasswordScreen.route:
+      return MaterialPageRoute(builder: (context) => const ForgotPasswordScreen());
+    case ResetPasswordScreen.route:
+      final args = settings.arguments as Map<String, dynamic>?;
+      final String email = args?['email'];
+      final String otp = args?['otp'];
+      return MaterialPageRoute(builder: (context) =>  ResetPasswordScreen(email: email, otp: otp,));
     case RegisterScreen.route:
       return MaterialPageRoute(builder: (context) => const RegisterScreen());
     case SelectRoleScreen.route:

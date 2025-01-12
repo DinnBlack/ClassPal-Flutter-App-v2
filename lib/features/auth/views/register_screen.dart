@@ -20,7 +20,8 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _emailOrPhoneNumberController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
@@ -102,9 +103,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: kMarginMd),
                   CustomTextField(
-                    text: 'Email hoặc Số điện thoại',
-                    controller: _emailOrPhoneNumberController,
+                    text: 'Email',
+                    controller: _emailController,
                     validator: _validateEmail,
+                  ),
+                  const SizedBox(height: kMarginMd),
+                  CustomTextField(
+                    text: 'Số điện thoại',
+                    controller: _phoneNumberController,
+                    validator: _validatePhone,
                   ),
                   const SizedBox(height: kMarginMd),
                   CustomTextField(
@@ -152,13 +159,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         onTap: () {
                           if (_formKey.currentState!.validate()) {
                             final name = _nameController.text;
-                            final emailOrPhoneNumber = _emailOrPhoneNumberController.text;
+                            final email = _emailController.text;
+                            final phoneNumber = _phoneNumberController.text;
                             final password = _passwordController.text;
 
                             context.read<AuthBloc>().add(
                               AuthRegisterStarted(
                                 name: name,
-                                emailOrPhoneNumber: emailOrPhoneNumber,
+                                email: email,
+                                phoneNumber: phoneNumber,
                                 password: password,
                               ),
                             );

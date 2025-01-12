@@ -5,21 +5,23 @@ import '../models/school_model.dart';
 
 List<SchoolModel> sampleSchool_1 = [
   SchoolModel(
-    schoolId: 'SCH001',
+    id: 'SCH001',
     name: 'Tiểu học A Long Bình',
     address: 'Thị Trấn Long bình, Huyện An Phú, Tỉnh An Giang',
-    createdDate: DateTime(2020, 5, 20),
-    teachers: sampleTeacher_1,
-    principals: samplePrincipal_1,
-    classes: sampleClass_1,
+    phoneNumber: '0123456789',
+    avatarUrl: 'https://i.pravatar.cc/150?img=57',
+    creatorId: 'U001',
+    createdAt: DateTime(2020, 5, 20),
+    updatedAt: DateTime(2020, 5, 20),
   ),
   SchoolModel(
-    schoolId: 'SCH002',
+    id: 'SCH002',
     name: 'Tiểu học Quốc Thái',
     address: 'Xã Quốc Thái, Huyện An Phú, Tỉnh An Giang',
-    createdDate: DateTime(2020, 5, 20),
-    teachers: sampleTeacher_2,
-    principals: samplePrincipal_2,
-    classes: sampleClass_1,
+    phoneNumber: '0123456789',
+    avatarUrl: 'https://i.pravatar.cc/150?img=57',
+    creatorId: 'U001',
+    createdAt: DateTime(2020, 5, 20),
+    updatedAt: DateTime(2020, 5, 20),
   ),
 ];

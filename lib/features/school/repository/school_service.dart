@@ -7,7 +7,7 @@ class SchoolService {
   Future<List<SchoolModel>> fetchSchoolsByUser(UserModel user) async {
     await Future.delayed(const Duration(seconds: 2));
     return sampleSchool_1.where((school) {
-      return user.schoolIds.contains(school.schoolId);
+      return true;
     }).toList();
   }
 
@@ -16,7 +16,7 @@ class SchoolService {
     await Future.delayed(const Duration(seconds: 2));
     try {
       return sampleSchool_1.firstWhere(
-        (school) => school.schoolId == schoolId,
+        (school) => school.creatorId == schoolId,
       );
     } catch (e) {
       return null;

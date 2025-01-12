@@ -69,7 +69,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
           CustomBottomSheet.showCustomBottomSheet(
             context,
             StudentCreateScreen(
-              students: widget.currentClass.students,
+              students: [],
             ),
           );
         },
@@ -100,7 +100,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: widget.currentClass.students.isEmpty
+      body: [].isEmpty
           ? _buildEmptyStudentView()
           : _buildStudentListView(),
     );
@@ -136,7 +136,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
                 CustomBottomSheet.showCustomBottomSheet(
                     context,
                     StudentCreateScreen(
-                      students: widget.currentClass.students,
+                      students: [],
                     ));
               },
             )
@@ -154,7 +154,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
           const SizedBox(
             height: kMarginMd,
           ),
-          StudentListScreen(students: widget.currentClass.students),
+          StudentListScreen(students: []),
           const SizedBox(
             height: kMarginLg,
           ),
@@ -180,7 +180,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
   }
 
   CustomAppBar _buildAppBar(BuildContext context) {
-    bool hasStudents = widget.currentClass.students.isNotEmpty;
+    bool hasStudents = [].isNotEmpty;
 
     return CustomAppBar(
       backgroundColor: kWhiteColor,

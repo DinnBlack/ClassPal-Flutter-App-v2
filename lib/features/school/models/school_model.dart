@@ -3,102 +3,111 @@ import '../../principal/models/principal_model.dart';
 import '../../teacher/models/teacher_model.dart';
 
 class SchoolModel {
-  final String schoolId;
+  final String _id;
   final String name;
-  final String address;
-  final DateTime createdDate;
-  final List<TeacherModel> teachers;
-  final List<PrincipalModel> principals;
-  final List<ClassModel> classes;
+  final String? address;
+  final String? phoneNumber;
+  final String avatarUrl;
+  final String creatorId;
+  final DateTime updatedAt;
+  final DateTime createdAt;
 
 //<editor-fold desc="Data Methods">
   const SchoolModel({
-    required this.schoolId,
     required this.name,
-    required this.address,
-    required this.createdDate,
-    required this.teachers,
-    required this.principals,
-    required this.classes,
-  });
+    this.address,
+    this.phoneNumber,
+    required this.avatarUrl,
+    required this.creatorId,
+    required this.updatedAt,
+    required this.createdAt,
+    required String id,
+  }) : _id = id;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is SchoolModel &&
           runtimeType == other.runtimeType &&
-          schoolId == other.schoolId &&
+          _id == other._id &&
           name == other.name &&
           address == other.address &&
-          createdDate == other.createdDate &&
-          teachers == other.teachers &&
-          principals == other.principals &&
-          classes == other.classes);
+          phoneNumber == other.phoneNumber &&
+          avatarUrl == other.avatarUrl &&
+          creatorId == other.creatorId &&
+          updatedAt == other.updatedAt &&
+          createdAt == other.createdAt);
 
   @override
   int get hashCode =>
-      schoolId.hashCode ^
+      _id.hashCode ^
       name.hashCode ^
       address.hashCode ^
-      createdDate.hashCode ^
-      teachers.hashCode ^
-      principals.hashCode ^
-      classes.hashCode;
+      phoneNumber.hashCode ^
+      avatarUrl.hashCode ^
+      creatorId.hashCode ^
+      updatedAt.hashCode ^
+      createdAt.hashCode;
 
   @override
   String toString() {
     return 'SchoolModel{' +
-        ' schoolId: $schoolId,' +
+        ' _id: $_id,' +
         ' name: $name,' +
         ' address: $address,' +
-        ' createdDate: $createdDate,' +
-        ' teachers: $teachers,' +
-        ' principals: $principals,' +
-        ' classes: $classes,' +
+        ' phoneNumber: $phoneNumber,' +
+        ' avatarUrl: $avatarUrl,' +
+        ' creatorId: $creatorId,' +
+        ' updatedAt: $updatedAt,' +
+        ' createdAt: $createdAt,' +
         '}';
   }
 
   SchoolModel copyWith({
-    String? schoolId,
+    String? id,
     String? name,
     String? address,
-    DateTime? createdDate,
-    List<TeacherModel>? teachers,
-    List<PrincipalModel>? principals,
-    List<ClassModel>? classes,
+    String? phoneNumber,
+    String? avatarUrl,
+    String? creatorId,
+    DateTime? updatedAt,
+    DateTime? createdAt,
   }) {
     return SchoolModel(
-      schoolId: schoolId ?? this.schoolId,
+      id: id ?? this._id,
       name: name ?? this.name,
       address: address ?? this.address,
-      createdDate: createdDate ?? this.createdDate,
-      teachers: teachers ?? this.teachers,
-      principals: principals ?? this.principals,
-      classes: classes ?? this.classes,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      creatorId: creatorId ?? this.creatorId,
+      updatedAt: updatedAt ?? this.updatedAt,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'schoolId': this.schoolId,
+      '_id': this._id,
       'name': this.name,
       'address': this.address,
-      'createdDate': this.createdDate,
-      'teachers': this.teachers,
-      'principals': this.principals,
-      'classes': this.classes,
+      'phoneNumber': this.phoneNumber,
+      'avatarUrl': this.avatarUrl,
+      'creatorId': this.creatorId,
+      'updatedAt': this.updatedAt,
+      'createdAt': this.createdAt,
     };
   }
 
   factory SchoolModel.fromMap(Map<String, dynamic> map) {
     return SchoolModel(
-      schoolId: map['schoolId'] as String,
+      id: map['_id'] as String,
       name: map['name'] as String,
       address: map['address'] as String,
-      createdDate: map['createdDate'] as DateTime,
-      teachers: map['teachers'] as List<TeacherModel>,
-      principals: map['principals'] as List<PrincipalModel>,
-      classes: map['classes'] as List<ClassModel>,
+      phoneNumber: map['phoneNumber'] as String,
+      avatarUrl: map['avatarUrl'] as String,
+      creatorId: map['creatorId'] as String,
+      updatedAt: map['updatedAt'] as DateTime,
+      createdAt: map['createdAt'] as DateTime,
     );
   }
 

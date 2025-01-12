@@ -1,6 +1,6 @@
-import 'package:classpal_flutter_app/features/auth/views/forgot_password_screen.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_bottom_sheet.dart';
+import 'package:classpal_flutter_app/features/auth/views/otp_screen.dart';
 import 'package:classpal_flutter_app/features/auth/views/register_screen.dart';
-import 'package:classpal_flutter_app/features/auth/views/select_role_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
@@ -11,18 +11,17 @@ import '../../../core/widgets/custom_loading_dialog.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../bloc/auth_bloc.dart';
 
-class LoginScreen extends StatefulWidget {
-  static const route = 'LoginScreen';
+class ForgotPasswordScreen extends StatefulWidget {
+  static const route = 'ForgotPasswordScreen';
 
-  const LoginScreen({super.key});
+  const ForgotPasswordScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final _emailOrPhoneNumberController = TextEditingController();
-  final _passwordController = TextEditingController();
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  final _emailController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -44,67 +43,44 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: kMarginXxl),
                 Text(
-                  'Đăng nhập',
+                  'Quên mật khẩu',
                   style: AppTextStyle.semibold(kTextSizeXxl),
                 ),
                 Text(
-                  'Đăng nhập tài khoản của bạn',
+                  'Nhập vào email của bạn',
                   style: AppTextStyle.semibold(kTextSizeMd, kGreyColor),
                 ),
                 const SizedBox(height: kMarginLg),
                 CustomTextField(
-                  // title: 'Tên đăng nhập',
-                  text: 'Email hoặc số điện thoại',
-                  controller: _emailOrPhoneNumberController,
-                ),
-                const SizedBox(height: kMarginLg),
-                CustomTextField(
-                  // title: 'Mật khẩu',
-                  text: 'Mật khẩu',
-                  controller: _passwordController,
-                  isPassword: true,
-                ),
-                const SizedBox(height: kMarginMd),
-                Align(
-                  alignment: Alignment.center,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, ForgotPasswordScreen.route);
-                    },
-                    child: Text(
-                      'Bạn quên mật khẩu?',
-                      style: AppTextStyle.semibold(kTextSizeSm, kGreyColor),
-                    ),
-                  ),
+                  text: 'Email',
+                  controller: _emailController,
                 ),
                 const SizedBox(height: kMarginLg),
                 BlocConsumer<AuthBloc, AuthState>(
                   listener: (context, state) {
-                    if (state is AuthLoginInProgress) {
+                    if (state is AuthForgotPasswordInProgress) {
                       CustomLoadingDialog.show(context);
                     } else {
                       CustomLoadingDialog.dismiss(context);
                     }
-                    if (state is AuthLoginSuccess) {
-                      Navigator.pushNamed(context, SelectRoleScreen.route,
-                          arguments: {'user': state.user});
-                    } else if (state is AuthLoginFailure) {
+                    if (state is AuthForgotPasswordSuccess) {
+                      CustomBottomSheet.showCustomBottomSheet(
+                          context, OtpScreen(email: _emailController.text));
+                    } else if (state is AuthForgotPasswordFailure) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Đăng nhập thất bại')),
+                        const SnackBar(
+                            content: Text('Khôi phục tài khoản thất bại')),
                       );
                     }
                   },
                   builder: (context, state) {
                     return CustomButton(
-                      text: 'Đăng nhập',
+                      text: 'Khôi phục lại mật khẩu',
                       onTap: () {
-                        final emailOrPhoneNumber =
-                            _emailOrPhoneNumberController.text;
-                        final password = _passwordController.text;
+                        final email = _emailController.text;
                         context.read<AuthBloc>().add(
-                              AuthLoginStarted(
-                                emailOrPhoneNumber: emailOrPhoneNumber,
-                                password: password,
+                              AuthForgotPasswordStarted(
+                                email: email,
                               ),
                             );
                       },
@@ -119,11 +95,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: AppTextStyle.semibold(kTextSizeSm, kGreyColor),
                       children: <TextSpan>[
                         TextSpan(
-                            text: 'Bạn chưa có tài khoản? ',
+                            text: 'Bạn nhớ mật khẩu? ',
                             style:
                                 AppTextStyle.semibold(kTextSizeSm, kGreyColor)),
                         TextSpan(
-                          text: 'Đăng ký',
+                          text: 'Đăng nhập',
                           style:
                               AppTextStyle.semibold(kTextSizeSm, kPrimaryColor),
                           recognizer: TapGestureRecognizer()

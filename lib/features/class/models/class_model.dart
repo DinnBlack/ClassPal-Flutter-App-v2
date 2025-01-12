@@ -6,121 +6,102 @@ import '../sub_features/attendance/models/atttendance_model.dart';
 import '../sub_features/schedule/models/schedule_model.dart';
 
 class ClassModel {
-  final String classId;
+  final String _id;
   final String name;
-  final String avatar;
-  final List<TeacherModel> teachers;
-  final DateTime creationDate;
-  final Map<DateTime, List<AttendanceModel>> attendanceRecords;
-  final List<StudentModel> students;
-  final List<ScheduleModel> schedule;
-  final List<StudentGroupModel> studentGroups;
+  final String avatarUrl;
+  final String? schoolId;
+  final String creatorId;
+  final DateTime updatedAt;
+  final DateTime createdAt;
 
 //<editor-fold desc="Data Methods">
   const ClassModel({
-    required this.classId,
     required this.name,
-    required this.avatar,
-    required this.teachers,
-    required this.creationDate,
-    required this.attendanceRecords,
-    required this.students,
-    required this.schedule,
-    required this.studentGroups,
-  });
+    required this.avatarUrl,
+    this.schoolId,
+    required this.creatorId,
+    required this.updatedAt,
+    required this.createdAt,
+    required String id,
+  }) : _id = id;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ClassModel &&
           runtimeType == other.runtimeType &&
-          classId == other.classId &&
+          _id == other._id &&
           name == other.name &&
-          avatar == other.avatar &&
-          teachers == other.teachers &&
-          creationDate == other.creationDate &&
-          attendanceRecords == other.attendanceRecords &&
-          students == other.students &&
-          schedule == other.schedule &&
-          studentGroups == other.studentGroups);
+          avatarUrl == other.avatarUrl &&
+          schoolId == other.schoolId &&
+          creatorId == other.creatorId &&
+          updatedAt == other.updatedAt &&
+          createdAt == other.createdAt);
 
   @override
   int get hashCode =>
-      classId.hashCode ^
+      _id.hashCode ^
       name.hashCode ^
-      avatar.hashCode ^
-      teachers.hashCode ^
-      creationDate.hashCode ^
-      attendanceRecords.hashCode ^
-      students.hashCode ^
-      schedule.hashCode ^
-      studentGroups.hashCode;
+      avatarUrl.hashCode ^
+      schoolId.hashCode ^
+      creatorId.hashCode ^
+      updatedAt.hashCode ^
+      createdAt.hashCode;
 
   @override
   String toString() {
     return 'ClassModel{' +
-        ' classId: $classId,' +
+        ' _id: $_id,' +
         ' name: $name,' +
-        ' avatar: $avatar,' +
-        ' teachers: $teachers,' +
-        ' creationDate: $creationDate,' +
-        ' attendanceRecords: $attendanceRecords,' +
-        ' students: $students,' +
-        ' schedule: $schedule,' +
-        ' studentGroups: $studentGroups,' +
+        ' avatarUrl: $avatarUrl,' +
+        ' schoolId: $schoolId,' +
+        ' creatorId: $creatorId,' +
+        ' updatedAt: $updatedAt,' +
+        ' createdAt: $createdAt,' +
         '}';
   }
 
   ClassModel copyWith({
-    String? classId,
+    String? id,
     String? name,
-    String? avatar,
-    List<TeacherModel>? teachers,
-    DateTime? creationDate,
-    Map<DateTime, List<AttendanceModel>>? attendanceRecords,
-    List<StudentModel>? students,
-    List<ScheduleModel>? schedule,
-    List<StudentGroupModel>? studentGroups,
+    String? avatarUrl,
+    String? schoolId,
+    String? creatorId,
+    DateTime? updatedAt,
+    DateTime? createdAt,
   }) {
     return ClassModel(
-      classId: classId ?? this.classId,
+      id: id ?? this._id,
       name: name ?? this.name,
-      avatar: avatar ?? this.avatar,
-      teachers: teachers ?? this.teachers,
-      creationDate: creationDate ?? this.creationDate,
-      attendanceRecords: attendanceRecords ?? this.attendanceRecords,
-      students: students ?? this.students,
-      schedule: schedule ?? this.schedule,
-      studentGroups: studentGroups ?? this.studentGroups,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      schoolId: schoolId ?? this.schoolId,
+      creatorId: creatorId ?? this.creatorId,
+      updatedAt: updatedAt ?? this.updatedAt,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'classId': this.classId,
+      '_id': this._id,
       'name': this.name,
-      'avatar': this.avatar,
-      'teachers': this.teachers,
-      'creationDate': this.creationDate,
-      'attendanceRecords': this.attendanceRecords,
-      'students': this.students,
-      'schedule': this.schedule,
-      'studentGroups': this.studentGroups,
+      'avatarUrl': this.avatarUrl,
+      'schoolId': this.schoolId,
+      'creatorId': this.creatorId,
+      'updatedAt': this.updatedAt,
+      'createdAt': this.createdAt,
     };
   }
 
   factory ClassModel.fromMap(Map<String, dynamic> map) {
     return ClassModel(
-      classId: map['classId'] as String,
+      id: map['_id'] as String,
       name: map['name'] as String,
-      avatar: map['avatar'] as String,
-      teachers: map['teachers'] as List<TeacherModel>,
-      creationDate: map['creationDate'] as DateTime,
-      attendanceRecords:
-          map['attendanceRecords'] as Map<DateTime, List<AttendanceModel>>,
-      students: map['students'] as List<StudentModel>,
-      schedule: map['schedule'] as List<ScheduleModel>,
-      studentGroups: map['studentGroups'] as List<StudentGroupModel>,
+      avatarUrl: map['avatarUrl'] as String,
+      schoolId: map['schoolId'] as String,
+      creatorId: map['creatorId'] as String,
+      updatedAt: map['updatedAt'] as DateTime,
+      createdAt: map['createdAt'] as DateTime,
     );
   }
 

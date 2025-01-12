@@ -21,7 +21,7 @@ class TeacherListScreen extends StatelessWidget {
         final teacher = teachers[index];
         return CustomListItem(
           leading: CustomAvatar(
-            user: teacher,
+            profile: teacher,
           ),
           title: teacher.name,
           subtitle: teacher.userId,

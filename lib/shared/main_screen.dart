@@ -48,7 +48,7 @@ class _MainScreenState extends State<MainScreen> {
 
   Padding _buildBody(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+      padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,13 +85,8 @@ class _MainScreenState extends State<MainScreen> {
                           title: school.name,
                           subtitle: school.address,
                           hasTrailingArrow: true,
-                          leading: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: const BoxDecoration(
-                              color: kPrimaryColor,
-                              shape: BoxShape.circle,
-                            ),
+                          leading: const CustomAvatar(
+                           imageAsset: 'assets/images/school.jpg',
                           ),
                           onTap: () {
                             Navigator.pushNamed(context, SchoolScreen.route,
@@ -161,13 +156,8 @@ class _MainScreenState extends State<MainScreen> {
                         CustomListItem(
                           title: currentClass.name,
                           hasTrailingArrow: true,
-                          leading: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: const BoxDecoration(
-                              color: kPrimaryColor,
-                              shape: BoxShape.circle,
-                            ),
+                          leading: const CustomAvatar(
+                            imageAsset: 'assets/images/class.jpg',
                           ),
                           onTap: () {
                             Navigator.pushNamed(context, ClassScreen.route,
@@ -200,6 +190,7 @@ class _MainScreenState extends State<MainScreen> {
 
   CustomAppBar _buildAppBar() {
     return CustomAppBar(
+      horizontalPadding: kPaddingMd,
       backgroundColor: kWhiteColor,
       title: 'CLASSPAL',
       titleStyle: const TextStyle(
@@ -211,7 +202,7 @@ class _MainScreenState extends State<MainScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           CustomAvatar(
-            user: widget.user,
+            profile: widget.user,
             size: 30,
           ),
           const SizedBox(

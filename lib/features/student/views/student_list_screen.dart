@@ -62,7 +62,7 @@ class StudentListScreen extends StatelessWidget {
             isAnimation: false,
             title: student.name,
             leading: CustomAvatar(
-              user: student,
+              profile: student,
             ),
             trailing: CustomScaleEffect(
               child: Container(
