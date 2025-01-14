@@ -9,7 +9,7 @@ import '../../../core/utils/app_text_style.dart';
 import '../models/class_model.dart';
 import 'class_page/class_dashboard_page.dart';
 import '../sub_features/schedule/views/schedule_screen.dart';
-import 'class_page/class_message_page.dart';
+import 'class_page/class_notification_page.dart';
 import 'class_page/class_board_page.dart';
 
 class ClassScreen extends StatefulWidget {
@@ -38,7 +38,7 @@ class _ClassScreenState extends State<ClassScreen> {
       ClassBoardPage(currentClass: widget.currentClass),
       const SizedBox.shrink(),
       ClassHomeworkPage(currentClass: widget.currentClass),
-      ClassMessagePage(currentClass: widget.currentClass),
+      ClassNotificationPage(currentClass: widget.currentClass),
     ];
   }
 

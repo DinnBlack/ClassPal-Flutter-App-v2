@@ -4,6 +4,7 @@ import '../config/app_constants.dart';
 class CustomAvatar extends StatelessWidget {
   final dynamic profile;
   final String? imageAsset;
+  final String? imageUrl;
   final Color backgroundColor;
   final double size;
 
@@ -11,6 +12,7 @@ class CustomAvatar extends StatelessWidget {
     Key? key,
     this.profile,
     this.imageAsset,
+    this.imageUrl,
     this.backgroundColor = kPrimaryColor,
     this.size = 40.0,
   }) : super(key: key);
@@ -41,8 +43,24 @@ class CustomAvatar extends StatelessWidget {
       );
     }
 
-    String avatarUrl = profile?.avatarUrl ?? '';
+    if (imageUrl != null && imageUrl!.isNotEmpty) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: backgroundColor,
+        ),
+        child: ClipOval(
+          child: Image.network(
+            imageUrl!,
+            fit: BoxFit.cover,
+          ),
+        ),
+      );
+    }
 
+    String avatarUrl = profile?.avatarUrl ?? '';
     return Container(
       width: size,
       height: size,

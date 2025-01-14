@@ -51,23 +51,22 @@ class _CustomButtonState extends State<CustomButton>
     final buttonColor = widget.backgroundColor ?? kPrimaryColor;
 
     return GestureDetector(
-      onTap: () async {
+      onTap: widget.isValid
+          ? () async {
         await _controller.reverse();
         await _controller.forward();
-        widget.onTap!();
-      },
+        widget.onTap?.call();
+      }
+          : null,
       child: ScaleTransition(
         scale: _controller,
         child: Stack(
           children: [
-            // Thêm lớp nền nếu isBackground = true
             if (widget.isBackground)
               Container(
                 height: widget.height! + 5,
                 decoration: BoxDecoration(
-                  color: widget.isValid
-                      ? buttonColor.withOpacity(0.5)
-                      : buttonColor.withOpacity(0.5),
+                  color: buttonColor.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(kBorderRadiusXl),
                 ),
               ),

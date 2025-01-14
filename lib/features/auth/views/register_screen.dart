@@ -1,8 +1,12 @@
+import 'package:classpal_flutter_app/features/auth/views/widgets/custom_button_google.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/config/app_constants.dart';
 import '../../../core/utils/app_text_style.dart';
+import '../../../core/utils/validators.dart';
+import '../../../core/widgets/custom_app_bar.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../../../features/auth/bloc/auth_bloc.dart';
@@ -24,181 +28,212 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _phoneNumberController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  bool _isValid = false;
 
-  String? _validateName(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Họ và tên không được để trống';
-    }
-    return null;
+  @override
+  void initState() {
+    super.initState();
+    _nameController.addListener(_validateForm);
+    _emailController.addListener(_validateForm);
+    _phoneNumberController.addListener(_validateForm);
+    _passwordController.addListener(_validateForm);
+    _confirmPasswordController.addListener(_validateForm);
   }
 
-  String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Email không được để trống';
-    } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-      return 'Email không hợp lệ';
-    }
-    return null;
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneNumberController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
   }
 
-  String? _validatePhone(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Số điện thoại không được để trống';
-    } else if (!RegExp(r'^\d{10,11}$').hasMatch(value)) {
-      return 'Số điện thoại không hợp lệ';
-    }
-    return null;
-  }
+  void _validateForm() {
+    setState(() {
+      final isNameValid = Validators.validateName(_nameController.text) == null;
+      final isEmailValid =
+          Validators.validateEmail(_emailController.text) == null;
+      final isPhoneValid =
+          Validators.validatePhone(_phoneNumberController.text) == null;
+      final isPasswordValid =
+          Validators.validatePassword(_passwordController.text) == null;
+      final isConfirmPasswordValid = Validators.validateConfirmPassword(
+            _confirmPasswordController.text,
+            _passwordController.text,
+          ) ==
+          null;
 
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Mật khẩu không được để trống';
-    } else if (value.length < 8) {
-      return 'Mật khẩu phải có ít nhất 8 ký tự';
-    }
-    return null;
-  }
-
-  String? _validateConfirmPassword(String? value) {
-    if (value != _passwordController.text) {
-      return 'Mật khẩu không khớp';
-    }
-    return null;
+      _isValid = isNameValid &&
+          isEmailValid &&
+          isPhoneValid &&
+          isPasswordValid &&
+          isConfirmPasswordValid &&
+          _nameController.text.trim().isNotEmpty &&
+          _emailController.text.trim().isNotEmpty &&
+          _phoneNumberController.text.trim().isNotEmpty &&
+          _passwordController.text.trim().isNotEmpty &&
+          _confirmPasswordController.text.trim().isNotEmpty;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: kMarginXxl),
-                  Center(
-                    child: Image.asset(
-                      'assets/images/classpal_logo.png',
-                      width: 150,
+      appBar: CustomAppBar(
+        leftWidget: InkWell(
+          child: const Icon(FontAwesomeIcons.arrowLeft),
+          onTap: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Đăng ký',
+                style: AppTextStyle.bold(kTextSizeXl),
+              ),
+              const SizedBox(height: kMarginSm),
+              RichText(
+                text: TextSpan(
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: 'Bạn đã có tài khoản? ',
+                      style: AppTextStyle.medium(kTextSizeXs),
                     ),
-                  ),
-                  const SizedBox(height: kMarginXxl),
-                  Text(
-                    'Tạo tài khoản để sử dụng',
-                    style: AppTextStyle.semibold(kTextSizeMd, kGreyColor),
-                  ),
-                  Text(
-                    'Đăng ký',
-                    style: AppTextStyle.semibold(kTextSizeXxl),
-                  ),
-                  const SizedBox(height: kMarginLg),
-                  CustomTextField(
-                    text: 'Họ và tên',
-                    controller: _nameController,
-                    validator: _validateName,
-                  ),
-                  const SizedBox(height: kMarginMd),
-                  CustomTextField(
-                    text: 'Email',
-                    controller: _emailController,
-                    validator: _validateEmail,
-                  ),
-                  const SizedBox(height: kMarginMd),
-                  CustomTextField(
-                    text: 'Số điện thoại',
-                    controller: _phoneNumberController,
-                    validator: _validatePhone,
-                  ),
-                  const SizedBox(height: kMarginMd),
-                  CustomTextField(
-                    text: 'Mật khẩu',
-                    controller: _passwordController,
-                    isPassword: true,
-                    validator: _validatePassword,
-                  ),
-                  const SizedBox(height: kMarginMd),
-                  CustomTextField(
-                    text: 'Nhập lại mật khẩu',
-                    controller: _confirmPasswordController,
-                    isPassword: true,
-                    validator: _validateConfirmPassword,
-                  ),
-                  const SizedBox(height: kMarginMd),
-                  Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Mật khẩu phải có ít nhất 8 ký tự bao gồm chữ và số',
-                      style: AppTextStyle.regular(kTextSizeXs),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: kMarginLg),
-                  BlocConsumer<AuthBloc, AuthState>(
-                    listener: (context, state) {
-                      if (state is AuthRegisterInProgress) {
-                        CustomLoadingDialog.show(context);
-                      } else {
-                        CustomLoadingDialog.dismiss(context);
-                      }
-
-                      if (state is AuthRegisterSuccess) {
-                        Navigator.pop(context);
-                      } else if (state is AuthRegisterFailure) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Đăng ký thất bại')),
-                        );
-                      }
-                    },
-                    builder: (context, state) {
-                      return CustomButton(
-                        text: 'Đăng ký',
-                        onTap: () {
-                          if (_formKey.currentState!.validate()) {
-                            final name = _nameController.text;
-                            final email = _emailController.text;
-                            final phoneNumber = _phoneNumberController.text;
-                            final password = _passwordController.text;
-
-                            context.read<AuthBloc>().add(
-                              AuthRegisterStarted(
-                                name: name,
-                                email: email,
-                                phoneNumber: phoneNumber,
-                                password: password,
-                              ),
-                            );
-                          }
+                    TextSpan(
+                      text: 'Đăng nhập',
+                      style: AppTextStyle.medium(kTextSizeXs, kPrimaryColor),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          Navigator.pop(context);
                         },
-                      );
-                    },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: kMarginLg),
+              CustomTextField(
+                text: 'Họ và tên',
+                controller: _nameController,
+                validator: Validators.validateName,
+              ),
+              const SizedBox(height: kMarginMd),
+              CustomTextField(
+                text: 'Email',
+                controller: _emailController,
+                validator: Validators.validateEmail,
+              ),
+              const SizedBox(height: kMarginMd),
+              CustomTextField(
+                text: 'Số điện thoại',
+                controller: _phoneNumberController,
+                validator: Validators.validatePhone,
+              ),
+              const SizedBox(height: kMarginMd),
+              CustomTextField(
+                text: 'Mật khẩu',
+                controller: _passwordController,
+                isPassword: true,
+                validator: Validators.validatePassword,
+              ),
+              const SizedBox(height: kMarginMd),
+              CustomTextField(
+                text: 'Nhập lại mật khẩu',
+                controller: _confirmPasswordController,
+                isPassword: true,
+                validator: (value) => Validators.validateConfirmPassword(
+                    value, _passwordController.text),
+              ),
+              const SizedBox(height: kMarginMd),
+              Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'Mật khẩu phải có ít nhất 8 ký tự bao gồm chữ và số',
+                  style: AppTextStyle.regular(kTextSizeXs),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: kMarginLg),
+              BlocConsumer<AuthBloc, AuthState>(
+                listener: (context, state) {
+                  if (state is AuthRegisterInProgress) {
+                    CustomLoadingDialog.show(context);
+                  } else {
+                    CustomLoadingDialog.dismiss(context);
+                  }
+
+                  if (state is AuthRegisterSuccess) {
+                    Navigator.pop(context);
+                  } else if (state is AuthRegisterFailure) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Đăng ký thất bại')),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  return CustomButton(
+                    text: 'Tạo tài khoản',
+                    isValid: _isValid,
+                    onTap: _isValid
+                        ? () {
+                            if (_formKey.currentState!.validate()) {
+                              final name = _nameController.text;
+                              final email = _emailController.text;
+                              final phoneNumber = _phoneNumberController.text;
+                              final password = _passwordController.text;
+
+                              context.read<AuthBloc>().add(
+                                    AuthRegisterStarted(
+                                      name: name,
+                                      email: email,
+                                      phoneNumber: phoneNumber,
+                                      password: password,
+                                    ),
+                                  );
+                            }
+                          }
+                        : null,
+                  );
+                },
+              ),
+              const SizedBox(height: kMarginLg),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Expanded(
+                    child: Divider(
+                      color: kGreyMediumColor,
+                      height: 1,
+                      thickness: 1,
+                      endIndent: kPaddingMd,
+                    ),
                   ),
-                  const SizedBox(height: kMarginLg),
-                  Align(
-                    alignment: Alignment.center,
-                    child: RichText(
-                      text: TextSpan(
-                        style: AppTextStyle.semibold(kTextSizeSm, kGreyColor),
-                        children: <TextSpan>[
-                          TextSpan(text: 'Bạn đã có tài khoản? ', style: AppTextStyle.semibold(kTextSizeSm, kGreyColor)),
-                          TextSpan(
-                            text: 'Đăng nhập',
-                            style: AppTextStyle.semibold(kTextSizeSm, kPrimaryColor),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                Navigator.pop(context);
-                              },
-                          ),
-                        ],
-                      ),
+                  Text(
+                    'HOẶC',
+                    style: AppTextStyle.bold(8, kGreyDarkColor),
+                  ),
+                  const Expanded(
+                    child: Divider(
+                      color: kGreyMediumColor,
+                      height: 1,
+                      thickness: 1,
+                      indent: kPaddingMd,
                     ),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: kMarginLg),
+              const CustomButtonGoogle(),
+            ],
           ),
         ),
       ),

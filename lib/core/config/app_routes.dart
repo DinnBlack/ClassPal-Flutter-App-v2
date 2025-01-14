@@ -25,7 +25,9 @@ Route<dynamic> routes(RouteSettings settings) {
     case LoginScreen.route:
       return MaterialPageRoute(builder: (context) => const LoginScreen());
     case ForgotPasswordScreen.route:
-      return MaterialPageRoute(builder: (context) => const ForgotPasswordScreen());
+      final args = settings.arguments as Map<String, dynamic>?;
+      final String email = args?['email'];
+      return MaterialPageRoute(builder: (context) =>  ForgotPasswordScreen(email: email,));
     case ResetPasswordScreen.route:
       final args = settings.arguments as Map<String, dynamic>?;
       final String email = args?['email'];
@@ -77,11 +79,9 @@ Route<dynamic> routes(RouteSettings settings) {
     case StudentListScreen.route:
       final args = settings.arguments as Map<String, dynamic>?;
       final students = args?['students'] as List<StudentModel>? ?? [];
-      final isListView = args?['isListView'] as bool? ?? false;
       return MaterialPageRoute(
         builder: (context) => StudentListScreen(
           students: students,
-          isListView: isListView,
         ),
       );
     case StudentCreateScreen.route:

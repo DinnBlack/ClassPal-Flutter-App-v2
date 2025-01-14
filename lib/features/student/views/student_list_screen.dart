@@ -14,14 +14,12 @@ import '../../../core/widgets/custom_scale_effect.dart';
 import '../models/student_model.dart';
 
 class StudentListScreen extends StatelessWidget {
-  final bool isListView;
   final bool isCreateListView;
   final List<StudentModel> students;
   static const route = 'StudentListScreen';
 
   const StudentListScreen({
     super.key,
-    this.isListView = false,
     required this.students,
     this.isCreateListView = false,
   });
@@ -36,6 +34,9 @@ class StudentListScreen extends StatelessWidget {
   }
 
   Widget _buildCreateListView() {
+    if (students.isEmpty || students == null) {
+      return _buildEmptyStudentView();
+    }
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
       shrinkWrap: true,
@@ -68,7 +69,7 @@ class StudentListScreen extends StatelessWidget {
               child: Container(
                 height: 40,
                 width: 40,
-                decoration:  BoxDecoration(
+                decoration: BoxDecoration(
                   color: kPrimaryLightColor.withOpacity(0.5),
                   shape: BoxShape.circle,
                 ),
@@ -78,7 +79,7 @@ class StudentListScreen extends StatelessWidget {
                       context,
                       ['Chỉnh sửa học sinh', 'Hủy bỏ học sinh'],
                       [
-                        () {
+                            () {
                           CustomBottomSheet.showCustomBottomSheet(
                             context,
                             StudentEditScreen(
@@ -86,7 +87,7 @@ class StudentListScreen extends StatelessWidget {
                             ),
                           );
                         },
-                        () {
+                            () {
                           CustomBottomSheet.showCustomBottomSheet(
                             context,
                             StudentEditScreen(
@@ -112,6 +113,36 @@ class StudentListScreen extends StatelessWidget {
     );
   }
 
+
+  Widget _buildEmptyStudentView() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/images/empty_student_view.png',
+              height: 200,
+            ),
+            const SizedBox(height: kMarginLg),
+            Text(
+              'Thêm học sinh của bạn nào!',
+              style: AppTextStyle.bold(kTextSizeLg),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: kMarginSm),
+            Text(
+              'Khiến học sinh thu hút với phản hồi tức thời và bắt đầu xây dựng cộng đồng lớp học của mình nào',
+              style: AppTextStyle.medium(kTextSizeXs),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildStudentListView(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
@@ -121,34 +152,9 @@ class StudentListScreen extends StatelessWidget {
           double itemHeight = 105;
           double itemWidth = (constraints.maxWidth - (4 - 1) * kPaddingMd) / 4;
 
-          if (isListView) {
-            return _buildListView(studentData);
-          } else {
-            return _buildGridView(studentData, itemHeight, itemWidth);
-          }
+          return _buildGridView(studentData, itemHeight, itemWidth);
         },
       ),
-    );
-  }
-
-  Widget _buildListView(List<StudentModel?> studentData) {
-    // ListView layout
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: studentData.length,
-      itemBuilder: (context, index) {
-        final student = studentData[index];
-        if (student == null) {
-          return const CustomStudentListItem(
-            addItem: true,
-          );
-        } else {
-          return CustomStudentListItem(
-            student: student,
-          );
-        }
-      },
     );
   }
 

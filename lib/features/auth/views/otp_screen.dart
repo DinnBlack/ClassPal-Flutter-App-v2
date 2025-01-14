@@ -1,10 +1,14 @@
 import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/auth/views/reset_password_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pinput/pinput.dart';
 
 import '../../../core/config/app_constants.dart';
 import '../../../core/utils/app_text_style.dart';
+import '../../../core/utils/validators.dart';
+import '../../../core/widgets/custom_app_bar.dart';
 
 class OtpScreen extends StatefulWidget {
   final String email;
@@ -19,12 +23,27 @@ class OtpScreen extends StatefulWidget {
 class _OtpScreenState extends State<OtpScreen> {
   final _otpController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  bool _isValid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _otpController.addListener(_validateForm);
+  }
 
   @override
   void dispose() {
     _otpController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _validateForm() {
+    setState(() {
+      final isOtpValid = Validators.validateOtp(_otpController.text) == null;
+
+      _isValid = isOtpValid && _otpController.text.trim().isNotEmpty;
+    });
   }
 
   @override
@@ -41,71 +60,75 @@ class _OtpScreenState extends State<OtpScreen> {
         color: Color.fromRGBO(30, 60, 87, 1),
       ),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(19),
+        borderRadius: BorderRadius.circular(kBorderRadiusSm),
         border: Border.all(color: borderColor),
       ),
     );
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: kMarginXxl),
-              Center(
-                child: Image.asset(
-                  'assets/images/classpal_logo.png',
-                  width: 150,
+      backgroundColor: kBackgroundColor,
+      appBar: CustomAppBar(
+        leftWidget: InkWell(
+          child: const Icon(FontAwesomeIcons.arrowLeft),
+          onTap: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Xác thực',
+              style: AppTextStyle.bold(kTextSizeXl),
+            ),
+            const SizedBox(height: kMarginSm),
+            Text(
+              'Nhập mã otp đã gửi vào email của bạn',
+              style: AppTextStyle.medium(kTextSizeXs),
+            ),
+            const SizedBox(height: kMarginLg),
+            Pinput(
+              length: 6,
+              controller: _otpController,
+              focusNode: _focusNode,
+              defaultPinTheme: defaultPinTheme,
+              focusedPinTheme: defaultPinTheme.copyWith(
+                decoration: defaultPinTheme.decoration!.copyWith(
+                  border: Border.all(color: focusedBorderColor),
                 ),
               ),
-              const SizedBox(height: kMarginXxl),
-              Text(
-                'Đăng nhập',
-                style: AppTextStyle.semibold(kTextSizeXxl),
-              ),
-              Text(
-                'Đăng nhập tài khoản của bạn',
-                style: AppTextStyle.semibold(kTextSizeMd, kGreyColor),
-              ),
-              const SizedBox(height: kMarginLg),
-              Pinput(
-                length: 6,
-                // Đặt độ dài OTP là 6 ký tự
-                controller: _otpController,
-                focusNode: _focusNode,
-                defaultPinTheme: defaultPinTheme,
-                focusedPinTheme: defaultPinTheme.copyWith(
-                  decoration: defaultPinTheme.decoration!.copyWith(
-                    border: Border.all(color: focusedBorderColor),
-                  ),
+              submittedPinTheme: defaultPinTheme.copyWith(
+                decoration: defaultPinTheme.decoration!.copyWith(
+                  color: fillColor,
+                  border: Border.all(color: focusedBorderColor),
                 ),
-                submittedPinTheme: defaultPinTheme.copyWith(
-                  decoration: defaultPinTheme.decoration!.copyWith(
-                    color: fillColor,
-                    border: Border.all(color: focusedBorderColor),
-                  ),
-                ),
-                errorPinTheme: defaultPinTheme.copyWith(
-                  decoration: defaultPinTheme.decoration!.copyWith(
-                    border: Border.all(color: Colors.red),
-                  ),
-                ),
-                onCompleted: (pin) {
-                  print('OTP Entered: $pin');
-                },
               ),
-              const SizedBox(height: kMarginLg),
-              CustomButton(
-                text: 'Tiếp theo',
-                onTap: () {
-                  Navigator.pushNamed(context, ResetPasswordScreen.route, arguments: {'email': widget.email, 'otp': _otpController.text});
-                },
-              )
-            ],
-          ),
+              errorPinTheme: defaultPinTheme.copyWith(
+                decoration: defaultPinTheme.decoration!.copyWith(
+                  border: Border.all(color: Colors.red),
+                ),
+              ),
+              onCompleted: (pin) {
+                print('OTP Entered: $pin');
+              },
+            ),
+            const SizedBox(height: kMarginLg),
+            CustomButton(
+              text: 'Tiếp theo',
+              isValid: _isValid,
+              onTap: _isValid
+                  ? () {
+                CustomPageTransition.navigateTo(context: context,
+                    page: ResetPasswordScreen(
+                      email: widget.email, otp: _otpController.text,),
+                    transitionType: PageTransitionType.slideFromRight);
+              }
+                  : null,
+            )
+          ],
         ),
       ),
     );

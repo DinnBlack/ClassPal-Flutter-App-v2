@@ -165,7 +165,7 @@ class _CustomHorizontalItemState extends State<_CustomHorizontalItem>
               decoration: BoxDecoration(
                 color: kGreyLightColor,
                 borderRadius: BorderRadius.circular(kBorderRadiusXl),
-                border: const Border.symmetric(
+                border:  Border.symmetric(
                     vertical: BorderSide(width: 2, color: kGreyLightColor)),
               ),
               child: Text(
