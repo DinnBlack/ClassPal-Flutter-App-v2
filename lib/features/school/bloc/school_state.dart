@@ -5,32 +5,29 @@ sealed class SchoolState {}
 
 final class SchoolInitial extends SchoolState {}
 
-// Fetching the list of schools for a logged-in user
-class SchoolFetchByUserInProgress extends SchoolState {}
+// Fetching the list of schools
+class SchoolFetchInProgress extends SchoolState {}
 
-class SchoolFetchByUserSuccess extends SchoolState {
+class SchoolFetchSuccess extends SchoolState {
   final List<SchoolModel> schools;
 
-  SchoolFetchByUserSuccess(this.schools);
+  SchoolFetchSuccess(this.schools);
 }
 
-class SchoolFetchByUserFailure extends SchoolState {
+class SchoolFetchFailure extends SchoolState {
   final String error;
 
-  SchoolFetchByUserFailure(this.error);
+  SchoolFetchFailure(this.error);
 }
 
-// Fetching a school by its ID
-class SchoolFetchByIdInProgress extends SchoolState {}
+// Create a new School
+class SchoolCreateInProgress extends SchoolState {}
 
-class SchoolFetchByIdSuccess extends SchoolState {
-  final SchoolModel school;
-
-  SchoolFetchByIdSuccess(this.school);
+class SchoolCreateSuccess extends SchoolState {
 }
 
-class SchoolFetchByIdFailure extends SchoolState {
+class SchoolCreateFailure extends SchoolState {
   final String error;
 
-  SchoolFetchByIdFailure(this.error);
+  SchoolCreateFailure(this.error);
 }

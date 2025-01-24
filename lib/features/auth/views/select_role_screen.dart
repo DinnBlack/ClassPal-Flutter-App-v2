@@ -4,6 +4,9 @@ import 'package:classpal_flutter_app/shared/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import '../../../core/widgets/custom_app_bar.dart';
 
 class SelectRoleScreen extends StatefulWidget {
   static const route = 'SelectRoleScreen';
@@ -18,35 +21,31 @@ class SelectRoleScreen extends StatefulWidget {
 class _SelectRoleScreenState extends State<SelectRoleScreen> {
   @override
   Widget build(BuildContext context) {
-    print(widget.user);
     return Scaffold(
       backgroundColor: kBackgroundColor,
+      appBar: CustomAppBar(
+        leftWidget: InkWell(
+          child: const Icon(FontAwesomeIcons.arrowLeft),
+          onTap: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(
-                  height: kMarginXxl,
-                ),
-                Center(
-                  child: Image.asset(
-                    'assets/images/classpal_logo.png',
-                    width: 150,
-                  ),
-                ),
-                const SizedBox(
-                  height: kMarginXxl,
-                ),
                 Text(
-                  'Lựa chọn quyền của bạn',
-                  style: AppTextStyle.semibold(kTextSizeMd, kGreyColor),
+                  'Bạn Là?',
+                  style: AppTextStyle.bold(kTextSizeXl),
                 ),
+                const SizedBox(height: kMarginSm),
                 Text(
-                  'Bạn là ?',
-                  style: AppTextStyle.semibold(kTextSizeXxl),
+                  'Lựa chọn quyền của bạn để tiếp tục',
+                  style: AppTextStyle.medium(kTextSizeXs),
                 ),
                 const SizedBox(
                   height: kMarginLg,

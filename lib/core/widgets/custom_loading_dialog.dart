@@ -34,14 +34,14 @@ class CustomLoadingDialog extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         child: Padding(
-          padding: const EdgeInsets.all(50),
+          padding: const EdgeInsets.all(70),
           child: Container(
              width: 50,
             padding: const EdgeInsets.all(kPaddingLg),
             decoration: BoxDecoration(
               color: kWhiteColor,
-              borderRadius: BorderRadius.circular(kBorderRadiusMd),
-              border: Border.all(width: 1, color: kPrimaryColor),
+              borderRadius: BorderRadius.circular(kBorderRadiusXl),
+              border: Border.all(width: 2, color: kPrimaryColor),
             ),
             child: Lottie.asset(
               'assets/animations/loading.json',

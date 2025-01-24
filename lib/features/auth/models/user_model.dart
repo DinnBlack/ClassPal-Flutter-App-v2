@@ -5,7 +5,7 @@ enum USER_ROLE { ADMIN, USER }
 enum USER_STATUS { ACTIVE, INACTIVE }
 
 class UserModel {
-  final String _id;
+  final String id;
   final String name;
   final String email;
   final String password;
@@ -19,6 +19,7 @@ class UserModel {
 
 //<editor-fold desc="Data Methods">
   const UserModel({
+    required this.id,
     required this.name,
     required this.email,
     required this.password,
@@ -29,15 +30,14 @@ class UserModel {
     required this.socialMediaAccounts,
     required this.createdAt,
     required this.updatedAt,
-    required String id,
-  }) : _id = id;
+  });
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is UserModel &&
           runtimeType == other.runtimeType &&
-          _id == other._id &&
+          id == other.id &&
           name == other.name &&
           email == other.email &&
           password == other.password &&
@@ -51,7 +51,7 @@ class UserModel {
 
   @override
   int get hashCode =>
-      _id.hashCode ^
+      id.hashCode ^
       name.hashCode ^
       email.hashCode ^
       password.hashCode ^
@@ -66,7 +66,7 @@ class UserModel {
   @override
   String toString() {
     return 'UserModel{' +
-        ' _id: $_id,' +
+        ' id: $id,' +
         ' name: $name,' +
         ' email: $email,' +
         ' password: $password,' +
@@ -94,7 +94,7 @@ class UserModel {
     DateTime? updatedAt,
   }) {
     return UserModel(
-      id: id ?? this._id,
+      id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
       password: password ?? this.password,
@@ -110,7 +110,7 @@ class UserModel {
 
   Map<String, dynamic> toMap() {
     return {
-      '_id': this._id,
+      '_id': this.id,
       'name': this.name,
       'email': this.email,
       'password': this.password,

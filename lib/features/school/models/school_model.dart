@@ -1,6 +1,3 @@
-import '../../class/models/class_model.dart';
-import '../../principal/models/principal_model.dart';
-import '../../teacher/models/teacher_model.dart';
 
 class SchoolModel {
   final String _id;

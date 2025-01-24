@@ -3,14 +3,17 @@ part of 'school_bloc.dart';
 @immutable
 abstract class SchoolEvent {}
 
-class SchoolFetchByUserStarted extends SchoolEvent {
-  final UserModel user;
+class SchoolFetchStarted extends SchoolEvent {}
 
-  SchoolFetchByUserStarted({required this.user});
-}
+class SchoolCreateStarted extends SchoolEvent {
+  final String name;
+  final String address;
+  final String phoneNumber;
+  final String? avatarUrl;
 
-class SchoolFetchByIdStarted extends SchoolEvent {
-  final String schoolId;
-
-  SchoolFetchByIdStarted({required this.schoolId});
+  SchoolCreateStarted(
+      {required this.name,
+      required this.address,
+      required this.phoneNumber,
+      this.avatarUrl});
 }

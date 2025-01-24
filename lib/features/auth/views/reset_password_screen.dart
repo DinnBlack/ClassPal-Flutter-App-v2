@@ -1,5 +1,4 @@
-import 'package:classpal_flutter_app/features/auth/views/register_screen.dart';
-import 'package:flutter/gestures.dart';
+
 import 'package:flutter/material.dart';
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
@@ -128,6 +127,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   onTap: _isValid
                       ? () {
                           final password = _passwordController.text;
+
                           context.read<AuthBloc>().add(
                                 AuthResetPasswordStarted(
                                   email: widget.email,

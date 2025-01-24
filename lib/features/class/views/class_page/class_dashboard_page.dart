@@ -1,5 +1,6 @@
 import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_text_field.dart';
+import 'package:classpal_flutter_app/features/class/sub_features/report/views/report_screen.dart';
 import 'package:classpal_flutter_app/features/class/views/class_information_screen.dart';
 import 'package:classpal_flutter_app/features/class/sub_features/schedule/views/schedule_screen.dart';
 import 'package:classpal_flutter_app/features/student/views/student_create_screen.dart';
@@ -38,6 +39,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
         'Học sinh',
         'Lịch học',
         'Môn học',
+        'Báo cáo',
         'Thông tin lớp học',
         'Kết thúc lớp học'
       ],
@@ -90,6 +92,13 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
         () {
           print('Môn học');
         },
+    () {
+      CustomPageTransition.navigateTo(
+        context: context,
+        page: const ReportScreen(),
+        transitionType: PageTransitionType.slideFromBottom,
+      );
+    },
         () {
           CustomPageTransition.navigateTo(
             context: context,

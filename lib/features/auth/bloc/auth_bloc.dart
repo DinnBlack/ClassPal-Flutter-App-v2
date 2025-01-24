@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import '../models/user_model.dart';
-import '../repository/user_service.dart';
+import '../repository/auth_service.dart';
+import '../repository/profile_service.dart';
 import '../views/login_screen.dart';
 
 part 'auth_event.dart';
@@ -11,7 +12,8 @@ part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final UserService userService = UserService();
+  final AuthService authService = AuthService();
+  final ProfileService profileService = ProfileService();
 
   AuthBloc() : super(AuthInitial()) {
     on<AuthLoginStarted>(_onAuthLoginStarted);
@@ -28,9 +30,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoginInProgress());
     try {
       final user =
-      await userService.login(event.emailOrPhoneNumber, event.password);
+          await authService.login(event.emailOrPhoneNumber, event.password);
       if (user != null) {
         emit(AuthLoginSuccess(user));
+        final profile = await profileService.getProfileByUserId();
       } else {
         emit(AuthLoginFailure("Invalid credentials"));
       }
@@ -44,16 +47,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       AuthRegisterStarted event, Emitter<AuthState> emit) async {
     emit(AuthRegisterInProgress());
     try {
-      final success = await userService.register(
+      final errorMessage = await authService.register(
         event.name,
         event.email,
         event.phoneNumber,
         event.password,
       );
-      if (success) {
+      if (errorMessage == null) {
         emit(AuthRegisterSuccess());
       } else {
-        emit(AuthRegisterFailure("Email already exists"));
+        emit(AuthRegisterFailure(errorMessage));
       }
     } catch (error) {
       emit(AuthRegisterFailure(error.toString()));
@@ -65,12 +68,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       AuthLogoutStarted event, Emitter<AuthState> emit) async {
     emit(AuthLogoutInProgress());
     try {
-      await userService.logout();
+      await authService.logout();
       emit(AuthLogoutSuccess());
       Navigator.pushNamedAndRemoveUntil(
         event.context,
         LoginScreen.route,
-            (route) => false,
+        (route) => false,
       );
     } catch (error) {
       emit(AuthLogoutFailure(error.toString()));
@@ -82,8 +85,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       AuthForgotPasswordStarted event, Emitter<AuthState> emit) async {
     emit(AuthForgotPasswordInProgress());
     try {
-      // await Future.delayed(Duration(seconds: 2));
-      await userService.forgotPassword(event.email);
+      await authService.forgotPassword(event.email);
       emit(AuthForgotPasswordSuccess());
     } catch (error) {
       emit(AuthForgotPasswordFailure(error.toString()));
@@ -95,7 +97,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       AuthResetPasswordStarted event, Emitter<AuthState> emit) async {
     emit(AuthResetPasswordInProgress());
     try {
-      await userService.resetPassword(
+      print('${event.email}, ${event.password}, ${event.otp}');
+      await authService.resetPassword(
         event.email,
         event.password,
         event.otp,
@@ -108,14 +111,5 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   // Xử lý sự kiện lấy vai trò
   Future<void> _onAuthGetRolesStarted(
-      AuthGetRolesStarted event, Emitter<AuthState> emit) async {
-    emit(AuthGetRolesInProgress());
-    try {
-      final roles = await userService.getRoles();
-      emit(AuthGetRolesSuccess(roles!));
-    } catch (error) {
-      emit(AuthGetRolesFailure(error.toString()));
-    }
-  }
-
+      AuthGetRolesStarted event, Emitter<AuthState> emit) async {}
 }

@@ -1,15 +1,21 @@
-// import '../models/user_model.dart';
-//
-// List<UserModel> users = [
-//   UserModel(
-//     id: 'U001',
-//     name: 'Trần Thị Thảo Vy',
-//     email: 'tttv1503@test.com',
-//     password: '111111',
-//
-//     schoolIds: ['SCH001'],
-//     classIds: ['class_001'],
-//   ),
+import '../models/user_model.dart';
+
+List<UserModel> users = [
+  UserModel(
+    id: 'U001',
+    name: 'Trần Thị Thảo Vy',
+    email: 'tttv1503@test.com',
+    password: '111111',
+role: 1,
+    avatarUrl: 'https://i.pravatar.cc/150?img=57',
+    createdAt: DateTime.now(),
+    updatedAt: DateTime.now(),
+    socialMediaAccounts: [],
+    phoneNumber: '0123456789',
+    status: 1,
+
+  ),
+];
 //   UserModel(
 //     id: 'U002',
 //     name: 'Bob Smith',
