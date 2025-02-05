@@ -6,31 +6,27 @@ sealed class ClassState {}
 final class ClassInitial extends ClassState {}
 
 // Fetching the list of classes for a logged-in user
-class ClassFetchByUserInProgress extends ClassState {}
+class ClassPersonalFetchInProgress extends ClassState {}
 
-class ClassFetchByUserSuccess extends ClassState {
+class ClassPersonalFetchSuccess extends ClassState {
   final List<ClassModel> classes;
 
-  ClassFetchByUserSuccess(this.classes);
+  ClassPersonalFetchSuccess(this.classes);
 }
 
-class ClassFetchByUserFailure extends ClassState {
+class ClassPersonalFetchFailure extends ClassState {
   final String error;
 
-  ClassFetchByUserFailure(this.error);
+  ClassPersonalFetchFailure(this.error);
 }
 
-// Fetching a school by its ID
-class ClassFetchByIdInProgress extends ClassState {}
+// Create a new Personal Class
+class ClassPersonalCreateInProgress extends ClassState {}
 
-class ClassFetchByIdSuccess extends ClassState {
-  final ClassModel school;
+class ClassPersonalCreateSuccess extends ClassState {}
 
-  ClassFetchByIdSuccess(this.school);
-}
-
-class ClassFetchByIdFailure extends ClassState {
+class ClassPersonalCreateFailure extends ClassState {
   final String error;
 
-  ClassFetchByIdFailure(this.error);
+  ClassPersonalCreateFailure(this.error);
 }

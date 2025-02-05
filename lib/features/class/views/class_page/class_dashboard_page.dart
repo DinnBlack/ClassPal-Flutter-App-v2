@@ -92,17 +92,19 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
         () {
           print('Môn học');
         },
-    () {
-      CustomPageTransition.navigateTo(
-        context: context,
-        page: const ReportScreen(),
-        transitionType: PageTransitionType.slideFromBottom,
-      );
-    },
         () {
           CustomPageTransition.navigateTo(
             context: context,
-            page: const ClassInformationScreen(),
+            page: const ReportScreen(),
+            transitionType: PageTransitionType.slideFromBottom,
+          );
+        },
+        () {
+          CustomPageTransition.navigateTo(
+            context: context,
+            page: ClassInformationScreen(
+              currentClass: widget.currentClass,
+            ),
             transitionType: PageTransitionType.slideFromBottom,
           );
         },

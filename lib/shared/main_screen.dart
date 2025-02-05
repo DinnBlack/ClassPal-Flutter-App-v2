@@ -129,7 +129,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        context.read<SchoolBloc>().add(SchoolCreateStarted(name: 'School 2', address: 'address 2', phoneNumber: '0123123123'));
+                        context.read<SchoolBloc>().add(SchoolCreateStarted(name: 'School 3', address: 'address 3', phoneNumber: '0123123111'));
                       },
                       child: Text(
                         'Đăng xuất',

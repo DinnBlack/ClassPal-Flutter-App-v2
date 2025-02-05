@@ -23,8 +23,6 @@ class SchoolService {
     final cookieStorage = FileStorage('${directory.path}/cookies');
     _cookieJar = PersistCookieJar(storage: cookieStorage);
     _dio.interceptors.add(CookieManager(_cookieJar));
-
-    // Restore cookies khi khởi tạo
     await restoreCookies();
   }
 
@@ -69,11 +67,10 @@ class SchoolService {
     List<SchoolModel> schools = [];
 
     try {
-      // Lấy danh sách Profile từ SharedPreferences
+      await _initialize();
       List<ProfileModel> profiles = await getProfilesFromSharedPreferences();
       print(profiles);
 
-      // Kiểm tra danh sách profile có trống không
       if (profiles.isEmpty) {
         print('Không có profile nào được lưu trong SharedPreferences');
         return [];
@@ -87,45 +84,47 @@ class SchoolService {
 
       // Tạo cookie header cho yêu cầu
       final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      // Duyệt qua danh sách profile và thực hiện yêu cầu API cho từng profile
       for (var profile in profiles) {
-        print(profile.id);
-        final requestUrl = '$_baseUrl/schools/${profile.id}';
-        print('Request URL: $requestUrl'); // Log URL yêu cầu
+        if (profile.groupType != 0) {
+          continue;
+        }
+        final requestUrl = '$_baseUrl/schools/${profile.groupId}';
+        print('Request URL: $requestUrl');
+
+        final headers = {
+          'Content-Type': 'application/json',
+          'Cookie': cookieHeader,
+          'x-profile-id': profile.id,
+        };
+
+        print('Request Headers: $headers');
 
         final response = await _dio.get(
           requestUrl,
-          options: Options(
-            headers: {
-              'Content-Type': 'application/json',
-              'Cookie': cookieHeader,
-            },
-          ),
+          options: Options(headers: headers),
         );
 
         if (response.statusCode == 200) {
-          // Nếu thành công, thêm trường vào danh sách
+          print(response.data['data']);
           schools.add(SchoolModel.fromMap(response.data['data']));
+          // break;
         } else if (response.statusCode == 404) {
-          // Xử lý lỗi 404 khi không tìm thấy trường
           print('Không tìm thấy trường với ID profile: ${profile.id}');
-          return []; // Hoặc bạn có thể chỉ log và tiếp tục với các profile khác
+          return [];
         } else {
-          // In ra lỗi nếu không phải 404
-          print('Lỗi khi lấy trường: Mã lỗi ${response.statusCode}, Thông báo: ${response.data}');
+          print(
+              'Lỗi khi lấy trường: Mã lỗi ${response.statusCode}, Thông báo: ${response.data}');
           throw Exception('Failed to fetch school by ID: ${response.data}');
         }
       }
-
-      return schools; // Trả về danh sách các trường
+      return schools;
     } catch (e) {
       print('Error fetching school by ID: $e');
-      return []; // Trả về danh sách rỗng khi có lỗi
+      return [];
     }
   }
-
 
   // Thêm trường mới
   Future<void> insertSchool(String name, String address, String phoneNumber,
@@ -139,7 +138,6 @@ class SchoolService {
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      // Sử dụng avatarUrl mặc định nếu không có giá trị
       final finalAvatarUrl =
           avatarUrl ?? 'https://i.ibb.co/V9Znq7h/school-icon.png';
 

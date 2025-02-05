@@ -1,10 +1,3 @@
-import 'package:classpal_flutter_app/features/student/models/student_group_model.dart';
-
-import '../../student/models/student_model.dart';
-import '../../teacher/models/teacher_model.dart';
-import '../sub_features/attendance/models/atttendance_model.dart';
-import '../sub_features/schedule/models/schedule_model.dart';
-
 class ClassModel {
   final String _id;
   final String name;
@@ -95,16 +88,19 @@ class ClassModel {
 
   factory ClassModel.fromMap(Map<String, dynamic> map) {
     return ClassModel(
-      id: map['_id'] as String,
+      id: map['_id'] != null ? map['_id'] as String : '',
       name: map['name'] as String,
       avatarUrl: map['avatarUrl'] as String,
-      schoolId: map['schoolId'] as String,
+      schoolId: map['schoolId'] as String?,
       creatorId: map['creatorId'] as String,
-      updatedAt: map['updatedAt'] as DateTime,
-      createdAt: map['createdAt'] as DateTime,
+      updatedAt: map['updatedAt'] != null
+          ? DateTime.parse(map['updatedAt'])
+          : DateTime.now(),
+      createdAt: map['createdAt'] != null
+          ? DateTime.parse(map['createdAt'])
+          : DateTime.now(),
     );
   }
 
 //</editor-fold>
 }
-

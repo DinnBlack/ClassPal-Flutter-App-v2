@@ -99,12 +99,12 @@ class SchoolModel {
     return SchoolModel(
       id: map['_id'] as String,
       name: map['name'] as String,
-      address: map['address'] as String,
-      phoneNumber: map['phoneNumber'] as String,
+      address: map['address'] as String?,
+      phoneNumber: map['phoneNumber'] as String?,
       avatarUrl: map['avatarUrl'] as String,
       creatorId: map['creatorId'] as String,
-      updatedAt: map['updatedAt'] as DateTime,
-      createdAt: map['createdAt'] as DateTime,
+      updatedAt: DateTime.parse(map['updatedAt'] as String),
+      createdAt: DateTime.parse(map['createdAt'] as String),
     );
   }
 

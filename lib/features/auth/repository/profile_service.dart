@@ -50,9 +50,11 @@ class ProfileService {
   }
 
   // Lưu List<ProfileModel> vào SharedPreferences
-  Future<void> saveProfilesToSharedPreferences(List<ProfileModel> profiles) async {
+  Future<void> saveProfilesToSharedPreferences(
+      List<ProfileModel> profiles) async {
     final prefs = await SharedPreferences.getInstance();
-    final profilesJson = jsonEncode(profiles.map((profile) => profile.toMap()).toList());
+    final profilesJson =
+        jsonEncode(profiles.map((profile) => profile.toMap()).toList());
     print(profilesJson);
     await prefs.setString('profiles', profilesJson);
     print('Profiles đã được lưu');
@@ -86,7 +88,7 @@ class ProfileService {
 
       // Tạo headers với cookies
       final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
       final response = await _dio.get(
         '$_baseUrl/profiles/me',
@@ -105,13 +107,10 @@ class ProfileService {
             .map((profile) => ProfileModel.fromMap(profile))
             .toList();
 
-        print(profiles[0].id);
-
         // Lưu profiles vào SharedPreferences
         await saveProfilesToSharedPreferences(profiles);
-        List<ProfileModel> profilesPref = await getProfilesFromSharedPreferences();
-
-        print(profilesPref[0].id);
+        List<ProfileModel> profilesPref =
+            await getProfilesFromSharedPreferences();
 
         return profiles;
       } else {
@@ -123,4 +122,49 @@ class ProfileService {
     }
   }
 
+// Fetch profiles by role(s) from the API
+  Future<List<ProfileModel>> getProfileByRoles(List<String> roles) async {
+    try {
+      // Load cookies that were restored earlier
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      // Construct the roles query parameters
+      String rolesQuery = roles.map((role) => 'roles=$role').join('&');
+      final requestUrl = '$_baseUrl/profiles/me?$rolesQuery';
+
+      // Create headers with cookies
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final response = await _dio.get(
+        requestUrl,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Cookie': cookieHeader,
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        var profilesData = response.data['data'] as List;
+        List<ProfileModel> profiles = profilesData
+            .map((profile) => ProfileModel.fromMap(profile))
+            .toList();
+
+        // Save profiles to SharedPreferences
+        await saveProfilesToSharedPreferences(profiles);
+        return profiles;
+      } else {
+        throw Exception('Failed to fetch profiles: ${response.data}');
+      }
+    } catch (e) {
+      print('Error fetching profile by roles: $e');
+      return [];
+    }
+  }
 }

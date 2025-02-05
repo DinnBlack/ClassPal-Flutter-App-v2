@@ -20,6 +20,8 @@ class CustomTextField extends StatefulWidget {
   final bool isTimePicker;
   final Widget? suffixIcon;
   final String? Function(String?)? validator;
+  final bool readOnly;
+  final FocusNode? customFocusNode; // New field for custom focus node
 
   const CustomTextField({
     super.key,
@@ -37,6 +39,8 @@ class CustomTextField extends StatefulWidget {
     this.isTimePicker = false,
     this.suffixIcon,
     this.validator,
+    this.readOnly = false,
+    this.customFocusNode, // New parameter for custom focus node
   });
 
   @override
@@ -46,6 +50,7 @@ class CustomTextField extends StatefulWidget {
 class _CustomTextFieldState extends State<CustomTextField> {
   bool _isObscured = true;
   late FocusNode _focusNode;
+  late FocusNode _customFocusNode; // New local focus node variable
   String _selectedOption = "";
   String? _errorText;
 
@@ -53,6 +58,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
   void initState() {
     super.initState();
     _focusNode = FocusNode();
+    _customFocusNode = widget.customFocusNode ?? FocusNode(); // Use custom focus node or create a new one
+
     _focusNode.addListener(() {
       setState(() {});
     });
@@ -71,6 +78,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   void dispose() {
     _focusNode.dispose();
+    _customFocusNode.dispose(); // Dispose custom focus node
     super.dispose();
   }
 
@@ -168,7 +176,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
             color: kWhiteColor,
             border: Border.all(
               width: 2,
-              color: _focusNode.hasFocus
+              color: _focusNode.hasFocus || _customFocusNode.hasFocus
                   ? kPrimaryColor
                   : (_errorText != null ? Colors.red : kGreyColor),
             ),
@@ -176,18 +184,19 @@ class _CustomTextFieldState extends State<CustomTextField> {
           ),
           child: TextField(
             controller: widget.controller,
-            focusNode: _focusNode,
+            focusNode: _focusNode, // FocusNode can be customized to use _customFocusNode
             autofocus: widget.autofocus,
-            textAlignVertical: isOptionMode ||
-                widget.isPassword ||
-                widget.suffixIcon != null
+            textAlignVertical:
+            isOptionMode || widget.isPassword || widget.suffixIcon != null
                 ? TextAlignVertical.center
                 : null,
             keyboardType:
             widget.isNumber ? TextInputType.number : TextInputType.text,
             obscureText: widget.isPassword && _isObscured,
-            readOnly:
-            isOptionMode || widget.isDatePicker || widget.isTimePicker,
+            readOnly: widget.readOnly ||
+                isOptionMode ||
+                widget.isDatePicker ||
+                widget.isTimePicker,
             decoration: InputDecoration(
               hintText: widget.text ?? '',
               hintStyle: AppTextStyle.medium(kTextSizeSm, kGreyColor),
@@ -219,8 +228,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               contentPadding:
               const EdgeInsets.symmetric(horizontal: kPaddingMd),
             ),
-            style: AppTextStyle.medium(
-                kTextSizeSm),
+            style: AppTextStyle.medium(kTextSizeSm),
             onTap: widget.isDatePicker
                 ? _selectDate
                 : (widget.isTimePicker

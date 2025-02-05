@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/utils/app_text_style.dart';
 import '../../core/widgets/custom_list_item.dart';
+import '../../core/widgets/custom_page_transition.dart';
 import '../../features/class/bloc/class_bloc.dart';
 import '../../features/class/views/class_create_screen.dart';
 import '../../features/class/views/class_screen.dart';
@@ -29,7 +30,7 @@ class _PrincipalViewState extends State<PrincipalView> {
   void initState() {
     super.initState();
     context.read<SchoolBloc>().add(SchoolFetchStarted());
-    context.read<ClassBloc>().add(ClassFetchByUserStarted(user: widget.user));
+    context.read<ClassBloc>().add(ClassPersonalFetchStarted());
   }
 
   @override
@@ -67,23 +68,24 @@ class _PrincipalViewState extends State<PrincipalView> {
                   }
                   return Column(
                     children: [
-                      for (var school in schools) ...[
+                      for (var i = 0; i < schools.length; i++) ...[
                         CustomListItem(
-                          title: school.name,
-                          subtitle: school.address,
+                          title: schools[i].name,
+                          subtitle: schools[i].address,
                           hasTrailingArrow: true,
                           leading: const CustomAvatar(
                             imageAsset: 'assets/images/school.jpg',
                           ),
                           onTap: () {
                             Navigator.pushNamed(context, SchoolScreen.route,
-                                arguments: {'school': school});
+                                arguments: {'school': schools[i]});
                           },
                         ),
-                        const SizedBox(
-                          height: kMarginLg,
-                        ),
-                      ]
+                        if (i != schools.length - 1)
+                          const SizedBox(
+                            height: kMarginLg,
+                          ),
+                      ],
                     ],
                   );
                 }
@@ -97,6 +99,9 @@ class _PrincipalViewState extends State<PrincipalView> {
                 }
                 return Container();
               },
+            ),
+            const SizedBox(
+              height: kMarginLg,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -124,41 +129,49 @@ class _PrincipalViewState extends State<PrincipalView> {
             ),
             BlocBuilder<ClassBloc, ClassState>(
               builder: (context, state) {
-                if (state is ClassFetchByUserInProgress) {
+                if (state is ClassPersonalFetchInProgress) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                if (state is ClassFetchByUserSuccess) {
+                if (state is ClassPersonalFetchSuccess) {
                   final classes = state.classes;
                   if (classes.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'Chưa có lớp học cá nhân nào!',
-                        style: AppTextStyle.semibold(kTextSizeMd),
+                    return CustomListItem(
+                      title: 'Chưa có lớp học cá nhân nào!',
+                      subtitle: 'Tạo lớp mới của bạn',
+                      leading: const CustomAvatar(
+                        imageAsset: 'assets/images/class.jpg',
                       ),
+                      onTap: () {
+                        CustomPageTransition.navigateTo(
+                            context: context,
+                            page: const ClassCreateScreen(),
+                            transitionType: PageTransitionType.slideFromBottom);
+                      },
                     );
                   }
                   return Column(
                     children: [
-                      for (var currentClass in classes) ...[
+                      for (var i = 0; i < classes.length; i++) ...[
                         CustomListItem(
-                          title: currentClass.name,
+                          title: classes[i].name,
                           hasTrailingArrow: true,
                           leading: const CustomAvatar(
                             imageAsset: 'assets/images/class.jpg',
                           ),
                           onTap: () {
                             Navigator.pushNamed(context, ClassScreen.route,
-                                arguments: {'currentClass': currentClass});
+                                arguments: {'currentClass': classes[i]});
                           },
                         ),
-                        const SizedBox(
-                          height: kMarginLg,
-                        ),
+                        if (i != classes.length - 1)
+                          const SizedBox(
+                            height: kMarginLg,
+                          ),
                       ]
                     ],
                   );
                 }
-                if (state is ClassFetchByUserFailure) {
+                if (state is ClassPersonalFetchFailure) {
                   return Center(
                     child: Text(
                       state.error,

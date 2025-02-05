@@ -21,6 +21,7 @@ class SchoolBloc extends Bloc<SchoolEvent, SchoolState> {
     try {
       emit(SchoolFetchInProgress());
       final schools = await schoolService.getAllSchools();
+      print(schools);
       emit(SchoolFetchSuccess(schools));
     }  on Exception catch (e) {
       emit(SchoolFetchFailure(e.toString()));

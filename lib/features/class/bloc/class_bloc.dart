@@ -1,46 +1,45 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-
-import '../../auth/models/user_model.dart';
 import '../models/class_model.dart';
 import '../repository/class_service.dart';
 
 part 'class_event.dart';
+
 part 'class_state.dart';
 
 class ClassBloc extends Bloc<ClassEvent, ClassState> {
   final ClassService classService = ClassService();
 
   ClassBloc() : super(ClassInitial()) {
-    on<ClassFetchByUserStarted>(_onClassFetchByUserStarted);
-    on<ClassFetchByIdStarted>(_onClassFetchByIdStarted);
+    on<ClassPersonalFetchStarted>(_onClassPersonalFetchStarted);
+    on<ClassPersonalCreateStarted>(_onClassPersonalCreateStarted);
   }
 
-  // Fetch the list of classes for the logged-in user
-  Future<void> _onClassFetchByUserStarted(
-      ClassFetchByUserStarted event, Emitter<ClassState> emit) async {
-    emit(ClassFetchByUserInProgress());
+  // Fetch the list of classes personal
+  Future<void> _onClassPersonalFetchStarted(
+      ClassPersonalFetchStarted event, Emitter<ClassState> emit) async {
+    emit(ClassPersonalFetchInProgress());
     try {
-      final classes = await classService.fetchClassesByUser(event.user);
-      emit(ClassFetchByUserSuccess(classes));
+      final classes = await classService.getAllPersonalClass();
+      print(classes);
+      emit(ClassPersonalFetchSuccess(classes));
     } catch (e) {
-      emit(ClassFetchByUserFailure("Failed to fetch classes: ${e.toString()}"));
+      emit(ClassPersonalFetchFailure(
+          "Failed to fetch classes: ${e.toString()}"));
     }
   }
 
-  // Fetch a class by its ID
-  Future<void> _onClassFetchByIdStarted(
-      ClassFetchByIdStarted event, Emitter<ClassState> emit) async {
-    emit(ClassFetchByIdInProgress());
+  Future<void> _onClassPersonalCreateStarted(
+      ClassPersonalCreateStarted event, Emitter<ClassState> emit) async {
     try {
-      final currentClass = await classService.fetchClassById(event.classId);
-      if (currentClass != null) {
-        emit(ClassFetchByIdSuccess(currentClass));
-      } else {
-        emit(ClassFetchByIdFailure("Class not found"));
-      }
-    } catch (e) {
-      emit(ClassFetchByIdFailure("Failed to fetch class: ${e.toString()}"));
+      emit(ClassPersonalCreateInProgress());
+      await classService.insertPersonalClass(
+        event.name,
+        event.avatarUrl,
+      );
+      emit(ClassPersonalCreateSuccess());
+    } on Exception catch (e) {
+      emit(ClassPersonalCreateFailure(e.toString()));
     }
   }
 }
