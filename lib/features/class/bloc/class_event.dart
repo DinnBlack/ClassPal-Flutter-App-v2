@@ -9,7 +9,11 @@ class ClassPersonalCreateStarted extends ClassEvent {
   final String name;
   final String? avatarUrl;
 
-  ClassPersonalCreateStarted(
-      {required this.name,
-      this.avatarUrl});
+  ClassPersonalCreateStarted({required this.name, this.avatarUrl});
+}
+
+class ClassUpdateStarted extends ClassEvent {
+  final String newName;
+
+  ClassUpdateStarted({required this.newName});
 }

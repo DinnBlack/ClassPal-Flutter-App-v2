@@ -1,3 +1,4 @@
+import 'package:classpal_flutter_app/features/auth/repository/auth_service.dart';
 import 'package:classpal_flutter_app/features/school/bloc/school_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,7 +9,6 @@ import '../core/utils/app_text_style.dart';
 import '../core/widgets/custom_app_bar.dart';
 import '../core/widgets/custom_avatar.dart';
 import '../core/widgets/custom_list_item.dart';
-import '../features/auth/bloc/auth_bloc.dart';
 import '../features/auth/models/user_model.dart';
 import 'role/parent_view.dart';
 import 'role/principal_view.dart';
@@ -17,12 +17,10 @@ import 'role/teacher_view.dart';
 
 class MainScreen extends StatefulWidget {
   static const route = 'MainScreen';
-  final UserModel user;
   final String role;
 
   const MainScreen({
     super.key,
-    required this.user,
     required this.role,
   });
 
@@ -30,27 +28,44 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-
 class _MainScreenState extends State<MainScreen> {
+  UserModel? user;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+    print(user);
+  }
+
+  Future<void> _loadUser() async {
+    UserModel? fetchedUser = await AuthService().getUserFromPrefs();
+    if (mounted) {
+      setState(() {
+        user = fetchedUser;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget view;
 
     switch (widget.role) {
       case 'principal':
-        view = PrincipalView(user: widget.user);
+        view = PrincipalView(user: user!);
         break;
       case 'teacher':
-        view = TeacherView(user: widget.user);
+        view = TeacherView(user: user!);
         break;
       case 'student':
-        view = StudentView(user: widget.user);
+        view = StudentView(user: user!);
         break;
       case 'parent':
-        view = ParentView(user: widget.user);
+        view = ParentView(user: user!);
         break;
       default:
-        view = PrincipalView(user: widget.user);
+        view = PrincipalView(user: user!);
         break;
     }
 
@@ -78,7 +93,7 @@ class _MainScreenState extends State<MainScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             CustomAvatar(
-              profile: widget.user,
+              profile: user,
               size: 30,
             ),
             const SizedBox(
@@ -129,12 +144,14 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        context.read<SchoolBloc>().add(SchoolCreateStarted(name: 'School 3', address: 'address 3', phoneNumber: '0123123111'));
+                        context.read<SchoolBloc>().add(SchoolCreateStarted(
+                            name: 'School 3',
+                            address: 'address 3',
+                            phoneNumber: '0123123111'));
                       },
                       child: Text(
                         'Đăng xuất',
-                        style:
-                        AppTextStyle.bold(kTextSizeSm, kPrimaryColor),
+                        style: AppTextStyle.bold(kTextSizeSm, kPrimaryColor),
                       ),
                     ),
                   ],
@@ -151,9 +168,9 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   child: CustomListItem(
                     isAnimation: false,
-                    title: widget.user.name,
+                    title: user?.name ?? 'Người dùng',
                     leading: CustomAvatar(
-                      profile: widget.user,
+                      profile: user,
                     ),
                   ),
                 ),
@@ -170,8 +187,7 @@ class _MainScreenState extends State<MainScreen> {
               GestureDetector(
                 onTap: () {},
                 child: Padding(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: kPaddingLg),
+                  padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
                   child: Row(
                     children: [
                       const Icon(
@@ -182,13 +198,13 @@ class _MainScreenState extends State<MainScreen> {
                       const SizedBox(width: kMarginMd),
                       Text(
                         'Đăng nhập vào tài khoản khác',
-                        style: AppTextStyle.regular(
-                            kTextSizeSm, kPrimaryColor),
+                        style: AppTextStyle.regular(kTextSizeSm, kPrimaryColor),
                       ),
                     ],
                   ),
                 ),
-              ),const SizedBox(height: kMarginXl),
+              ),
+              const SizedBox(height: kMarginXl),
             ],
           ),
         );

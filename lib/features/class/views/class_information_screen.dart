@@ -5,11 +5,12 @@ import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
 import 'package:classpal_flutter_app/features/class/models/class_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-import '../../../core/utils/validators.dart';
 import '../../../core/widgets/custom_button_camera.dart';
+import '../../../core/widgets/custom_loading_dialog.dart';
 import '../../../core/widgets/custom_text_field.dart';
+import '../bloc/class_bloc.dart';
 
 class ClassInformationScreen extends StatefulWidget {
   final ClassModel currentClass;
@@ -22,24 +23,28 @@ class ClassInformationScreen extends StatefulWidget {
 
 class _ClassInformationScreenState extends State<ClassInformationScreen> {
   final _classNameController = TextEditingController();
-  final _focusNode = FocusNode(); // FocusNode to handle focus behavior
+  final _focusNode = FocusNode();
   bool _isValid = false;
-  bool _isEditing = false; // To track if the text field is in edit mode
+  bool _isEditing = false;
 
   @override
   void initState() {
     super.initState();
     _classNameController.addListener(_validateForm);
-    _classNameController.text =
-        widget.currentClass.name; // Set the initial class name
-    _validateForm(); // Validate the initial state
+    _classNameController.text = widget.currentClass.name;
+    _validateForm();
+  }
+
+  @override
+  void dispose() {
+    _classNameController.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 
   void _validateForm() {
     setState(() {
-      // If the text has changed from the initial class name, set _isValid to true
-      _isValid =
-          _classNameController.text.trim() != widget.currentClass.name.trim();
+      _isValid = _classNameController.text.trim() != widget.currentClass.name.trim();
     });
   }
 
@@ -47,9 +52,9 @@ class _ClassInformationScreenState extends State<ClassInformationScreen> {
     setState(() {
       _isEditing = !_isEditing;
       if (_isEditing) {
-        _focusNode.requestFocus(); // Focus the text field when editing
+        _focusNode.requestFocus();
       } else {
-        _focusNode.unfocus(); // Remove focus when done editing
+        _focusNode.unfocus();
       }
     });
   }
@@ -70,15 +75,13 @@ class _ClassInformationScreenState extends State<ClassInformationScreen> {
             CustomTextField(
               controller: _classNameController,
               customFocusNode: _focusNode,
-              // Attach the focus node
               readOnly: !_isEditing,
-              // Set readOnly based on _isEditing
-              autofocus: false,
+              autofocus: true,
               onChanged: (value) {
-                _validateForm(); // Validate when text changes
+                _validateForm();
               },
               suffixIcon: InkWell(
-                onTap: _toggleEdit, // Toggle edit mode on icon tap
+                onTap: _toggleEdit,
                 borderRadius: BorderRadius.circular(kBorderRadiusMd),
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: kMarginSm),
@@ -95,11 +98,36 @@ class _ClassInformationScreenState extends State<ClassInformationScreen> {
               ),
             ),
             const SizedBox(height: kMarginLg),
-            CustomButton(
-              text: 'Lưu',
-              isValid: _isValid,
-              onTap: () {
-
+            BlocConsumer<ClassBloc, ClassState>(
+              listener: (context, state) {
+                if (state is ClassUpdateInProgress) {
+                  CustomLoadingDialog.show(context);
+                } else {
+                  CustomLoadingDialog.dismiss(context);
+                }
+                if (state is ClassUpdateSuccess) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Cập nhật thành công')),
+                  );
+                  Navigator.pop(context);
+                } else if (state is ClassUpdateFailure) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Cập nhật thất bại')),
+                  );
+                }
+              },
+              builder: (context, state) {
+                return CustomButton(
+                  text: 'Lưu',
+                  isValid: _isValid,
+                  onTap: _isValid
+                      ? () {
+                    context.read<ClassBloc>().add(
+                      ClassUpdateStarted(newName: _classNameController.text),
+                    );
+                  }
+                      : null,
+                );
               },
             ),
           ],

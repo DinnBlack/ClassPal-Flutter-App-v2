@@ -121,8 +121,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
 
                   if (state is AuthLoginSuccess) {
-                    Navigator.pushNamed(context, SelectRoleScreen.route,
-                        arguments: {'user': state.user});
+                    CustomPageTransition.navigateTo(
+                        context: context,
+                        page: const SelectRoleScreen(
+                        ),
+                        transitionType: PageTransitionType.slideFromRight);
                   } else if (state is AuthLoginFailure) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Đăng nhập thất bại')),

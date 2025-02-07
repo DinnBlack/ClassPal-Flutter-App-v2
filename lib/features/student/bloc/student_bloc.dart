@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
 import 'package:meta/meta.dart';
 
 import '../../class/models/class_model.dart';
@@ -12,18 +13,32 @@ class StudentBloc extends Bloc<StudentEvent, StudentState> {
   final StudentService studentService = StudentService();
 
   StudentBloc() : super(StudentInitial()) {
-    on<StudentFetchByClassStarted>(_onStudentFetchByClassStarted);
+    on<StudentFetchStarted>(_onStudentFetchStarted);
+
+    on<StudentCreateStarted>(_onStudentCreateStarted);
   }
 
   // Fetch the list of student
-  Future<void> _onStudentFetchByClassStarted(
-      StudentFetchByClassStarted event, Emitter<StudentState> emit) async {
-    emit(StudentFetchByClassInProgress());
+  Future<void> _onStudentFetchStarted(
+      StudentFetchStarted event, Emitter<StudentState> emit) async {
+    emit(StudentFetchInProgress());
     try {
-      final students = await studentService.fetchStudentsByClass(event.currentClass);
-      emit(StudentFetchByClassSuccess(students));
+      final students = await studentService.getAllStudentClass();
+      emit(StudentFetchSuccess(students));
     } catch (e) {
-      emit(StudentFetchByClassFailure("Failed to fetch students: ${e.toString()}"));
+      emit(StudentFetchFailure("Failed to fetch students: ${e.toString()}"));
+    }
+  }
+
+  // Create a new student
+  Future<void> _onStudentCreateStarted(
+      StudentCreateStarted event, Emitter<StudentState> emit) async {
+    emit(StudentCreateInProgress());
+    try {
+       await studentService.insertStudent(event.name);
+      emit(StudentCreateSuccess());
+    } catch (e) {
+      emit(StudentCreateFailure("Failed to create student: ${e.toString()}"));
     }
   }
 }

@@ -69,7 +69,7 @@ class _StudentGroupCreateScreenState extends State<StudentGroupCreateScreen> {
           const SizedBox(
             height: kMarginLg,
           ),
-          StudentListScreen(students: widget.students,isCreateListView: false, ),
+          StudentListScreen(isCreateListView: false, ),
         ],
       ),
     );

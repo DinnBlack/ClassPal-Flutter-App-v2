@@ -27,21 +27,23 @@ Route<dynamic> routes(RouteSettings settings) {
     case ForgotPasswordScreen.route:
       final args = settings.arguments as Map<String, dynamic>?;
       final String email = args?['email'];
-      return MaterialPageRoute(builder: (context) =>  ForgotPasswordScreen(email: email,));
+      return MaterialPageRoute(
+          builder: (context) => ForgotPasswordScreen(
+                email: email,
+              ));
     case ResetPasswordScreen.route:
       final args = settings.arguments as Map<String, dynamic>?;
       final String email = args?['email'];
       final String otp = args?['otp'];
-      return MaterialPageRoute(builder: (context) =>  ResetPasswordScreen(email: email, otp: otp,));
+      return MaterialPageRoute(
+          builder: (context) => ResetPasswordScreen(
+                email: email,
+                otp: otp,
+              ));
     case RegisterScreen.route:
       return MaterialPageRoute(builder: (context) => const RegisterScreen());
     case SelectRoleScreen.route:
-      final args = settings.arguments as Map<String, dynamic>?;
-      final UserModel user = args?['user'];
-      return MaterialPageRoute(
-          builder: (context) => SelectRoleScreen(
-                user: user,
-              ));
+      return MaterialPageRoute(builder: (context) => const SelectRoleScreen());
 
     // School
     case SchoolScreen.route:
@@ -77,30 +79,20 @@ Route<dynamic> routes(RouteSettings settings) {
 
     // Student
     case StudentListScreen.route:
-      final args = settings.arguments as Map<String, dynamic>?;
-      final students = args?['students'] as List<StudentModel>? ?? [];
       return MaterialPageRoute(
-        builder: (context) => StudentListScreen(
-          students: students,
-        ),
+        builder: (context) => const StudentListScreen(),
       );
     case StudentCreateScreen.route:
-      final args = settings.arguments as Map<String, dynamic>?;
-      final students = args?['students'] as List<StudentModel>? ?? [];
       return MaterialPageRoute(
-          builder: (context) => StudentCreateScreen(
-                students: students,
-              ));
+          builder: (context) => const StudentCreateScreen());
 
 // Default
     default:
       final args = settings.arguments as Map<String, dynamic>?;
-      final UserModel user = args?['user'];
       final String role = args?['role'];
 
       return MaterialPageRoute(
         builder: (context) => MainScreen(
-          user: user,
           role: role,
         ),
       );

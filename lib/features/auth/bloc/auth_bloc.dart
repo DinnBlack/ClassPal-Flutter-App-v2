@@ -2,9 +2,10 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
+import '../models/role_model.dart';
 import '../models/user_model.dart';
 import '../repository/auth_service.dart';
-import '../repository/profile_service.dart';
+import '../../profile/repository/profile_service.dart';
 import '../views/login_screen.dart';
 
 part 'auth_event.dart';
@@ -31,9 +32,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final user =
           await authService.login(event.emailOrPhoneNumber, event.password);
+      await authService.getRoles();
       if (user != null) {
         emit(AuthLoginSuccess(user));
-        final profile = await profileService.getProfileByUserId();
+        await profileService.getProfileByUserId();
       } else {
         emit(AuthLoginFailure("Invalid credentials"));
       }

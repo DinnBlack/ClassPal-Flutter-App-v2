@@ -81,8 +81,8 @@ class ClassModel {
       'avatarUrl': this.avatarUrl,
       'schoolId': this.schoolId,
       'creatorId': this.creatorId,
-      'updatedAt': this.updatedAt,
-      'createdAt': this.createdAt,
+      'updatedAt': this.updatedAt.toIso8601String(),
+      'createdAt': this.createdAt.toIso8601String(),
     };
   }
 

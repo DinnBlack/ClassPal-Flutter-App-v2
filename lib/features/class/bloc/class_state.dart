@@ -9,9 +9,10 @@ final class ClassInitial extends ClassState {}
 class ClassPersonalFetchInProgress extends ClassState {}
 
 class ClassPersonalFetchSuccess extends ClassState {
+  final List<ProfileModel> profiles;
   final List<ClassModel> classes;
 
-  ClassPersonalFetchSuccess(this.classes);
+  ClassPersonalFetchSuccess(this.profiles, this.classes);
 }
 
 class ClassPersonalFetchFailure extends ClassState {
@@ -29,4 +30,15 @@ class ClassPersonalCreateFailure extends ClassState {
   final String error;
 
   ClassPersonalCreateFailure(this.error);
+}
+
+// Update class
+class ClassUpdateInProgress extends ClassState {}
+
+class ClassUpdateSuccess extends ClassState {}
+
+class ClassUpdateFailure extends ClassState {
+  final String error;
+
+  ClassUpdateFailure(this.error);
 }

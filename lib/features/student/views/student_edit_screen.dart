@@ -3,16 +3,17 @@ import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_avatar.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
+import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
 import 'package:classpal_flutter_app/features/student/models/student_model.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/widgets/custom_text_field.dart';
-import 'package:intl/intl.dart'; // Import intl package for date formatting
+import 'package:intl/intl.dart';
 import 'student_list_screen.dart';
 
 class StudentEditScreen extends StatefulWidget {
   static const route = 'StudentEditScreen';
-  final StudentModel student;
+  final ProfileModel student;
 
   const StudentEditScreen({super.key, required this.student});
 
@@ -27,10 +28,10 @@ class _StudentEditScreenState extends State<StudentEditScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController.text = widget.student.name ?? '';
-    _birthDayController.text = widget.student.birthDate != null
-        ? DateFormat('dd/MM/yyyy').format(widget.student.birthDate)
-        : '';
+    _nameController.text = widget.student.displayName ?? '';
+    // _birthDayController.text = widget.student.birthDate != null
+    //     ? DateFormat('dd/MM/yyyy').format(widget.student.birthDate)
+    //     : '';
   }
 
   @override

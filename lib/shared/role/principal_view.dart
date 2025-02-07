@@ -1,6 +1,8 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_avatar.dart';
 import 'package:classpal_flutter_app/features/auth/models/user_model.dart';
+import 'package:classpal_flutter_app/features/class/repository/class_service.dart';
+import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
 import 'package:classpal_flutter_app/features/school/views/school_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,11 +28,16 @@ class PrincipalView extends StatefulWidget {
 }
 
 class _PrincipalViewState extends State<PrincipalView> {
+  final classService = ClassService();
+  final profileService = ProfileService();
+
   @override
   void initState() {
     super.initState();
-    context.read<SchoolBloc>().add(SchoolFetchStarted());
-    context.read<ClassBloc>().add(ClassPersonalFetchStarted());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SchoolBloc>().add(SchoolFetchStarted());
+      context.read<ClassBloc>().add(ClassPersonalFetchStarted());
+    });
   }
 
   @override
@@ -77,8 +84,13 @@ class _PrincipalViewState extends State<PrincipalView> {
                             imageAsset: 'assets/images/school.jpg',
                           ),
                           onTap: () {
-                            Navigator.pushNamed(context, SchoolScreen.route,
-                                arguments: {'school': schools[i]});
+                            CustomPageTransition.navigateTo(
+                                context: context,
+                                page: SchoolScreen(
+                                  school: schools[i],
+                                ),
+                                transitionType:
+                                    PageTransitionType.slideFromRight);
                           },
                         ),
                         if (i != schools.length - 1)
@@ -134,6 +146,7 @@ class _PrincipalViewState extends State<PrincipalView> {
                 }
                 if (state is ClassPersonalFetchSuccess) {
                   final classes = state.classes;
+                  final profiles = state.profiles;
                   if (classes.isEmpty) {
                     return CustomListItem(
                       title: 'Chưa có lớp học cá nhân nào!',
@@ -158,9 +171,22 @@ class _PrincipalViewState extends State<PrincipalView> {
                           leading: const CustomAvatar(
                             imageAsset: 'assets/images/class.jpg',
                           ),
-                          onTap: () {
-                            Navigator.pushNamed(context, ClassScreen.route,
-                                arguments: {'currentClass': classes[i]});
+                          onTap: () async {
+                            await classService
+                                .saveClassToSharedPreferences(classes[i]);
+                            await profileService
+                                .saveProfileToSharedPreferences(profiles[i]);
+
+                            print(await profileService
+                                .getProfileFromSharedPreferences());
+
+                            CustomPageTransition.navigateTo(
+                                context: context,
+                                page: ClassScreen(
+                                  currentClass: classes[i],
+                                ),
+                                transitionType:
+                                    PageTransitionType.slideFromRight);
                           },
                         ),
                         if (i != classes.length - 1)

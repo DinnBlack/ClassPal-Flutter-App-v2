@@ -1,3 +1,4 @@
+import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/config/app_constants.dart';
@@ -5,7 +6,7 @@ import '../../../../core/utils/app_text_style.dart';
 import '../../models/student_model.dart';
 
 class CustomStudentListItem extends StatefulWidget {
-  final StudentModel? student;
+  final ProfileModel? student;
   final bool? addItem;
   final VoidCallback? onTap;
 
@@ -78,10 +79,10 @@ class _CustomStudentListItemState extends State<CustomStudentListItem>
                       ),
                     )
                   : CircleAvatar(
-                      backgroundImage: widget.student?.avatar != null
-                          ? NetworkImage(widget.student!.avatar!)
+                      backgroundImage: widget.student?.avatarUrl != null
+                          ? NetworkImage(widget.student!.avatarUrl)
                           : AssetImage(
-                              widget.student?.gender == 'Male'
+                              widget.student?.displayName == 'Male'
                                   ? 'assets/images/boy.jpg'
                                   : 'assets/images/girl.jpg',
                             ) as ImageProvider,
@@ -92,7 +93,9 @@ class _CustomStudentListItemState extends State<CustomStudentListItem>
                 height: 34,
                 alignment: Alignment.center,
                 child: Text(
-                  widget.addItem! ? "Thêm mới" : widget.student?.name ?? '',
+                  widget.addItem!
+                      ? "Thêm mới"
+                      : widget.student?.displayName ?? '',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,

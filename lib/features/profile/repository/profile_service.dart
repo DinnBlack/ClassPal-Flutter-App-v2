@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:classpal_flutter_app/features/auth/models/profile_model.dart';
+import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -14,6 +14,28 @@ class ProfileService {
 
   ProfileService() {
     _initialize();
+  }
+
+  // Lưu profile vào Shared Preferences
+  Future<void> saveProfileToSharedPreferences(ProfileModel profile) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey('profile')) {
+      await prefs.remove('profile');
+    }
+    final profileJson = jsonEncode(profile.toMap());
+    await prefs.setString('profile', profileJson);
+  }
+
+  // Lấy profile từ Shared Preferences
+  Future<ProfileModel?> getProfileFromSharedPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    final profileJson = prefs.getString('profile');
+
+    if (profileJson != null) {
+      return ProfileModel.fromMap(jsonDecode(profileJson));
+    } else {
+      return null;
+    }
   }
 
   // Khởi tạo PersistCookieJar để lưu trữ cookie
@@ -55,12 +77,11 @@ class ProfileService {
     final prefs = await SharedPreferences.getInstance();
     final profilesJson =
         jsonEncode(profiles.map((profile) => profile.toMap()).toList());
-    print(profilesJson);
     await prefs.setString('profiles', profilesJson);
     print('Profiles đã được lưu');
   }
 
-  // In SchoolService, fetch profiles from SharedPreferences
+  // Get profiles from SharedPreferences
   Future<List<ProfileModel>> getProfilesFromSharedPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     final profilesJson = prefs.getString('profiles');
@@ -78,10 +99,8 @@ class ProfileService {
   // Hàm lấy thông tin profile của người dùng
   Future<List<ProfileModel>> getProfileByUserId() async {
     try {
-      // Lấy danh sách cookies đã được khôi phục
+      await _initialize();
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-
-      // Đảm bảo cookies đã có trước khi gửi yêu cầu
       if (cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
@@ -109,9 +128,6 @@ class ProfileService {
 
         // Lưu profiles vào SharedPreferences
         await saveProfilesToSharedPreferences(profiles);
-        List<ProfileModel> profilesPref =
-            await getProfilesFromSharedPreferences();
-
         return profiles;
       } else {
         throw Exception('Failed to fetch profile: ${response.data}');

@@ -3,8 +3,11 @@ part of 'student_bloc.dart';
 @immutable
 sealed class StudentEvent {}
 
-class StudentFetchByClassStarted extends StudentEvent {
-  final ClassModel currentClass;
+class StudentFetchStarted extends StudentEvent {
+}
 
- StudentFetchByClassStarted({required this.currentClass});
+class StudentCreateStarted extends StudentEvent {
+  final String name;
+
+  StudentCreateStarted({required this.name});
 }

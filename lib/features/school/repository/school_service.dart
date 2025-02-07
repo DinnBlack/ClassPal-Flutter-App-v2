@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:classpal_flutter_app/features/auth/models/profile_model.dart';
+import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
 import 'package:classpal_flutter_app/features/school/models/school_model.dart';
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
@@ -69,7 +69,6 @@ class SchoolService {
     try {
       await _initialize();
       List<ProfileModel> profiles = await getProfilesFromSharedPreferences();
-      print(profiles);
 
       if (profiles.isEmpty) {
         print('Không có profile nào được lưu trong SharedPreferences');
@@ -91,7 +90,7 @@ class SchoolService {
           continue;
         }
         final requestUrl = '$_baseUrl/schools/${profile.groupId}';
-        print('Request URL: $requestUrl');
+        // print('Request URL: $requestUrl');
 
         final headers = {
           'Content-Type': 'application/json',
@@ -99,7 +98,7 @@ class SchoolService {
           'x-profile-id': profile.id,
         };
 
-        print('Request Headers: $headers');
+        // print('Request Headers: $headers');
 
         final response = await _dio.get(
           requestUrl,
@@ -107,7 +106,6 @@ class SchoolService {
         );
 
         if (response.statusCode == 200) {
-          print(response.data['data']);
           schools.add(SchoolModel.fromMap(response.data['data']));
           // break;
         } else if (response.statusCode == 404) {
@@ -158,8 +156,6 @@ class SchoolService {
           },
         ),
       );
-
-      print(response.data);
 
       if (response.statusCode == 200) {
         return response.data['data'];

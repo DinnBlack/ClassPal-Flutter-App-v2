@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:classpal_flutter_app/features/auth/models/role_model.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -9,7 +10,7 @@ import '../models/user_model.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
-  static final String _baseUrl = 'https://cpserver.amrakk.rest/api/v1';
+  static const String _baseUrl = 'https://cpserver.amrakk.rest/api/v1';
   final Dio _dio = Dio();
   late PersistCookieJar _cookieJar;
 
@@ -24,7 +25,6 @@ class AuthService {
     _cookieJar = PersistCookieJar(storage: cookieStorage);
     _dio.interceptors.add(CookieManager(_cookieJar));
   }
-
 
   // Lưu cookie vào SharedPreferences
   Future<void> _saveCookies() async {
@@ -44,7 +44,6 @@ class AuthService {
     }).toList();
 
     prefs.setString('cookies', jsonEncode(cookieList));
-    print(cookieList);
     print('Cookies đã được lưu');
   }
 
@@ -70,6 +69,23 @@ class AuthService {
     }
   }
 
+  Future<void> _saveUserToPrefs(UserModel user) async {
+    final prefs = await SharedPreferences.getInstance();
+    final profileJson = jsonEncode(user.toMap());
+    print(profileJson);
+    await prefs.setString('user', profileJson);
+  }
+
+  Future<UserModel?> getUserFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? userJson = prefs.getString('user');
+
+    if (userJson != null) {
+      return UserModel.fromMap(jsonDecode(userJson));
+    }
+    return null;
+  }
+
   // Đăng nhập và lưu cookie
   Future<UserModel?> login(String emailOrPhone, String password) async {
     try {
@@ -82,12 +98,16 @@ class AuthService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      print(response.data['data']);
-
       if (response.statusCode == 200) {
         print('Đăng nhập thành công');
-        await _saveCookies(); // Lưu cookie
-        return UserModel.fromMap(response.data['data']['user']);
+
+        // Lưu trạng thái đăng nhập
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
+
+        UserModel user = UserModel.fromMap(response.data['data']['user']);
+        await _saveUserToPrefs(user);
+        return user;
       } else {
         print('Đăng nhập thất bại: ${response.data}');
         return null;
@@ -99,8 +119,8 @@ class AuthService {
   }
 
   // Đăng ký (Register)
-  Future<String?> register(String name, String email, String phoneNumber,
-      String password) async {
+  Future<String?> register(
+      String name, String email, String phoneNumber, String password) async {
     try {
       final response = await http.post(
         Uri.parse('$_baseUrl/auth/register'),
@@ -169,8 +189,8 @@ class AuthService {
   }
 
   // Đặt lại mật khẩu (Reset Password)
-  Future<String?> resetPassword(String email, String password,
-      String otp) async {
+  Future<String?> resetPassword(
+      String email, String password, String otp) async {
     try {
       final response = await http.post(
         Uri.parse('$_baseUrl/auth/reset-password'),
@@ -194,8 +214,7 @@ class AuthService {
     }
   }
 
-  // Lấy danh sách vai trò (Get Roles)
-  Future<List<String>?> getRoles() async {
+  Future<List<RoleModel>> getRoles() async {
     try {
       final response = await http.get(
         Uri.parse('$_baseUrl/auth/get-roles'),
@@ -204,14 +223,30 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return List<String>.from(data['roles']);
+
+        if (data['data'] != null) {
+          List<RoleModel> roles = (data['data'] as List)
+              .map((role) => RoleModel.fromMap(role))
+              .toList();
+
+          // Save the RoleModel list to SharedPreferences as a list of JSON strings
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          List<String> roleJsonList =
+              roles.map((role) => jsonEncode(role.toMap())).toList();
+          await prefs.setStringList('roles', roleJsonList);
+
+          print(roles);
+          return roles;
+        } else {
+          throw Exception('No roles data available');
+        }
       } else {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         throw Exception(responseData['message'] ?? 'Failed to fetch roles');
       }
     } catch (e) {
       print('Error during fetching roles: $e');
-      return null;
+      return [];
     }
   }
 

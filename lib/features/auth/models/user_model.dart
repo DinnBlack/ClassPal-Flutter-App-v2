@@ -110,17 +110,17 @@ class UserModel {
 
   Map<String, dynamic> toMap() {
     return {
-      '_id': this.id,
-      'name': this.name,
-      'email': this.email,
-      'password': this.password,
-      'phoneNumber': this.phoneNumber,
-      'avatarUrl': this.avatarUrl,
-      'role': this.role,
-      'status': this.status,
-      'socialMediaAccounts': this.socialMediaAccounts,
-      'createdAt': this.createdAt,
-      'updatedAt': this.updatedAt,
+      '_id': id,
+      'name': name,
+      'email': email,
+      'password': password,
+      'phoneNumber': phoneNumber,
+      'avatarUrl': avatarUrl,
+      'role': role,
+      'status': status,
+      'socialMediaAccounts': socialMediaAccounts.map((e) => e.toMap()).toList(), // Convert list to map
+      'createdAt': createdAt.toIso8601String(),  // Convert DateTime to String
+      'updatedAt': updatedAt.toIso8601String(),  // Convert DateTime to String
     };
   }
 
