@@ -13,6 +13,7 @@ import 'features/auth/views/select_role_screen.dart';
 import 'features/class/bloc/class_bloc.dart';
 import 'features/profile/bloc/profile_bloc.dart';
 import 'features/student/bloc/student_bloc.dart';
+import 'features/student/sub_features/group/bloc/group_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,6 +50,8 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<StudentBloc>(
           create: (context) => StudentBloc(),
+        ),BlocProvider<GroupBloc>(
+          create: (context) => GroupBloc(),
         ),
       ],
       child: MaterialApp(

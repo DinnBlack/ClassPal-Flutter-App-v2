@@ -3,6 +3,7 @@ import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../core/widgets/custom_loading_dialog.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../bloc/student_bloc.dart';
 import 'student_list_screen.dart';
@@ -32,7 +33,26 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
     return Scaffold(
       backgroundColor: kWhiteColor,
       appBar: _buildAppBar(context),
-      body: _buildBody(),
+      body: BlocListener<StudentBloc, StudentState>(
+        listener: (context, state) {
+          if (state is StudentCreateInProgress) {
+            CustomLoadingDialog.show(context);
+          } else {
+            CustomLoadingDialog.dismiss(context);
+          }
+
+          if (state is StudentCreateSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Tạo học sinh Thành công')),
+            );
+          } else if (state is StudentCreateFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Tạo học sinh thất bại')),
+            );
+          }
+        },
+        child: _buildBody(),
+      ),
     );
   }
 
@@ -51,9 +71,8 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
             onChanged: _updateHasText,
             suffixIcon: InkWell(
               onTap: () {
-                context
-                    .read<StudentBloc>()
-                    .add(StudentCreateStarted(name: _controller.text));
+                // Add event to start student creation
+                context.read<StudentBloc>().add(StudentCreateStarted(name: _controller.text));
               },
               borderRadius: BorderRadius.circular(kBorderRadiusMd),
               child: Container(
@@ -72,8 +91,8 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
           ),
           const Expanded(
               child: StudentListScreen(
-            isCreateListView: true,
-          )),
+                isCreateListView: true,
+              )),
         ],
       ),
     );

@@ -1,6 +1,5 @@
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_avatar.dart';
-import 'package:classpal_flutter_app/core/widgets/custom_bottom_sheet.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_feature_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_list_item.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
@@ -18,11 +17,15 @@ import '../bloc/student_bloc.dart';
 
 class StudentListScreen extends StatefulWidget {
   final bool isCreateListView;
+  final bool isPickerView;
+  final ValueChanged<List<String>>? onSelectionChanged;
   static const route = 'StudentListScreen';
 
   const StudentListScreen({
     super.key,
     this.isCreateListView = false,
+    this.isPickerView = false,
+    this.onSelectionChanged,
   });
 
   @override
@@ -31,6 +34,19 @@ class StudentListScreen extends StatefulWidget {
 
 class _StudentListScreenState extends State<StudentListScreen> {
   late List<ProfileModel> students;
+  List<String> selectedStudentIds = [];
+
+  void _toggleSelection(String studentId) {
+    setState(() {
+      if (selectedStudentIds.contains(studentId)) {
+        selectedStudentIds.remove(studentId);
+      } else {
+        selectedStudentIds.add(studentId);
+      }
+    });
+
+    widget.onSelectionChanged?.call(selectedStudentIds); // Gửi danh sách đã chọn
+  }
 
   @override
   void initState() {
@@ -49,12 +65,13 @@ class _StudentListScreenState extends State<StudentListScreen> {
           return _buildErrorView(state.error);
         } else if (state is StudentFetchSuccess) {
           students = state.students;
-          // Check if students list is empty and return empty view
           if (students.isEmpty) {
             return _buildEmptyStudentView();
           } else {
             if (widget.isCreateListView) {
               return _buildCreateListView();
+            } else if (widget.isPickerView) {
+              return _buildPickerView(context);
             } else {
               return _buildStudentListView(context);
             }
@@ -157,14 +174,42 @@ class _StudentListScreenState extends State<StudentListScreen> {
           double itemHeight = 105;
           double itemWidth = (constraints.maxWidth - (4 - 1) * kPaddingMd) / 4;
 
-          return _buildGridView(studentData, itemHeight, itemWidth);
+          return _buildGridView(studentData, itemHeight, itemWidth, false);
         },
       ),
     );
   }
 
-  Widget _buildGridView(
-      List<ProfileModel?> studentData, double itemHeight, double itemWidth) {
+  Widget _buildPickerView(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+      child: Column(
+        children: [
+          const SizedBox(height: kMarginMd),
+          Align(
+            alignment: Alignment.center,
+            child: Text(
+              'Học sinh của bạn',
+              style: AppTextStyle.medium(kTextSizeSm),
+            ),
+          ),
+          const SizedBox(height: kMarginLg),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              double itemHeight = 105;
+              double itemWidth =
+                  (constraints.maxWidth - (4 - 1) * kPaddingMd) / 4;
+
+              return _buildGridView(students, itemHeight, itemWidth, true);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGridView(List<ProfileModel?> studentData, double itemHeight,
+      double itemWidth, bool isPicker) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -189,48 +234,52 @@ class _StudentListScreenState extends State<StudentListScreen> {
           );
         } else {
           return CustomStudentListItem(
+            isPicker: isPicker,
             student: student,
+            onSelectionChanged: (isSelected) {
+              _toggleSelection(student.id);
+            },
           );
         }
       },
     );
   }
+}
 
-  Widget _buildEmptyStudentView() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/images/empty_student_view.png',
-              height: 200,
-            ),
-            const SizedBox(height: kMarginLg),
-            Text(
-              'Thêm học sinh của bạn nào!',
-              style: AppTextStyle.bold(kTextSizeLg),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: kMarginSm),
-            Text(
-              'Khiến học sinh thu hút với phản hồi tức thời và bắt đầu xây dựng cộng đồng lớp học của mình nào',
-              style: AppTextStyle.medium(kTextSizeXs),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+Widget _buildEmptyStudentView() {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+    child: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/images/empty_student_view.png',
+            height: 200,
+          ),
+          const SizedBox(height: kMarginLg),
+          Text(
+            'Thêm học sinh của bạn nào!',
+            style: AppTextStyle.bold(kTextSizeLg),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: kMarginSm),
+          Text(
+            'Khiến học sinh thu hút với phản hồi tức thời và bắt đầu xây dựng cộng đồng lớp học của mình nào',
+            style: AppTextStyle.medium(kTextSizeXs),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildErrorView(String errorMessage) {
-    return Center(
-      child: Text(
-        errorMessage,
-        style: AppTextStyle.medium(kTextSizeLg),
-      ),
-    );
-  }
+Widget _buildErrorView(String errorMessage) {
+  return Center(
+    child: Text(
+      errorMessage,
+      style: AppTextStyle.medium(kTextSizeLg),
+    ),
+  );
 }

@@ -64,7 +64,6 @@ class StudentService {
     }
   }
 
-  // Insert a new student to personal class
   Future<bool> insertStudent(String displayName) async {
     try {
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
@@ -73,25 +72,18 @@ class StudentService {
       }
 
       final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
       final profile = await ProfileService().getProfileFromSharedPreferences();
 
-      print(profile);
-      print(displayName);
-
       final requestUrl =
           '$_baseUrl/profiles/${profile?.groupType}/${profile?.groupId}';
-
-      print(requestUrl);
 
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
         'x-profile-id': profile?.id,
       };
-
-      print(headers);
 
       final response = await _dio.post(
         requestUrl,
@@ -104,10 +96,9 @@ class StudentService {
         options: Options(headers: headers),
       );
 
-      print(response.data);
-
-      if (response.statusCode == 200) {
-        return response.data['data'];
+      if (response.statusCode == 201) {
+        // If the student is created successfully, return true
+        return true;
       } else {
         throw Exception('Failed to insert student: ${response.data}');
       }
@@ -117,13 +108,51 @@ class StudentService {
     }
   }
 
-  Future<List<ProfileModel>> getAllStudentClass() async {
+  Future<bool> deleteStudent(String studentId) async {
+    try {
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      final cookieHeader =
+      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final profile = await ProfileService().getProfileFromSharedPreferences();
+
+      final requestUrl = '$_baseUrl/profiles/$studentId';
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Cookie': cookieHeader,
+        'x-profile-id': profile?.id,
+      };
+
+      final response = await _dio.delete(
+        requestUrl,
+        options: Options(headers: headers),
+      );
+
+      if (response.statusCode == 200) {
+        // If the student is deleted successfully, return true
+        return true;
+      } else {
+        throw Exception('Failed to delete student: ${response.data}');
+      }
+    } on DioException catch (e) {
+      print('Error deleting student: ${e.response}');
+      throw e;
+    }
+  }
+
+  Future<List<ProfileModel>> getAllStudentInClass() async {
     List<ProfileModel> students = [];
 
     try {
       await _initialize();
 
-      final classProfile = await ProfileService().getProfileFromSharedPreferences();
+      final classProfile =
+          await ProfileService().getProfileFromSharedPreferences();
       if (classProfile == null) {
         print('Không có profile nào trong SharedPreferences');
         return [];
@@ -138,7 +167,9 @@ class StudentService {
         return [];
       }
 
-      List<RoleModel> roles = roleJsonList.map((roleJson) => RoleModel.fromMap(jsonDecode(roleJson))).toList();
+      List<RoleModel> roles = roleJsonList
+          .map((roleJson) => RoleModel.fromMap(jsonDecode(roleJson)))
+          .toList();
 
       // Tìm role ID của Student
       String? studentRoleId;
@@ -154,8 +185,6 @@ class StudentService {
         return [];
       }
 
-
-
       // Lấy cookies từ PersistCookieJar
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
@@ -163,7 +192,8 @@ class StudentService {
       }
 
       // Tạo cookie header cho yêu cầu
-      final cookieHeader = cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
       final requestUrl = '$_baseUrl/profiles/1/${classProfile.groupId}';
       final headers = {
@@ -179,19 +209,79 @@ class StudentService {
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
-        List<ProfileModel> allProfiles = data.map((profileData) => ProfileModel.fromMap(profileData)).toList();
+        List<ProfileModel> allProfiles = data
+            .map((profileData) => ProfileModel.fromMap(profileData))
+            .toList();
 
         // Lọc danh sách chỉ chứa học sinh
-        students = allProfiles.where((profile) => profile.roles.contains(studentRoleId)).toList();
+        students = allProfiles
+            .where((profile) => profile.roles.contains(studentRoleId))
+            .toList();
 
-        print(students);
         return students;
       } else {
-        print('Lỗi khi lấy dữ liệu: Mã lỗi ${response.statusCode}, Thông báo: ${response.data}');
+        print(
+            'Lỗi khi lấy dữ liệu: Mã lỗi ${response.statusCode}, Thông báo: ${response.data}');
         return [];
       }
     } catch (e) {
       print('Error fetching student by ID: $e');
+      return [];
+    }
+  }
+
+  Future<List<ProfileModel>> getAllStudentInGroup(List<String> studentIds) async {
+    List<ProfileModel> students = [];
+
+    try {
+      await _initialize();
+
+      final classProfile = await ProfileService().getProfileFromSharedPreferences();
+      if (classProfile == null) {
+        print('Không có profile nào trong SharedPreferences');
+        return [];
+      }
+
+      // Lấy cookies từ PersistCookieJar
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      // Tạo cookie header cho yêu cầu
+      final cookieHeader = cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Cookie': cookieHeader,
+        'x-profile-id': classProfile.id,
+      };
+
+      // Gọi API cho từng studentId, dùng Future.wait để chạy song song
+      students = await Future.wait(studentIds.map((studentId) async {
+        final requestUrl = '$_baseUrl/profiles/$studentId';
+
+        try {
+          final response = await _dio.get(
+            requestUrl,
+            options: Options(headers: headers),
+          );
+
+          if (response.statusCode == 200) {
+            return ProfileModel.fromMap(response.data['data']);
+          } else {
+            print('Lỗi khi lấy sinh viên $studentId: ${response.statusCode}, ${response.data}');
+            return null;
+          }
+        } catch (e) {
+          print('Lỗi khi lấy sinh viên $studentId: $e');
+          return null;
+        }
+      })).then((list) => list.whereType<ProfileModel>().toList());
+
+      return students;
+    } catch (e) {
+      print('Lỗi khi lấy danh sách sinh viên: $e');
       return [];
     }
   }

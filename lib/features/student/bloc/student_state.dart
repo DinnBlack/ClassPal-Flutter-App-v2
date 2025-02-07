@@ -30,3 +30,14 @@ class StudentCreateFailure extends StudentState {
 
   StudentCreateFailure(this.error);
 }
+
+// delete a student
+class StudentDeleteInProgress extends StudentState {}
+
+class StudentDeleteSuccess extends StudentState {}
+
+class StudentDeleteFailure extends StudentState {
+  final String error;
+
+  StudentDeleteFailure(this.error);
+}

@@ -11,3 +11,10 @@ class StudentCreateStarted extends StudentEvent {
 
   StudentCreateStarted({required this.name});
 }
+
+
+class StudentDeleteStarted extends StudentEvent {
+  final String studentId;
+
+  StudentDeleteStarted({required this.studentId});
+}

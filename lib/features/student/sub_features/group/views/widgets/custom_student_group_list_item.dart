@@ -1,19 +1,20 @@
+import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
+import 'package:classpal_flutter_app/features/student/sub_features/group/model/group_with_students_model.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/config/app_constants.dart';
-import '../../../../core/utils/app_text_style.dart';
-import '../../models/student_group_model.dart';
-import '../../models/student_model.dart';
+
+import '../../../../../../core/config/app_constants.dart';
+import '../../../../../../core/utils/app_text_style.dart';
 
 class CustomStudentGroupListItem extends StatefulWidget {
-  final StudentGroupModel? group;
   final bool? addItem;
-  final VoidCallback? onTap; // Add onTap callback
+  final VoidCallback? onTap;
+  final GroupWithStudentsModel? groupWithStudents;
 
   const CustomStudentGroupListItem({
     super.key,
-    this.group,
     this.addItem = false,
-    this.onTap, // Pass the onTap callback in constructor
+    this.onTap,
+    this.groupWithStudents,
   });
 
   @override
@@ -45,32 +46,20 @@ class _CustomStudentGroupListItemState extends State<CustomStudentGroupListItem>
 
   @override
   Widget build(BuildContext context) {
-    List<StudentModel> studentIds = widget.group?.students ?? [];
-    int studentCount = studentIds.length;
+    List<ProfileModel> students = widget.groupWithStudents?.students ?? [];
+    int studentCount = students.length;
 
     List<Widget> studentAvatars = [];
     double offset = 0.0;
 
     for (int i = 0; i < studentCount && i < 3; i++) {
-      StudentModel student = studentIds[i];
+      ProfileModel student = students[i];
       Widget avatarImage;
-      if (student.avatar != null) {
-        avatarImage = CircleAvatar(
-          radius: 24,
-          backgroundImage: NetworkImage(student.avatar!),
-          backgroundColor: kPrimaryColor,
-        );
-      } else {
-        avatarImage = CircleAvatar(
-          radius: 24,
-          backgroundImage: AssetImage(
-            student.gender == "Male"
-                ? 'assets/images/boy.jpg'
-                : 'assets/images/girl.jpg',
-          ),
-          backgroundColor: kPrimaryColor,
-        );
-      }
+      avatarImage = CircleAvatar(
+        radius: 24,
+        backgroundImage: NetworkImage(student.avatarUrl),
+        backgroundColor: kPrimaryColor,
+      );
 
       if (studentCount == 1) {
         offset = 0.0;
@@ -94,7 +83,7 @@ class _CustomStudentGroupListItemState extends State<CustomStudentGroupListItem>
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: kPrimaryColor,
-                  width: 1, // Độ dày viền
+                  width: 1,
                 ),
               ),
               child: avatarImage,
@@ -173,16 +162,16 @@ class _CustomStudentGroupListItemState extends State<CustomStudentGroupListItem>
                     Container(
                       height: 48,
                       alignment: Alignment.center,
-                      child: Stack(
+                      child: const Stack(
                         alignment: Alignment.center,
-                        children: studentAvatars,
+                        // children: studentAvatars,
                       ),
                     ),
                   const SizedBox(height: kMarginSm),
                   Text(
                     widget.addItem!
                         ? "Thêm mới"
-                        : widget.group?.groupName ?? '',
+                        : widget.groupWithStudents?.group.name ?? '',
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center,

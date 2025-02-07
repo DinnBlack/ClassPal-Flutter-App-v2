@@ -10,7 +10,7 @@ import '../../../../core/config/app_constants.dart';
 import '../../../../core/utils/app_text_style.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../../core/widgets/custom_page_transition.dart';
-import '../../../student/views/student_group_list_screen.dart';
+import '../../../student/sub_features/group/views/student_group_list_screen.dart';
 import '../../../student/views/student_list_screen.dart';
 import '../../models/class_model.dart';
 import '../../repository/class_service.dart';
@@ -184,8 +184,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
           const SizedBox(
             height: kMarginLg,
           ),
-          StudentGroupListScreen(
-            currentClass: widget.currentClass,
+          const StudentGroupListScreen(
           ),
           const SizedBox(
             height: kMarginLg,
