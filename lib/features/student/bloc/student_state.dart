@@ -41,3 +41,14 @@ class StudentDeleteFailure extends StudentState {
 
   StudentDeleteFailure(this.error);
 }
+
+// Insert a new student to personal class
+class StudentUpdateAvatarInProgress extends StudentState {}
+
+class StudentUpdateAvatarSuccess extends StudentState {}
+
+class StudentUpdateAvatarFailure extends StudentState {
+  final String error;
+
+  StudentUpdateAvatarFailure(this.error);
+}

@@ -30,3 +30,25 @@ class GroupCreateFailure extends GroupState {
 
   GroupCreateFailure( this.error);
 }
+
+// Group update
+class GroupUpdateInProgress extends GroupState {}
+
+class GroupUpdateSuccess extends GroupState {}
+
+class GroupUpdateFailure extends GroupState {
+  final String error;
+
+  GroupUpdateFailure(this.error);
+}
+
+// Group delete
+class GroupDeleteInProgress extends GroupState {}
+
+class GroupDeleteSuccess extends GroupState {}
+
+class GroupDeleteFailure extends GroupState {
+  final String error;
+
+  GroupDeleteFailure(this.error);
+}

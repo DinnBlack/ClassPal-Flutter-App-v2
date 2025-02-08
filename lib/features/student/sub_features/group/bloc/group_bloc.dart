@@ -2,8 +2,6 @@ import 'package:bloc/bloc.dart';
 import 'package:classpal_flutter_app/features/student/sub_features/group/model/group_model.dart';
 import 'package:classpal_flutter_app/features/student/sub_features/group/model/group_with_students_model.dart';
 import 'package:meta/meta.dart';
-
-import '../../../../profile/model/profile_model.dart';
 import '../repository/group_service.dart';
 
 part 'group_event.dart';
@@ -16,6 +14,8 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
   GroupBloc() : super(GroupInitial()) {
     on<GroupCreateStarted>(_onGroupCreateStarted);
     on<GroupFetchStarted>(_onGroupFetchStarted);
+    on<GroupUpdateStarted>(_onGroupUpdateStarted);
+    on<GroupDeleteStarted>(_onGroupDeleteStarted);
   }
 
   // Fetch the list of group
@@ -42,6 +42,33 @@ class GroupBloc extends Bloc<GroupEvent, GroupState> {
     } catch (e) {
       print("Error creating group: $e");
       emit(GroupCreateFailure("Failed to create group: ${e.toString()}"));
+    }
+  }
+
+  // Group update
+  Future<void> _onGroupUpdateStarted(
+      GroupUpdateStarted event, Emitter<GroupState> emit) async {
+    emit(GroupUpdateInProgress());
+    try {
+      await groupService.updateGroup(
+          event.groupWithStudents, event.name, event.studentIds);
+      emit(GroupUpdateSuccess());
+      add(GroupFetchStarted());
+    } catch (e) {
+      emit(GroupUpdateFailure("Failed to update group: ${e.toString()}"));
+    }
+  }
+
+  // Group delete
+  Future<void> _onGroupDeleteStarted(
+      GroupDeleteStarted event, Emitter<GroupState> emit) async {
+    emit(GroupDeleteInProgress());
+    try {
+      await groupService.deleteGroup(event.groupId);
+      emit(GroupDeleteSuccess());
+      add(GroupFetchStarted());
+    } catch (e) {
+      emit(GroupDeleteFailure("Failed to delete group: ${e.toString()}"));
     }
   }
 }

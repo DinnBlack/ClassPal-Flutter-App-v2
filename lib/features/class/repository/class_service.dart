@@ -87,6 +87,22 @@ class ClassService {
     }
   }
 
+  Future<void> preloadClasses() async {
+    try {
+      final data = await getAllPersonalClass();
+      final prefs = await SharedPreferences.getInstance();
+      final jsonData = jsonEncode({
+        'profiles': (data['profiles'])?.map((e) => e.toMap()).toList() ?? [],
+        'classes': (data['classes'])?.map((e) => e.toMap()).toList() ?? [],
+      });
+
+      await prefs.setString('cached_classes', jsonData);
+      print('Lớp học đã được tải trước và lưu cache.');
+    } catch (e) {
+      print('Lỗi khi tải trước lớp học: $e');
+    }
+  }
+
   Future<Map<String, List<dynamic>>> getAllPersonalClass() async {
     List<ClassModel> classes = [];
     List<ProfileModel> classProfiles = [];

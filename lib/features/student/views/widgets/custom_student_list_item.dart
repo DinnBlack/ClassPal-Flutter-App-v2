@@ -9,6 +9,7 @@ class CustomStudentListItem extends StatefulWidget {
   final bool? addItem;
   final VoidCallback? onTap;
   final bool isPicker;
+  final bool isSelected;
   final ValueChanged<bool>? onSelectionChanged;
 
   const CustomStudentListItem({
@@ -17,6 +18,7 @@ class CustomStudentListItem extends StatefulWidget {
     this.addItem = false,
     this.onTap,
     this.isPicker = false,
+    this.isSelected = false,
     this.onSelectionChanged,
   });
 
@@ -27,11 +29,12 @@ class CustomStudentListItem extends StatefulWidget {
 class _CustomStudentListItemState extends State<CustomStudentListItem>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  bool isSelected = false;
+  late bool isSelected;
 
   @override
   void initState() {
     super.initState();
+    isSelected = widget.isSelected; // Initialize isSelected from widget
     _controller = AnimationController(
       vsync: this,
       lowerBound: 0.9,
@@ -51,9 +54,7 @@ class _CustomStudentListItemState extends State<CustomStudentListItem>
       setState(() {
         isSelected = !isSelected;
       });
-      if (widget.onSelectionChanged != null) {
-        widget.onSelectionChanged!(isSelected);
-      }
+      widget.onSelectionChanged?.call(isSelected); // Safe null check
     }
   }
 
@@ -64,10 +65,7 @@ class _CustomStudentListItemState extends State<CustomStudentListItem>
         await _controller.reverse();
         await _controller.forward();
 
-        if (widget.onTap != null) {
-          widget.onTap!();
-        }
-
+        widget.onTap?.call(); // Safe call
         _toggleSelection();
       },
       child: ScaleTransition(
@@ -81,33 +79,34 @@ class _CustomStudentListItemState extends State<CustomStudentListItem>
             children: [
               Stack(
                 children: [
-                  widget.addItem!
+                  (widget.addItem ?? false)
                       ? Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: kGreyColor,
-                              width: 1,
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.add,
-                            color: kPrimaryColor,
-                          ),
-                        )
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: kGreyColor,
+                        width: 1,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.add,
+                      color: kPrimaryColor,
+                    ),
+                  )
                       : CircleAvatar(
-                          backgroundColor: kPrimaryColor,
-                          backgroundImage: widget.student?.avatarUrl != null
-                              ? NetworkImage(widget.student!.avatarUrl)
-                              : AssetImage(
-                                  widget.student?.displayName == 'Male'
-                                      ? 'assets/images/boy.jpg'
-                                      : 'assets/images/girl.jpg',
-                                ) as ImageProvider,
-                          radius: 30,
-                        ),
+                    backgroundColor: kGreyMediumColor,
+                    backgroundImage: widget.student?.avatarUrl != null
+                        ? NetworkImage(widget.student!.avatarUrl)
+                        : AssetImage(
+                      (widget.student?.displayName ?? '') == 'Male'
+                          ? 'assets/images/boy.jpg'
+                          : 'assets/images/girl.jpg',
+                    ) as ImageProvider,
+                    radius: 30,
+                    onBackgroundImageError: (_, __) {}, // Prevent errors
+                  ),
                   if (widget.isPicker && isSelected)
                     Positioned(
                       top: 0,
@@ -133,15 +132,15 @@ class _CustomStudentListItemState extends State<CustomStudentListItem>
                 height: 34,
                 alignment: Alignment.center,
                 child: Text(
-                  widget.addItem!
+                  (widget.addItem ?? false)
                       ? "Thêm mới"
                       : widget.student?.displayName ?? '',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
-                  style: AppTextStyle.semibold(
+                  style: AppTextStyle.bold(
                     kTextSizeXxs,
-                    widget.addItem! ? kPrimaryColor : kBlackColor,
+                    (widget.addItem ?? false) ? kPrimaryColor : kBlackColor,
                   ),
                 ),
               ),

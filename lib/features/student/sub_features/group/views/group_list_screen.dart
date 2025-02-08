@@ -1,19 +1,20 @@
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
+import 'package:classpal_flutter_app/features/student/sub_features/group/views/group_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/config/app_constants.dart';
 import '../bloc/group_bloc.dart';
-import 'student_group_create_screen.dart';
+import 'group_create_screen.dart';
 import 'widgets/custom_student_group_list_item.dart';
 
-class StudentGroupListScreen extends StatefulWidget {
-  const StudentGroupListScreen({super.key});
+class GroupListScreen extends StatefulWidget {
+  const GroupListScreen({super.key});
 
   @override
-  State<StudentGroupListScreen> createState() => _StudentGroupListScreenState();
+  State<GroupListScreen> createState() => _GroupListScreenState();
 }
 
-class _StudentGroupListScreenState extends State<StudentGroupListScreen> {
+class _GroupListScreenState extends State<GroupListScreen> {
   @override
   void initState() {
     super.initState();
@@ -48,14 +49,23 @@ class _StudentGroupListScreenState extends State<StudentGroupListScreen> {
                   itemBuilder: (context, index) {
                     if (index < groupData.length) {
                       final group = groupData[index];
-                      return CustomStudentGroupListItem(groupWithStudents: group);
+                      return CustomStudentGroupListItem(
+                        groupWithStudents: group,
+                        onTap: () {
+                          CustomPageTransition.navigateTo(
+                              context: context,
+                              page: GroupDetailScreen(groupWithStudents: group),
+                              transitionType:
+                                  PageTransitionType.slideFromBottom);
+                        },
+                      );
                     } else {
                       return CustomStudentGroupListItem(
                         addItem: true,
                         onTap: () {
                           CustomPageTransition.navigateTo(
                             context: context,
-                            page: const StudentGroupCreateScreen(),
+                            page: const GroupCreateScreen(),
                             transitionType: PageTransitionType.slideFromRight,
                           );
                         },

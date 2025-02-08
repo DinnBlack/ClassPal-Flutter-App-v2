@@ -32,6 +32,7 @@ class _ClassInformationScreenState extends State<ClassInformationScreen> {
     super.initState();
     _classNameController.addListener(_validateForm);
     _classNameController.text = widget.currentClass.name;
+    print(widget.currentClass.avatarUrl);
     _validateForm();
   }
 
@@ -44,7 +45,8 @@ class _ClassInformationScreenState extends State<ClassInformationScreen> {
 
   void _validateForm() {
     setState(() {
-      _isValid = _classNameController.text.trim() != widget.currentClass.name.trim();
+      _isValid =
+          _classNameController.text.trim() != widget.currentClass.name.trim();
     });
   }
 
@@ -70,7 +72,10 @@ class _ClassInformationScreenState extends State<ClassInformationScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: kMarginXxl),
-            CustomButtonCamera(onImagePicked: (File? value) {}),
+            CustomButtonCamera(
+              onImagePicked: (File? value) {},
+              initialImageUrl: widget.currentClass.avatarUrl,
+            ),
             const SizedBox(height: kMarginXxl),
             CustomTextField(
               controller: _classNameController,
@@ -122,10 +127,11 @@ class _ClassInformationScreenState extends State<ClassInformationScreen> {
                   isValid: _isValid,
                   onTap: _isValid
                       ? () {
-                    context.read<ClassBloc>().add(
-                      ClassUpdateStarted(newName: _classNameController.text),
-                    );
-                  }
+                          context.read<ClassBloc>().add(
+                                ClassUpdateStarted(
+                                    newName: _classNameController.text),
+                              );
+                        }
                       : null,
                 );
               },

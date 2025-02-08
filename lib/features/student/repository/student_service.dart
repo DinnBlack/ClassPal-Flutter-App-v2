@@ -285,4 +285,52 @@ class StudentService {
       return [];
     }
   }
+
+  Future<void> updateStudent(ProfileModel profile, String newName) async {
+    try {
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      final cookieHeader =
+      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final profile = await ProfileService().getProfileFromSharedPreferences();
+
+      print(profile);
+
+      final requestUrl = '$_baseUrl/classes/${profile?.groupId}';
+      print('Request URL: $requestUrl');
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Cookie': cookieHeader,
+        'x-profile-id': profile?.id,
+      };
+
+      print('Request Headers: $headers');
+
+      final response = await _dio.patch(
+        requestUrl,
+        data: jsonEncode(
+          {
+            'name': newName,
+          },
+        ),
+        options: Options(headers: headers),
+      );
+
+      print(response.data);
+
+      if (response.statusCode == 200) {
+        return response.data['data'];
+      } else {
+        throw Exception('Failed to update class: ${response.data}');
+      }
+    } catch (e) {
+      print('Error updating class: $e');
+      throw e;
+    }
+  }
 }

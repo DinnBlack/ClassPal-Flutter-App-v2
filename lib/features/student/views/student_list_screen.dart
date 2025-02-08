@@ -4,6 +4,7 @@ import 'package:classpal_flutter_app/core/widgets/custom_feature_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_list_item.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
+import 'package:classpal_flutter_app/features/student/repository/student_group_data.dart';
 import 'package:classpal_flutter_app/features/student/views/student_create_screen.dart';
 import 'package:classpal_flutter_app/features/student/views/student_edit_screen.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class StudentListScreen extends StatefulWidget {
   final bool isCreateListView;
   final bool isPickerView;
   final ValueChanged<List<String>>? onSelectionChanged;
+  final List<ProfileModel>? studentsInGroup;
   static const route = 'StudentListScreen';
 
   const StudentListScreen({
@@ -26,6 +28,7 @@ class StudentListScreen extends StatefulWidget {
     this.isCreateListView = false,
     this.isPickerView = false,
     this.onSelectionChanged,
+    this.studentsInGroup,
   });
 
   @override
@@ -45,18 +48,24 @@ class _StudentListScreenState extends State<StudentListScreen> {
       }
     });
 
-    widget.onSelectionChanged?.call(selectedStudentIds); // Gửi danh sách đã chọn
+    widget.onSelectionChanged?.call(selectedStudentIds);
   }
 
   @override
   void initState() {
     super.initState();
-    // Fetch students when screen is loaded
+    if (widget.studentsInGroup != null) {
+      selectedStudentIds = widget.studentsInGroup!.map((s) => s.id).toList();
+    }
     context.read<StudentBloc>().add(StudentFetchStarted());
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.studentsInGroup != null && widget.studentsInGroup!.isNotEmpty && widget.isPickerView == false) {
+      return _buildStudentsGroupListView(context);
+    }
+
     return BlocBuilder<StudentBloc, StudentState>(
       builder: (context, state) {
         if (state is StudentFetchInProgress) {
@@ -80,6 +89,28 @@ class _StudentListScreenState extends State<StudentListScreen> {
           return _buildEmptyStudentView();
         }
       },
+    );
+  }
+
+  Widget _buildStudentsGroupListView(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Thành viên',
+          style: AppTextStyle.semibold(kTextSizeMd),
+        ),
+        const SizedBox(height: kMarginLg,),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            double itemHeight = 105;
+            double itemWidth = (constraints.maxWidth - (4 - 1) * kPaddingMd) / 4;
+
+            return _buildGridView(
+                widget.studentsInGroup!, itemHeight, itemWidth, false);
+          },
+        ),
+      ],
     );
   }
 
@@ -139,13 +170,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
                                   PageTransitionType.slideFromBottom);
                         },
                         () {
-                          CustomPageTransition.navigateTo(
-                              context: context,
-                              page: StudentEditScreen(
-                                student: student,
-                              ),
-                              transitionType:
-                                  PageTransitionType.slideFromBottom);
+                          _showDeleteConfirmationDialog(context, student);
                         },
                       ],
                     );
@@ -162,6 +187,36 @@ class _StudentListScreenState extends State<StudentListScreen> {
         }
       },
       separatorBuilder: (context, index) => const SizedBox(height: kMarginLg),
+    );
+  }
+
+  void _showDeleteConfirmationDialog(
+      BuildContext context, ProfileModel student) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Xác nhận xóa"),
+          content: Text(
+              "Bạn có chắc muốn hủy bỏ học sinh '${student.displayName}' không?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context), // Đóng dialog
+              child: const Text("Hủy", style: TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: () {
+                context
+                    .read<StudentBloc>()
+                    .add(StudentDeleteStarted(studentId: student.id));
+                Navigator.pop(context); // Đóng dialog sau khi xóa
+              },
+              child:
+                  const Text("Xác nhận", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -185,7 +240,6 @@ class _StudentListScreenState extends State<StudentListScreen> {
       padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
       child: Column(
         children: [
-          const SizedBox(height: kMarginMd),
           Align(
             alignment: Alignment.center,
             child: Text(
@@ -233,8 +287,10 @@ class _StudentListScreenState extends State<StudentListScreen> {
             },
           );
         } else {
+          bool isSelected = selectedStudentIds.contains(student.id);
           return CustomStudentListItem(
             isPicker: isPicker,
+            isSelected: isSelected,
             student: student,
             onSelectionChanged: (isSelected) {
               _toggleSelection(student.id);

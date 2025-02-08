@@ -13,7 +13,7 @@ class CustomAvatar extends StatelessWidget {
     this.profile,
     this.imageAsset,
     this.imageUrl,
-    this.backgroundColor = kPrimaryColor,
+    this.backgroundColor = kGreyMediumColor,
     this.size = 40.0,
   }) : super(key: key);
 

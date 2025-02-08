@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
@@ -181,6 +182,68 @@ class ProfileService {
     } catch (e) {
       print('Error fetching profile by roles: $e');
       return [];
+    }
+  }
+
+  Future<void> updateAvatar(ProfileModel profile, File imageFile) async {
+    try {
+      // Lấy cookies từ trình quản lý CookieJar
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      // Tạo chuỗi cookie để gửi trong header
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final requestUrl = '$_baseUrl/profiles/${profile.groupId}/avatar';
+      final headers = {
+        'Cookie': cookieHeader,
+        'x-profile-id': profile.id,
+      };
+
+      print('Response imageFile: $imageFile');
+      print('Response requestUrl: $requestUrl');
+
+      // Kiểm tra file có tồn tại không
+      if (!imageFile.existsSync()) {
+        throw Exception('File không tồn tại: ${imageFile.path}');
+      }
+
+      // Tạo FormData chứa file ảnh
+      FormData formData = FormData.fromMap({
+        "image": await MultipartFile.fromFile(
+          imageFile.path,
+          filename: "avatar.jpg",
+        ),
+      });
+
+      print('Response headers: $headers');
+
+      // Gửi yêu cầu API
+      final response = await _dio.patch(
+        requestUrl,
+        data: formData,
+        options: Options(
+          headers: headers,
+          contentType: 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW',
+        ),
+      );
+
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Data: ${response.data}');
+
+      if (response.statusCode == 200) {
+        print("Avatar cập nhật thành công!");
+        return response.data['data'];
+      } else {
+        throw Exception('Lỗi cập nhật avatar: ${response.data}');
+      }
+    } on DioException catch (e) {
+      print(e.response?.data);
+      print(e.response?.statusCode);
+      throw Exception('Lỗi khi gửi yêu cầu cập nhật avatar: ${e.response?.data}');
     }
   }
 }

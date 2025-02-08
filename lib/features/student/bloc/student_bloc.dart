@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
 import 'package:meta/meta.dart';
+import '../../profile/repository/profile_service.dart';
 import '../repository/student_service.dart';
 
 part 'student_event.dart';
@@ -9,16 +12,19 @@ part 'student_state.dart';
 
 class StudentBloc extends Bloc<StudentEvent, StudentState> {
   final StudentService studentService = StudentService();
+  final ProfileService profileService = ProfileService();
 
   StudentBloc() : super(StudentInitial()) {
     on<StudentFetchStarted>(_onStudentFetchStarted);
     on<StudentCreateStarted>(_onStudentCreateStarted);
     on<StudentDeleteStarted>(_onStudentDeleteStarted);
+    on<StudentUpdateAvatarStarted>(_onStudentUpdateAvatarStarted);
+
   }
 
   // Fetch the list of student
-  Future<void> _onStudentFetchStarted(
-      StudentFetchStarted event, Emitter<StudentState> emit) async {
+  Future<void> _onStudentFetchStarted(StudentFetchStarted event,
+      Emitter<StudentState> emit) async {
     emit(StudentFetchInProgress());
     try {
       final students = await studentService.getAllStudentInClass();
@@ -29,8 +35,8 @@ class StudentBloc extends Bloc<StudentEvent, StudentState> {
   }
 
   // In the Bloc method:
-  Future<void> _onStudentCreateStarted(
-      StudentCreateStarted event, Emitter<StudentState> emit) async {
+  Future<void> _onStudentCreateStarted(StudentCreateStarted event,
+      Emitter<StudentState> emit) async {
     emit(StudentCreateInProgress());
     try {
       await studentService.insertStudent(event.name);
@@ -45,8 +51,8 @@ class StudentBloc extends Bloc<StudentEvent, StudentState> {
 
 
   // Delete Student
-  Future<void> _onStudentDeleteStarted(
-      StudentDeleteStarted event, Emitter<StudentState> emit) async {
+  Future<void> _onStudentDeleteStarted(StudentDeleteStarted event,
+      Emitter<StudentState> emit) async {
     emit(StudentDeleteInProgress());
     try {
       await studentService.deleteStudent(event.studentId);
@@ -56,6 +62,21 @@ class StudentBloc extends Bloc<StudentEvent, StudentState> {
     } catch (e) {
       print("Error deleting student: $e");
       emit(StudentDeleteFailure("Failed to delete student: ${e.toString()}"));
+    }
+  }
+
+  // Update Student Avatar
+  Future<void> _onStudentUpdateAvatarStarted(StudentUpdateAvatarStarted event,
+      Emitter<StudentState> emit) async {
+    emit(StudentUpdateAvatarInProgress());
+    try {
+      await profileService.updateAvatar(event.profile, event.imageFile);
+      print("Student avatar updated successfully");
+      emit(StudentUpdateAvatarSuccess());
+      add(StudentFetchStarted());
+    } catch (e) {
+      print("$e");
+      emit(StudentUpdateAvatarFailure("Failed to update student avatar: ${e.toString()}"));
     }
   }
 }

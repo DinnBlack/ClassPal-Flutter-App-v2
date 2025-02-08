@@ -58,7 +58,7 @@ class _CustomStudentGroupListItemState extends State<CustomStudentGroupListItem>
       avatarImage = CircleAvatar(
         radius: 24,
         backgroundImage: NetworkImage(student.avatarUrl),
-        backgroundColor: kPrimaryColor,
+        backgroundColor: kGreyMediumColor,
       );
 
       if (studentCount == 1) {
@@ -83,7 +83,7 @@ class _CustomStudentGroupListItemState extends State<CustomStudentGroupListItem>
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: kPrimaryColor,
-                  width: 1,
+                  width: 2,
                 ),
               ),
               child: avatarImage,
@@ -162,9 +162,9 @@ class _CustomStudentGroupListItemState extends State<CustomStudentGroupListItem>
                     Container(
                       height: 48,
                       alignment: Alignment.center,
-                      child: const Stack(
+                      child:  Stack(
                         alignment: Alignment.center,
-                        // children: studentAvatars,
+                        children: studentAvatars,
                       ),
                     ),
                   const SizedBox(height: kMarginSm),

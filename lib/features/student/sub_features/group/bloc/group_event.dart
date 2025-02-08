@@ -11,3 +11,17 @@ class GroupCreateStarted extends GroupEvent {
 
   GroupCreateStarted({required this.name, required this.studentIds});
 }
+
+class GroupUpdateStarted extends GroupEvent {
+  final GroupWithStudentsModel groupWithStudents;
+  final String? name;
+  final List<String>? studentIds;
+
+  GroupUpdateStarted(this.groupWithStudents, {this.name, this.studentIds});
+}
+
+class GroupDeleteStarted extends GroupEvent {
+  final String groupId;
+
+  GroupDeleteStarted(this.groupId);
+}

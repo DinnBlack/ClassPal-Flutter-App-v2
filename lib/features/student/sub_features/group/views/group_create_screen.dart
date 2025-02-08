@@ -8,17 +8,16 @@ import '../../../../../core/widgets/custom_text_field.dart';
 import '../../../views/student_list_screen.dart';
 import '../bloc/group_bloc.dart';
 
-class StudentGroupCreateScreen extends StatefulWidget {
-  static const route = 'StudentGroupCreateScreen';
+class GroupCreateScreen extends StatefulWidget {
+  static const route = 'GroupCreateScreen';
 
-  const StudentGroupCreateScreen({super.key});
+  const GroupCreateScreen({super.key});
 
   @override
-  _StudentGroupCreateScreenState createState() =>
-      _StudentGroupCreateScreenState();
+  _GroupCreateScreenState createState() => _GroupCreateScreenState();
 }
 
-class _StudentGroupCreateScreenState extends State<StudentGroupCreateScreen> {
+class _GroupCreateScreenState extends State<GroupCreateScreen> {
   final TextEditingController _controller = TextEditingController();
   final List<String> studentIds = [];
   bool _hasText = false;
@@ -125,7 +124,6 @@ class _StudentGroupCreateScreenState extends State<StudentGroupCreateScreen> {
       leftWidget: InkWell(
         child: const Icon(
           FontAwesomeIcons.xmark,
-          color: kGreyColor,
         ),
         onTap: () => Navigator.pop(context),
       ),

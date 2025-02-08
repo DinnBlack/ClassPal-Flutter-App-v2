@@ -31,3 +31,4 @@ class SchoolCreateFailure extends SchoolState {
 
   SchoolCreateFailure(this.error);
 }
+
