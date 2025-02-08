@@ -22,6 +22,7 @@ class StudentListScreen extends StatefulWidget {
   final ValueChanged<List<String>>? onSelectionChanged;
   final List<ProfileModel>? studentsInGroup;
   static const route = 'StudentListScreen';
+  final ValueChanged<bool>? onStudentListChanged;
 
   const StudentListScreen({
     super.key,
@@ -29,6 +30,7 @@ class StudentListScreen extends StatefulWidget {
     this.isPickerView = false,
     this.onSelectionChanged,
     this.studentsInGroup,
+    this.onStudentListChanged,
   });
 
   @override
@@ -62,7 +64,9 @@ class _StudentListScreenState extends State<StudentListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.studentsInGroup != null && widget.studentsInGroup!.isNotEmpty && widget.isPickerView == false) {
+    if (widget.studentsInGroup != null &&
+        widget.studentsInGroup!.isNotEmpty &&
+        widget.isPickerView == false) {
       return _buildStudentsGroupListView(context);
     }
 
@@ -71,9 +75,11 @@ class _StudentListScreenState extends State<StudentListScreen> {
         if (state is StudentFetchInProgress) {
           return const Center(child: CircularProgressIndicator());
         } else if (state is StudentFetchFailure) {
+          widget.onStudentListChanged?.call(false);
           return _buildErrorView(state.error);
         } else if (state is StudentFetchSuccess) {
           students = state.students;
+          widget.onStudentListChanged?.call(students.isNotEmpty);
           if (students.isEmpty) {
             return _buildEmptyStudentView();
           } else {
@@ -100,11 +106,14 @@ class _StudentListScreenState extends State<StudentListScreen> {
           'Thành viên',
           style: AppTextStyle.semibold(kTextSizeMd),
         ),
-        const SizedBox(height: kMarginLg,),
+        const SizedBox(
+          height: kMarginLg,
+        ),
         LayoutBuilder(
           builder: (context, constraints) {
             double itemHeight = 105;
-            double itemWidth = (constraints.maxWidth - (4 - 1) * kPaddingMd) / 4;
+            double itemWidth =
+                (constraints.maxWidth - (4 - 1) * kPaddingMd) / 4;
 
             return _buildGridView(
                 widget.studentsInGroup!, itemHeight, itemWidth, false);

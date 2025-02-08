@@ -14,6 +14,7 @@ import '../../../student/sub_features/group/views/group_list_screen.dart';
 import '../../../student/views/student_list_screen.dart';
 import '../../models/class_model.dart';
 import '../../repository/class_service.dart';
+import '../../sub_features/subject/views/subject_screen.dart';
 import '../class_connect/class_connect_screen.dart';
 import '../class_management_screen.dart';
 import '../../../../core/widgets/custom_feature_dialog.dart';
@@ -89,7 +90,11 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
           );
         },
         () {
-          print('Môn học');
+          CustomPageTransition.navigateTo(
+            context: context,
+            page: const SubjectScreen(),
+            transitionType: PageTransitionType.slideFromBottom,
+          );
         },
         () {
           CustomPageTransition.navigateTo(
@@ -184,8 +189,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
           const SizedBox(
             height: kMarginLg,
           ),
-          const GroupListScreen(
-          ),
+          const GroupListScreen(),
           const SizedBox(
             height: kMarginLg,
           ),

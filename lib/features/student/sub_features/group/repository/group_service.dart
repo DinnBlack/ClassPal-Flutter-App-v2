@@ -252,7 +252,7 @@ class GroupService {
 
       final profile = await ProfileService().getProfileFromSharedPreferences();
 
-      final requestUrl = '$_baseUrl/parties/${profile?.id}/${group.id}/members';
+      final requestUrl = '$_baseUrl/parties/${profile?.groupId}/${group.id}/members';
 
       final headers = {
         'Content-Type': 'application/json',
@@ -289,7 +289,7 @@ class GroupService {
 
       final profile = await ProfileService().getProfileFromSharedPreferences();
 
-      final requestUrl = '$_baseUrl/parties/${profile?.id}/$groupId';
+      final requestUrl = '$_baseUrl/parties/${profile?.groupId}/$groupId';
 
       final headers = {
         'Content-Type': 'application/json',

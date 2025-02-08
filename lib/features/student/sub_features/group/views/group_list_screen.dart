@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/config/app_constants.dart';
 import '../bloc/group_bloc.dart';
 import 'group_create_screen.dart';
-import 'widgets/custom_student_group_list_item.dart';
+import 'widgets/custom_group_list_item.dart';
 
 class GroupListScreen extends StatefulWidget {
   const GroupListScreen({super.key});
@@ -49,7 +49,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
                   itemBuilder: (context, index) {
                     if (index < groupData.length) {
                       final group = groupData[index];
-                      return CustomStudentGroupListItem(
+                      return CustomGroupListItem(
                         groupWithStudents: group,
                         onTap: () {
                           CustomPageTransition.navigateTo(
@@ -60,7 +60,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
                         },
                       );
                     } else {
-                      return CustomStudentGroupListItem(
+                      return CustomGroupListItem(
                         addItem: true,
                         onTap: () {
                           CustomPageTransition.navigateTo(

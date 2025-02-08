@@ -20,7 +20,7 @@ class GroupFetchFailure extends GroupState {
   GroupFetchFailure(this.errorMessage);
 }
 
-
+// Group create
 class GroupCreateInProgress extends GroupState {}
 
 class GroupCreateSuccess extends GroupState {}

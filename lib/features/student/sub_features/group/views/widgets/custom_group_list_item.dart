@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import '../../../../../../core/config/app_constants.dart';
 import '../../../../../../core/utils/app_text_style.dart';
 
-class CustomStudentGroupListItem extends StatefulWidget {
+class CustomGroupListItem extends StatefulWidget {
   final bool? addItem;
   final VoidCallback? onTap;
   final GroupWithStudentsModel? groupWithStudents;
 
-  const CustomStudentGroupListItem({
+  const CustomGroupListItem({
     super.key,
     this.addItem = false,
     this.onTap,
@@ -18,11 +18,11 @@ class CustomStudentGroupListItem extends StatefulWidget {
   });
 
   @override
-  State<CustomStudentGroupListItem> createState() =>
-      _CustomStudentGroupListItemState();
+  State<CustomGroupListItem> createState() =>
+      _CustomGroupListItemState();
 }
 
-class _CustomStudentGroupListItemState extends State<CustomStudentGroupListItem>
+class _CustomGroupListItemState extends State<CustomGroupListItem>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;

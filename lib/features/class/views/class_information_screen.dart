@@ -66,78 +66,82 @@ class _ClassInformationScreenState extends State<ClassInformationScreen> {
     return Scaffold(
       backgroundColor: kBackgroundColor,
       appBar: _buildAppBar(context),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: kMarginXxl),
-            CustomButtonCamera(
-              onImagePicked: (File? value) {},
-              initialImageUrl: widget.currentClass.avatarUrl,
-            ),
-            const SizedBox(height: kMarginXxl),
-            CustomTextField(
-              controller: _classNameController,
-              customFocusNode: _focusNode,
-              readOnly: !_isEditing,
-              autofocus: true,
-              onChanged: (value) {
-                _validateForm();
-              },
-              suffixIcon: InkWell(
-                onTap: _toggleEdit,
-                borderRadius: BorderRadius.circular(kBorderRadiusMd),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: kMarginSm),
-                  decoration: BoxDecoration(
-                    color: _isEditing ? kPrimaryColor : kGreyLightColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    FontAwesomeIcons.pen,
-                    size: 16,
-                    color: _isEditing ? Colors.white : kGreyColor,
-                  ),
+      body: _buildBody(),
+    );
+  }
+
+  Padding _buildBody() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(height: kMarginXxl),
+          CustomButtonCamera(
+            onImagePicked: (File? value) {},
+            initialImageUrl: widget.currentClass.avatarUrl,
+          ),
+          const SizedBox(height: kMarginXxl),
+          CustomTextField(
+            controller: _classNameController,
+            customFocusNode: _focusNode,
+            readOnly: !_isEditing,
+            autofocus: true,
+            onChanged: (value) {
+              _validateForm();
+            },
+            suffixIcon: InkWell(
+              onTap: _toggleEdit,
+              borderRadius: BorderRadius.circular(kBorderRadiusMd),
+              child: Container(
+                margin: const EdgeInsets.symmetric(vertical: kMarginSm),
+                decoration: BoxDecoration(
+                  color: _isEditing ? kPrimaryColor : kGreyLightColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  FontAwesomeIcons.pen,
+                  size: 16,
+                  color: _isEditing ? Colors.white : kGreyColor,
                 ),
               ),
             ),
-            const SizedBox(height: kMarginLg),
-            BlocConsumer<ClassBloc, ClassState>(
-              listener: (context, state) {
-                if (state is ClassUpdateInProgress) {
-                  CustomLoadingDialog.show(context);
-                } else {
-                  CustomLoadingDialog.dismiss(context);
-                }
-                if (state is ClassUpdateSuccess) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Cập nhật thành công')),
-                  );
-                  Navigator.pop(context);
-                } else if (state is ClassUpdateFailure) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Cập nhật thất bại')),
-                  );
-                }
-              },
-              builder: (context, state) {
-                return CustomButton(
-                  text: 'Lưu',
-                  isValid: _isValid,
-                  onTap: _isValid
-                      ? () {
-                          context.read<ClassBloc>().add(
-                                ClassUpdateStarted(
-                                    newName: _classNameController.text),
-                              );
-                        }
-                      : null,
+          ),
+          const SizedBox(height: kMarginLg),
+          BlocConsumer<ClassBloc, ClassState>(
+            listener: (context, state) {
+              if (state is ClassUpdateInProgress) {
+                CustomLoadingDialog.show(context);
+              } else {
+                CustomLoadingDialog.dismiss(context);
+              }
+              if (state is ClassUpdateSuccess) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Cập nhật thành công')),
                 );
-              },
-            ),
-          ],
-        ),
+                Navigator.pop(context);
+              } else if (state is ClassUpdateFailure) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Cập nhật thất bại')),
+                );
+              }
+            },
+            builder: (context, state) {
+              return CustomButton(
+                text: 'Lưu',
+                isValid: _isValid,
+                onTap: _isValid
+                    ? () {
+                        context.read<ClassBloc>().add(
+                              ClassUpdateStarted(
+                                  newName: _classNameController.text),
+                            );
+                      }
+                    : null,
+              );
+            },
+          ),
+        ],
       ),
     );
   }

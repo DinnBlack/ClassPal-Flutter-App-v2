@@ -11,6 +11,7 @@ import 'features/auth/views/login_screen.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'features/auth/views/select_role_screen.dart';
 import 'features/class/bloc/class_bloc.dart';
+import 'features/class/sub_features/subject/bloc/subject_bloc.dart';
 import 'features/profile/bloc/profile_bloc.dart';
 import 'features/student/bloc/student_bloc.dart';
 import 'features/student/sub_features/group/bloc/group_bloc.dart';
@@ -52,6 +53,8 @@ class MyApp extends StatelessWidget {
           create: (context) => StudentBloc(),
         ),BlocProvider<GroupBloc>(
           create: (context) => GroupBloc(),
+        ),BlocProvider<SubjectBloc>(
+          create: (context) => SubjectBloc(),
         ),
       ],
       child: MaterialApp(

@@ -34,7 +34,7 @@ class _CustomStudentListItemState extends State<CustomStudentListItem>
   @override
   void initState() {
     super.initState();
-    isSelected = widget.isSelected; // Initialize isSelected from widget
+    isSelected = widget.isSelected;
     _controller = AnimationController(
       vsync: this,
       lowerBound: 0.9,
@@ -54,7 +54,7 @@ class _CustomStudentListItemState extends State<CustomStudentListItem>
       setState(() {
         isSelected = !isSelected;
       });
-      widget.onSelectionChanged?.call(isSelected); // Safe null check
+      widget.onSelectionChanged?.call(isSelected);
     }
   }
 
@@ -65,7 +65,7 @@ class _CustomStudentListItemState extends State<CustomStudentListItem>
         await _controller.reverse();
         await _controller.forward();
 
-        widget.onTap?.call(); // Safe call
+        widget.onTap?.call();
         _toggleSelection();
       },
       child: ScaleTransition(
