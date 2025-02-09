@@ -14,6 +14,9 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
   SubjectBloc() : super(SubjectInitial()) {
     on<SubjectFetchStarted>(_onSubjectFetchStarted);
     on<SubjectCreateStarted>(_onSubjectCreateStarted);
+    on<SubjectUpdateStarted>(_onSubjectUpdateStarted);
+    on<SubjectDeleteStarted>(_onSubjectDeleteStarted);
+    on<SubjectFetchByIdStarted>(_onSubjectFetchByIdStarted);
   }
 
   // Fetch the list of group
@@ -24,7 +27,19 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
       final subjects = await subjectService.getAllSubject();
       emit(SubjectFetchSuccess(subjects));
     } catch (e) {
-      emit(SubjectFetchFailure("Failed to fetch students: ${e.toString()}"));
+      emit(SubjectFetchFailure("Failed to fetch subjects: ${e.toString()}"));
+    }
+  }
+
+  // Fetch a single subject by id
+  Future<void> _onSubjectFetchByIdStarted(
+      SubjectFetchByIdStarted event, Emitter<SubjectState> emit) async {
+    emit(SubjectFetchByIdInProgress());
+    try {
+      final subject = await subjectService.getSubjectById(event.subjectId);
+      emit(SubjectFetchByIdSuccess(subject!));
+    } catch (e) {
+      emit(SubjectFetchByIdFailure("Failed to fetch subject: ${e.toString()}"));
     }
   }
 
@@ -39,6 +54,37 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
       add(SubjectFetchStarted());
     } catch (e) {
       emit(SubjectCreateFailure("Failed to create subject: ${e.toString()}"));
+    }
+  }
+
+  // Update an existing subject
+  Future<void> _onSubjectUpdateStarted(
+      SubjectUpdateStarted event, Emitter<SubjectState> emit) async {
+    emit(SubjectUpdateInProgress());
+    try {
+      await subjectService.updateSubject(
+          event.subject, event.name, event.gradeTypes);
+      print("Subject updated successfully");
+      emit(SubjectUpdateSuccess());
+      add(SubjectFetchByIdStarted(event.subject.id));
+      add(SubjectFetchStarted());
+
+    } catch (e) {
+      emit(SubjectUpdateFailure("Failed to update subject: ${e.toString()}"));
+    }
+  }
+
+  // Delete a subject
+  Future<void> _onSubjectDeleteStarted(
+      SubjectDeleteStarted event, Emitter<SubjectState> emit) async {
+    emit(SubjectDeleteInProgress());
+    try {
+      await subjectService.deleteSubject(event.subjectId);
+      print("Subject deleted successfully");
+      emit(SubjectDeleteSuccess());
+      add(SubjectFetchStarted());
+    } catch (e) {
+      emit(SubjectDeleteFailure("Failed to delete subject: ${e.toString()}"));
     }
   }
 }

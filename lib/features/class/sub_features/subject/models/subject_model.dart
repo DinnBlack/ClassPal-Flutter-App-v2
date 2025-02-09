@@ -1,7 +1,7 @@
 import '../../grade/models/grade_type_model.dart';
 
 class SubjectModel {
-  final String _id;
+  final String id;
   final String classId;
   final String name;
   final String avatarUrl;
@@ -12,6 +12,7 @@ class SubjectModel {
 
 //<editor-fold desc="Data Methods">
   const SubjectModel({
+    required this.id,
     required this.classId,
     required this.name,
     required this.avatarUrl,
@@ -19,15 +20,14 @@ class SubjectModel {
     this.description,
     required this.updatedAt,
     required this.createdAt,
-    required String id,
-  }) : _id = id;
+  });
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is SubjectModel &&
           runtimeType == other.runtimeType &&
-          _id == other._id &&
+          id == other.id &&
           classId == other.classId &&
           name == other.name &&
           avatarUrl == other.avatarUrl &&
@@ -38,7 +38,7 @@ class SubjectModel {
 
   @override
   int get hashCode =>
-      _id.hashCode ^
+      id.hashCode ^
       classId.hashCode ^
       name.hashCode ^
       avatarUrl.hashCode ^
@@ -50,7 +50,7 @@ class SubjectModel {
   @override
   String toString() {
     return 'SubjectModel{' +
-        ' _id: $_id,' +
+        ' id: $id,' +
         ' classId: $classId,' +
         ' name: $name,' +
         ' avatarUrl: $avatarUrl,' +
@@ -72,7 +72,7 @@ class SubjectModel {
     DateTime? createdAt,
   }) {
     return SubjectModel(
-      id: id ?? this._id,
+      id: id ?? this.id,
       classId: classId ?? this.classId,
       name: name ?? this.name,
       avatarUrl: avatarUrl ?? this.avatarUrl,
@@ -85,7 +85,7 @@ class SubjectModel {
 
   Map<String, dynamic> toMap() {
     return {
-      '_id': this._id,
+      'id': this.id,
       'classId': this.classId,
       'name': this.name,
       'avatarUrl': this.avatarUrl,
