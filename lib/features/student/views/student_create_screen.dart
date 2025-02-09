@@ -72,7 +72,9 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
             suffixIcon: InkWell(
               onTap: () {
                 // Add event to start student creation
-                context.read<StudentBloc>().add(StudentCreateStarted(name: _controller.text));
+                context
+                    .read<StudentBloc>()
+                    .add(StudentCreateStarted(name: _controller.text));
               },
               borderRadius: BorderRadius.circular(kBorderRadiusMd),
               child: Container(
@@ -91,8 +93,8 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
           ),
           const Expanded(
               child: StudentListScreen(
-                isCreateListView: true,
-              )),
+            isCreateView: true,
+          )),
         ],
       ),
     );

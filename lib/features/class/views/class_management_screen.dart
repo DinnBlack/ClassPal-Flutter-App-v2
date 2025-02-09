@@ -1,8 +1,8 @@
+import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:flutter/material.dart';
 import '../../../core/utils/app_text_style.dart';
 import '../../../core/config/app_constants.dart';
-import '../../../core/widgets/custom_bottom_sheet.dart';
-import 'class_attendance_screen.dart';
+import '../sub_features/roll_call/views/roll_call_screen.dart';
 
 class ClassManagementScreen extends StatelessWidget {
   final bool? isHorizontal;
@@ -21,10 +21,7 @@ class ClassManagementScreen extends StatelessWidget {
   void onFeatureTapped(BuildContext context, String feature) {
     switch (feature) {
       case "Điểm danh":
-        CustomBottomSheet.showCustomBottomSheet(
-          context,
-          const ClassAttendanceScreen(),
-        );
+        CustomPageTransition.navigateTo(context: context, page: const RollCallScreen(), transitionType: PageTransitionType.slideFromBottom);
         break;
       case "Sắp xếp lịch học":
         Navigator.pushNamed(context, '/schedule');

@@ -4,7 +4,6 @@ import 'package:classpal_flutter_app/core/widgets/custom_feature_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_list_item.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
-import 'package:classpal_flutter_app/features/student/repository/student_group_data.dart';
 import 'package:classpal_flutter_app/features/student/views/student_create_screen.dart';
 import 'package:classpal_flutter_app/features/student/views/student_edit_screen.dart';
 import 'package:flutter/material.dart';
@@ -17,18 +16,22 @@ import '../../../core/widgets/custom_scale_effect.dart';
 import '../bloc/student_bloc.dart';
 
 class StudentListScreen extends StatefulWidget {
-  final bool isCreateListView;
-  final bool isPickerView;
-  final ValueChanged<List<String>>? onSelectionChanged;
-  final List<ProfileModel>? studentsInGroup;
   static const route = 'StudentListScreen';
+  final bool isCreateView;
+  final bool isPickerView;
+  final bool isRollCallView;
+  final ValueChanged<List<String>>? onSelectionChanged;
+  final ValueChanged<List<Map<String, int>>>? onStatusChanged;
+  final List<ProfileModel>? studentsInGroup;
   final ValueChanged<bool>? onStudentListChanged;
 
   const StudentListScreen({
     super.key,
-    this.isCreateListView = false,
+    this.isCreateView = false,
     this.isPickerView = false,
+    this.isRollCallView = false,
     this.onSelectionChanged,
+    this.onStatusChanged,
     this.studentsInGroup,
     this.onStudentListChanged,
   });
@@ -83,10 +86,15 @@ class _StudentListScreenState extends State<StudentListScreen> {
           if (students.isEmpty) {
             return _buildEmptyStudentView();
           } else {
-            if (widget.isCreateListView) {
+            if (widget.isCreateView) {
               return _buildCreateListView();
             } else if (widget.isPickerView) {
               return _buildPickerView(context);
+            } else if (widget.isRollCallView) {
+              return StudentRollCallListScreen(
+                students: students,
+                onStatusChanged: widget.onStatusChanged,
+              );
             } else {
               return _buildStudentListView(context);
             }
@@ -156,34 +164,33 @@ class _StudentListScreenState extends State<StudentListScreen> {
               profile: student,
             ),
             trailing: CustomScaleEffect(
-              child: Container(
-                height: 40,
-                width: 40,
-                decoration: BoxDecoration(
-                  color: kPrimaryLightColor.withOpacity(0.5),
-                  shape: BoxShape.circle,
-                ),
-                child: GestureDetector(
-                  onTap: () {
-                    showCustomFeatureDialog(
-                      context,
-                      ['Chỉnh sửa học sinh', 'Hủy bỏ học sinh'],
-                      [
-                        () {
-                          CustomPageTransition.navigateTo(
-                              context: context,
-                              page: StudentEditScreen(
-                                student: student,
-                              ),
-                              transitionType:
-                                  PageTransitionType.slideFromBottom);
-                        },
-                        () {
-                          _showDeleteConfirmationDialog(context, student);
-                        },
-                      ],
-                    );
-                  },
+              child: GestureDetector(
+                onTap: () {
+                  showCustomFeatureDialog(
+                    context,
+                    ['Chỉnh sửa học sinh', 'Hủy bỏ học sinh'],
+                    [
+                      () {
+                        CustomPageTransition.navigateTo(
+                            context: context,
+                            page: StudentEditScreen(
+                              student: student,
+                            ),
+                            transitionType: PageTransitionType.slideFromBottom);
+                      },
+                      () {
+                        _showDeleteConfirmationDialog(context, student);
+                      },
+                    ],
+                  );
+                },
+                child: Container(
+                  height: 40,
+                  width: 40,
+                  decoration: BoxDecoration(
+                    color: kPrimaryLightColor.withOpacity(0.5),
+                    shape: BoxShape.circle,
+                  ),
                   child: const Icon(
                     FontAwesomeIcons.pencil,
                     size: 16,
@@ -347,4 +354,115 @@ Widget _buildErrorView(String errorMessage) {
       style: AppTextStyle.medium(kTextSizeLg),
     ),
   );
+}
+
+class StudentRollCallListScreen extends StatefulWidget {
+  final List<ProfileModel> students;
+  final ValueChanged<List<Map<String, int>>>? onStatusChanged;
+
+  const StudentRollCallListScreen({
+    super.key,
+    required this.students,
+    this.onStatusChanged,
+  });
+
+  @override
+  State<StudentRollCallListScreen> createState() =>
+      _StudentRollCallListScreenState();
+}
+
+class _StudentRollCallListScreenState extends State<StudentRollCallListScreen> {
+  final List<String> statuses = ['Đi học', 'Vắng', 'Trễ'];
+  final Map<String, int> studentStatusMap = {};
+
+  @override
+  void initState() {
+    super.initState();
+    for (var student in widget.students) {
+      studentStatusMap[student.id] = 0;
+    }
+
+    // Gửi danh sách trạng thái ban đầu (tất cả đều đi học)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _notifyStatusChanged();
+    });
+  }
+
+  void _notifyStatusChanged() {
+    if (widget.onStatusChanged != null) {
+      List<Map<String, int>> statusList = studentStatusMap.entries
+          .map((entry) => {entry.key: entry.value})
+          .toList();
+      widget.onStatusChanged!(statusList);
+    }
+  }
+
+  void _toggleStatus(String studentId) {
+    setState(() {
+      int currentIndex = studentStatusMap[studentId] ?? 0;
+      studentStatusMap[studentId] = (currentIndex + 1) % statuses.length;
+    });
+
+    // Chuyển đổi Map thành List<Map<String, int>>
+    List<Map<String, int>> statusList = studentStatusMap.entries
+        .map((entry) => {entry.key: entry.value})
+        .toList();
+
+    widget.onStatusChanged?.call(statusList);
+    _notifyStatusChanged();
+  }
+
+  Widget _buildRollCallListView() {
+    if (widget.students.isEmpty) {
+      return Center(
+        child: Text(
+          'Không có học sinh',
+          style: AppTextStyle.medium(kTextSizeSm),
+        ),
+      );
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+      shrinkWrap: true,
+      itemCount: widget.students.length,
+      itemBuilder: (context, index) {
+        final student = widget.students[index];
+        final statusIndex = studentStatusMap[student.id] ?? 0;
+        final statusText = statuses[statusIndex];
+
+        return CustomListItem(
+          isAnimation: false,
+          title: student.displayName,
+          leading: CustomAvatar(profile: student),
+          trailing: GestureDetector(
+            onTap: () => _toggleStatus(student.id),
+            child: Text(
+              statusText,
+              style: AppTextStyle.medium(
+                kTextSizeSm,
+                _getStatusColor(statusIndex),
+              ),
+            ),
+          ),
+        );
+      },
+      separatorBuilder: (context, index) => const SizedBox(height: kMarginLg),
+    );
+  }
+
+  Color _getStatusColor(int index) {
+    switch (index) {
+      case 1:
+        return Colors.red; // Vắng
+      case 2:
+        return Colors.orange; // Trễ
+      default:
+        return kPrimaryColor; // Đi học
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildRollCallListView();
+  }
 }

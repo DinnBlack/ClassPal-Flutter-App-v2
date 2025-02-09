@@ -199,8 +199,6 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
   }
 
   CustomAppBar _buildAppBar(BuildContext context) {
-    bool hasStudents = [].isNotEmpty;
-
     return CustomAppBar(
       backgroundColor: kWhiteColor,
       title: widget.currentClass.name,
@@ -216,9 +214,8 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
           _showFeatureDialog(context);
         },
       ),
-      bottomWidget:
-          hasStudents ? ClassManagementScreen(isHorizontal: true) : null,
-      additionalHeight: hasStudents ? 55 : 0,
+      bottomWidget: ClassManagementScreen(isHorizontal: true),
+      additionalHeight: 55,
     );
   }
 }
