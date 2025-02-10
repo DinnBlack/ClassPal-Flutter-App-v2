@@ -6,6 +6,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http_parser/http_parser.dart';
 
 class ProfileService {
   final String _baseUrl =
@@ -197,27 +198,34 @@ class ProfileService {
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final requestUrl = '$_baseUrl/profiles/${profile.groupId}/avatar';
+      final currentProfile = await ProfileService().getProfileFromSharedPreferences();
+      if (currentProfile == null) throw Exception('Profile not found');
+
+      final requestUrl = '$_baseUrl/profiles/${profile.id}/avatar';
       final headers = {
         'Cookie': cookieHeader,
-        'x-profile-id': profile.id,
+        'x-profile-id': currentProfile.id,
+        'Content-Type':
+            "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW"
       };
 
-      print('Response imageFile: $imageFile');
+      List<String> parts = imageFile.path.split("/");
+      String fileName = parts.last.replaceAll("'", "");
+
+      print('Response imageFile: $fileName');
       print('Response requestUrl: $requestUrl');
 
       // Kiểm tra file có tồn tại không
       if (!imageFile.existsSync()) {
-        throw Exception('File không tồn tại: ${imageFile.path}');
+        throw Exception('File không tồn tại: $fileName');
       }
+      MultipartFile file = await MultipartFile.fromFile(imageFile.path,
+          filename: fileName, contentType: MediaType("image", "jpeg"));
 
       // Tạo FormData chứa file ảnh
-      FormData formData = FormData.fromMap({
-        "image": await MultipartFile.fromFile(
-          imageFile.path,
-          filename: "avatar.jpg",
-        ),
-      });
+      FormData formData = FormData.fromMap({"image": file});
+
+      print(formData.fields);
 
       print('Response headers: $headers');
 
@@ -227,7 +235,6 @@ class ProfileService {
         data: formData,
         options: Options(
           headers: headers,
-          contentType: 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW',
         ),
       );
 
@@ -241,9 +248,12 @@ class ProfileService {
         throw Exception('Lỗi cập nhật avatar: ${response.data}');
       }
     } on DioException catch (e) {
+      // print(e.response?.headers);
+      print(e.response?.requestOptions.data);
       print(e.response?.data);
       print(e.response?.statusCode);
-      throw Exception('Lỗi khi gửi yêu cầu cập nhật avatar: ${e.response?.data}');
+      throw Exception(
+          'Lỗi khi gửi yêu cầu cập nhật avatar: ${e.response?.data}');
     }
   }
 }

@@ -7,8 +7,10 @@ class GradeModel {
   final String? comment;
   final DateTime updatedAt;
   final DateTime createdAt;
+  final String? subjectName;
+  final String? gradeTypeName;
 
-//<editor-fold desc="Data Methods">
+  //<editor-fold desc="Data Methods">
   const GradeModel({
     required this.id,
     required this.studentId,
@@ -18,21 +20,25 @@ class GradeModel {
     this.comment,
     required this.updatedAt,
     required this.createdAt,
+    this.subjectName,
+    this.gradeTypeName,
   });
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is GradeModel &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          studentId == other.studentId &&
-          subjectId == other.subjectId &&
-          gradeTypeId == other.gradeTypeId &&
-          value == other.value &&
-          comment == other.comment &&
-          updatedAt == other.updatedAt &&
-          createdAt == other.createdAt);
+          (other is GradeModel &&
+              runtimeType == other.runtimeType &&
+              id == other.id &&
+              studentId == other.studentId &&
+              subjectId == other.subjectId &&
+              gradeTypeId == other.gradeTypeId &&
+              value == other.value &&
+              comment == other.comment &&
+              updatedAt == other.updatedAt &&
+              createdAt == other.createdAt &&
+              subjectName == other.subjectName &&
+              gradeTypeName == other.gradeTypeName);
 
   @override
   int get hashCode =>
@@ -43,19 +49,23 @@ class GradeModel {
       value.hashCode ^
       comment.hashCode ^
       updatedAt.hashCode ^
-      createdAt.hashCode;
+      createdAt.hashCode ^
+      subjectName.hashCode ^
+      gradeTypeName.hashCode;
 
   @override
   String toString() {
-    return 'GradeModel{' +
-        ' id: $id,' +
-        ' studentId: $studentId,' +
-        ' subjectId: $subjectId,' +
-        ' gradeTypeId: $gradeTypeId,' +
-        ' value: $value,' +
-        ' comment: $comment,' +
-        ' updatedAt: $updatedAt,' +
-        ' createdAt: $createdAt,' +
+    return 'GradeModel{'
+        ' id: $id,'
+        ' studentId: $studentId,'
+        ' subjectId: $subjectId,'
+        ' gradeTypeId: $gradeTypeId,'
+        ' value: $value,'
+        ' comment: $comment,'
+        ' updatedAt: $updatedAt,'
+        ' createdAt: $createdAt,'
+        ' subjectName: $subjectName,'
+        ' gradeTypeName: $gradeTypeName'
         '}';
   }
 
@@ -68,6 +78,8 @@ class GradeModel {
     String? comment,
     DateTime? updatedAt,
     DateTime? createdAt,
+    String? subjectName,
+    String? gradeTypeName,
   }) {
     return GradeModel(
       id: id ?? this.id,
@@ -78,34 +90,39 @@ class GradeModel {
       comment: comment ?? this.comment,
       updatedAt: updatedAt ?? this.updatedAt,
       createdAt: createdAt ?? this.createdAt,
+      subjectName: subjectName ?? this.subjectName,
+      gradeTypeName: gradeTypeName ?? this.gradeTypeName,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'id': this.id,
-      'studentId': this.studentId,
-      'subjectId': this.subjectId,
-      'gradeTypeId': this.gradeTypeId,
-      'value': this.value,
-      'comment': this.comment,
-      'updatedAt': this.updatedAt,
-      'createdAt': this.createdAt,
+      'id': id,
+      'studentId': studentId,
+      'subjectId': subjectId,
+      'gradeTypeId': gradeTypeId,
+      'value': value,
+      'comment': comment,
+      'updatedAt': updatedAt.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
+      'subjectName': subjectName,
+      'gradeTypeName': gradeTypeName,
     };
   }
 
   factory GradeModel.fromMap(Map<String, dynamic> map) {
     return GradeModel(
-      id: map['id'] as String,
+      id: map['_id'] as String,
       studentId: map['studentId'] as String,
       subjectId: map['subjectId'] as String,
       gradeTypeId: map['gradeTypeId'] as String,
-      value: map['value'] as double,
-      comment: map['comment'] as String,
-      updatedAt: map['updatedAt'] as DateTime,
-      createdAt: map['createdAt'] as DateTime,
+      value: (map['value'] as num).toDouble(),
+      comment: map['comment'] != null ? map['comment'] as String : null,
+      updatedAt: DateTime.parse(map['updatedAt'] as String),
+      createdAt: DateTime.parse(map['createdAt'] as String),
+      subjectName: map['subjectName'] != null ? map['subjectName'] as String : null,
+      gradeTypeName: map['gradeTypeName'] != null ? map['gradeTypeName'] as String : null,
     );
   }
-
 //</editor-fold>
 }

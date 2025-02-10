@@ -66,11 +66,18 @@ class _PrincipalViewState extends State<PrincipalView> {
                 if (state is SchoolFetchSuccess) {
                   final schools = state.schools;
                   if (schools.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'Chưa tham gia trường học nào!',
-                        style: AppTextStyle.semibold(kTextSizeMd),
+                    return CustomListItem(
+                      title: 'Chưa tham gia trường học nào!',
+                      subtitle: 'Tham gia trường học của bạn',
+                      leading: const CustomAvatar(
+                        imageAsset: 'assets/images/school.jpg',
                       ),
+                      onTap: () {
+                        CustomPageTransition.navigateTo(
+                            context: context,
+                            page: const ClassCreateScreen(),
+                            transitionType: PageTransitionType.slideFromBottom);
+                      },
                     );
                   }
                   return Column(
@@ -198,11 +205,18 @@ class _PrincipalViewState extends State<PrincipalView> {
                   );
                 }
                 if (state is ClassPersonalFetchFailure) {
-                  return Center(
-                    child: Text(
-                      state.error,
-                      style: AppTextStyle.semibold(kTextSizeMd),
+                  return CustomListItem(
+                    title: 'Chưa có lớp học cá nhân nào!',
+                    subtitle: 'Tạo lớp mới của bạn',
+                    leading: const CustomAvatar(
+                      imageAsset: 'assets/images/class.jpg',
                     ),
+                    onTap: () {
+                      CustomPageTransition.navigateTo(
+                          context: context,
+                          page: const ClassCreateScreen(),
+                          transitionType: PageTransitionType.slideFromBottom);
+                    },
                   );
                 }
                 return Container();

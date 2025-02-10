@@ -6,10 +6,10 @@ import '../../models/class_model.dart';
 import '../../sub_features/post/views/post_list_screen.dart';
 import '../../sub_features/post/views/widgets/custom_post_create_button.dart';
 
-class ClassBoardPage extends StatelessWidget {
+class ClassNewsPage extends StatelessWidget {
   final ClassModel currentClass;
 
-  const ClassBoardPage({super.key, required this.currentClass});
+  const ClassNewsPage({super.key, required this.currentClass});
 
   @override
   Widget build(BuildContext context) {

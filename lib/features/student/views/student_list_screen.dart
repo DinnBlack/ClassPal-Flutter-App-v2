@@ -14,6 +14,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/widgets/custom_scale_effect.dart';
 import '../bloc/student_bloc.dart';
+import 'student_dashboard_screen.dart';
 
 class StudentListScreen extends StatefulWidget {
   static const route = 'StudentListScreen';
@@ -302,7 +303,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
                   transitionType: PageTransitionType.slideFromBottom);
             },
           );
-        } else {
+        } else if (isPicker) {
           bool isSelected = selectedStudentIds.contains(student.id);
           return CustomStudentListItem(
             isPicker: isPicker,
@@ -310,6 +311,18 @@ class _StudentListScreenState extends State<StudentListScreen> {
             student: student,
             onSelectionChanged: (isSelected) {
               _toggleSelection(student.id);
+            },
+          );
+        } else {
+          return CustomStudentListItem(
+            student: student,
+            onTap: () {
+              CustomPageTransition.navigateTo(
+                  context: context,
+                  page: StudentDashboardScreen(
+                    student: student,
+                  ),
+                  transitionType: PageTransitionType.slideFromBottom);
             },
           );
         }

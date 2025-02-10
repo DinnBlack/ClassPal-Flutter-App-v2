@@ -4,18 +4,18 @@ import 'package:flutter/material.dart';
 
 class CustomDialog extends StatelessWidget {
   final Widget widget;
+  final bool isDismissible;
 
   const CustomDialog({
     super.key,
     required this.widget,
+    this.isDismissible = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).pop();
-      },
+      onTap: isDismissible ? () => Navigator.of(context).pop() : null,
       child: Material(
         color: Colors.transparent,
         child: Center(
@@ -101,10 +101,10 @@ class _CustomListItemState extends State<_CustomListItem>
   }
 }
 
-void showCustomDialog(BuildContext context, Widget widget) {
+void showCustomDialog(BuildContext context, Widget widget, {bool isDismissible = true}) {
   showGeneralDialog(
     context: context,
-    barrierDismissible: true,
+    barrierDismissible: isDismissible,
     barrierLabel: '',
     pageBuilder: (context, animation, secondaryAnimation) {
       return Center(
@@ -117,6 +117,7 @@ void showCustomDialog(BuildContext context, Widget widget) {
             color: Colors.transparent,
             child: CustomDialog(
               widget: widget,
+              isDismissible: isDismissible,
             ),
           ),
         ),

@@ -72,7 +72,7 @@ class StudentService {
       }
 
       final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
       final profile = await ProfileService().getProfileFromSharedPreferences();
 
@@ -116,7 +116,7 @@ class StudentService {
       }
 
       final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
       final profile = await ProfileService().getProfileFromSharedPreferences();
 
@@ -230,13 +230,15 @@ class StudentService {
     }
   }
 
-  Future<List<ProfileModel>> getAllStudentInGroup(List<String> studentIds) async {
+  Future<List<ProfileModel>> getAllStudentInGroup(
+      List<String> studentIds) async {
     List<ProfileModel> students = [];
 
     try {
       await _initialize();
 
-      final classProfile = await ProfileService().getProfileFromSharedPreferences();
+      final classProfile =
+          await ProfileService().getProfileFromSharedPreferences();
       if (classProfile == null) {
         print('Không có profile nào trong SharedPreferences');
         return [];
@@ -249,7 +251,8 @@ class StudentService {
       }
 
       // Tạo cookie header cho yêu cầu
-      final cookieHeader = cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
       final headers = {
         'Content-Type': 'application/json',
@@ -270,7 +273,8 @@ class StudentService {
           if (response.statusCode == 200) {
             return ProfileModel.fromMap(response.data['data']);
           } else {
-            print('Lỗi khi lấy sinh viên $studentId: ${response.statusCode}, ${response.data}');
+            print(
+                'Lỗi khi lấy sinh viên $studentId: ${response.statusCode}, ${response.data}');
             return null;
           }
         } catch (e) {
@@ -294,7 +298,7 @@ class StudentService {
       }
 
       final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
       final profile = await ProfileService().getProfileFromSharedPreferences();
 

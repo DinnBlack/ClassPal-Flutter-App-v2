@@ -82,7 +82,6 @@ class _ClassConnectScreenState extends State<ClassConnectScreen> {
       leftWidget: InkWell(
         child: const Icon(
           FontAwesomeIcons.xmark,
-          color: kGreyColor,
         ),
         onTap: () {
           Navigator.pop(context);

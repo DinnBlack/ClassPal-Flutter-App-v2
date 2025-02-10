@@ -205,7 +205,9 @@ class _StudentEditScreenState extends State<StudentEditScreen> {
       title: 'Chỉnh sửa học sinh',
       subtitle: widget.student.displayName,
       leftWidget: InkWell(
-        child: const Icon(FontAwesomeIcons.xmark, color: kGreyColor),
+        child: const Icon(
+          FontAwesomeIcons.xmark,
+        ),
         onTap: () => Navigator.pop(context),
       ),
     );

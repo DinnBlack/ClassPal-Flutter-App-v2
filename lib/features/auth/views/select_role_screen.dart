@@ -1,11 +1,11 @@
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
-import 'package:classpal_flutter_app/features/auth/models/user_model.dart';
 import 'package:classpal_flutter_app/features/auth/views/widgets/custom_select_role_item.dart';
 import 'package:classpal_flutter_app/shared/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/widgets/custom_app_bar.dart';
 
@@ -19,12 +19,30 @@ class SelectRoleScreen extends StatefulWidget {
 }
 
 class _SelectRoleScreenState extends State<SelectRoleScreen> {
+  bool _isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    setState(() {
+      _isLoggedIn = isLoggedIn;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
       appBar: CustomAppBar(
-        leftWidget: InkWell(
+        leftWidget: _isLoggedIn
+            ? null
+            : InkWell(
           child: const Icon(FontAwesomeIcons.arrowLeft),
           onTap: () {
             Navigator.pop(context);

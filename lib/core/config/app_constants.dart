@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 // Text
 const String APP_NAME = "ClassPal Application";
 const String WELCOME_MESSAGE =
     "Chào mừng đến với ứng dụng ClassPal của chúng tôi!";
+
+class AppKey {
+ static const String googleServerClientId = '<your-server-clientID>.apps.googleusercontent.com';
+}
+
+const GOOGLE_CLIENT_ID_WEB = '<your-web-clientID>.apps.googleusercontent.com';
+
+String GoogleClientID() {
+ if (kIsWeb) {
+  return GOOGLE_CLIENT_ID_WEB;
+ }
+ return '';
+}
 
 // App Colors
 const Color kPrimaryColor = Color(0xFF21A9B7);

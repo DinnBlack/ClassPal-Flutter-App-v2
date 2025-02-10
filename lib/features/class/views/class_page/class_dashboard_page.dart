@@ -1,7 +1,7 @@
 import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
 import 'package:classpal_flutter_app/features/class/sub_features/report/views/report_screen.dart';
 import 'package:classpal_flutter_app/features/class/views/class_information_screen.dart';
-import 'package:classpal_flutter_app/features/class/sub_features/schedule/views/schedule_screen.dart';
+import 'package:classpal_flutter_app/features/class/views/class_page/class_schedule_page.dart';
 import 'package:classpal_flutter_app/features/student/views/student_create_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -39,7 +39,6 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
         'Kết nối học sinh',
         'Thêm giáo viên',
         'Học sinh',
-        'Lịch học',
         'Môn học',
         'Báo cáo',
         'Thông tin lớp học',
@@ -80,15 +79,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
             transitionType: PageTransitionType.slideFromBottom,
           );
         },
-        () {
-          CustomPageTransition.navigateTo(
-            context: context,
-            page: ScheduleScreen(
-              currentClass: widget.currentClass,
-            ),
-            transitionType: PageTransitionType.slideFromBottom,
-          );
-        },
+
         () {
           CustomPageTransition.navigateTo(
             context: context,

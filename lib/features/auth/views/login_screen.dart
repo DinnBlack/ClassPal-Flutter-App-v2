@@ -14,6 +14,7 @@ import '../../../core/widgets/custom_page_transition.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../../../features/auth/bloc/auth_bloc.dart';
 import '../../../core/widgets/custom_loading_dialog.dart';
+import '../repository/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   static const route = 'LoginScreen';
@@ -197,7 +198,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               const SizedBox(height: kMarginLg),
-              const CustomButtonGoogle(),
+               CustomButtonGoogle(
+                onTap: () {
+                  AuthService.signInWithGoogle();
+                },
+              ),
             ],
           ),
         ),

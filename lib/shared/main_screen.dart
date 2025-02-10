@@ -1,5 +1,5 @@
+import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/auth/repository/auth_service.dart';
-import 'package:classpal_flutter_app/features/school/bloc/school_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -9,6 +9,8 @@ import '../core/utils/app_text_style.dart';
 import '../core/widgets/custom_app_bar.dart';
 import '../core/widgets/custom_avatar.dart';
 import '../core/widgets/custom_list_item.dart';
+import '../core/widgets/custom_loading_dialog.dart';
+import '../features/auth/bloc/auth_bloc.dart';
 import '../features/auth/models/user_model.dart';
 import 'role/parent_view.dart';
 import 'role/principal_view.dart';
@@ -69,10 +71,29 @@ class _MainScreenState extends State<MainScreen> {
         break;
     }
 
-    return Scaffold(
-      backgroundColor: kBackgroundColor,
-      appBar: _buildAppBar(),
-      body: view,
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthLogoutInProgress) {
+          CustomLoadingDialog.show(context);
+        } else {
+          CustomLoadingDialog.dismiss(context);
+        }
+
+        if (state is AuthLogoutSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Đăng xuất thành công')),
+          );
+        } else if (state is AuthLogoutFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Đăng xuất thất bại')),
+          );
+        }
+      },
+      child: Scaffold(
+        backgroundColor: kBackgroundColor,
+        appBar: _buildAppBar(),
+        body: view,
+      ),
     );
   }
 
@@ -144,10 +165,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        context.read<SchoolBloc>().add(SchoolCreateStarted(
-                            name: 'School 3',
-                            address: 'address 3',
-                            phoneNumber: '0123123111'));
+                        context.read<AuthBloc>().add(AuthLogoutStarted(context: context));
                       },
                       child: Text(
                         'Đăng xuất',
@@ -185,7 +203,8 @@ class _MainScreenState extends State<MainScreen> {
               ),
               const SizedBox(height: kMarginLg),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                },
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
                   child: Row(

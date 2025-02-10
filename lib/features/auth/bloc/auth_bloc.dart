@@ -65,18 +65,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  // Xử lý sự kiện đăng xuất
   Future<void> _onAuthLogoutStarted(
       AuthLogoutStarted event, Emitter<AuthState> emit) async {
     emit(AuthLogoutInProgress());
     try {
       await authService.logout();
       emit(AuthLogoutSuccess());
-      Navigator.pushNamedAndRemoveUntil(
-        event.context,
-        LoginScreen.route,
-        (route) => false,
-      );
+
+      // Delay navigation to prevent assertion error
+      Future.microtask(() {
+        if (event.context.mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+            event.context,
+            LoginScreen.route,
+                (route) => false,
+          );
+        }
+      });
     } catch (error) {
       emit(AuthLogoutFailure(error.toString()));
     }

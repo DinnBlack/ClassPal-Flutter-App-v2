@@ -11,7 +11,11 @@ import '../../../../../core/widgets/custom_page_transition.dart';
 import '../bloc/subject_bloc.dart';
 
 class SubjectListScreen extends StatefulWidget {
-  const SubjectListScreen({super.key});
+  final bool isGradeStudentView;
+  final String? studentId;
+
+  const SubjectListScreen(
+      {super.key, this.isGradeStudentView = false, this.studentId});
 
   @override
   State<SubjectListScreen> createState() => _SubjectListScreenState();
@@ -31,9 +35,7 @@ class _SubjectListScreenState extends State<SubjectListScreen> {
       child: BlocConsumer<SubjectBloc, SubjectState>(
         listener: (context, state) {
           if (state is SubjectFetchInProgress) {
-            CustomLoadingDialog.show(context);
-          } else {
-            CustomLoadingDialog.dismiss(context);
+            const CircularProgressIndicator();
           }
         },
         builder: (context, state) {
@@ -65,9 +67,15 @@ class _SubjectListScreenState extends State<SubjectListScreen> {
                       return const CustomSubjectListItem(isAddButton: true);
                     }
                     final subject = state.subjects[index];
-                    return CustomSubjectListItem(
-                      subject: subject,
-                    );
+                    return widget.isGradeStudentView
+                        ? CustomSubjectListItem(
+                            subject: subject,
+                            isGradeStudentView: true,
+                            studentId: widget.studentId,
+                          )
+                        : CustomSubjectListItem(
+                            subject: subject,
+                          );
                   },
                 );
               },

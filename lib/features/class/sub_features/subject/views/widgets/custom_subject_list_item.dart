@@ -1,4 +1,6 @@
+import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
+import 'package:classpal_flutter_app/features/class/sub_features/grade/views/grade_student_create_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../../core/config/app_constants.dart';
@@ -10,9 +12,15 @@ import '../subject_detail_screen.dart';
 class CustomSubjectListItem extends StatefulWidget {
   final bool isAddButton;
   final SubjectModel? subject;
+  final bool isGradeStudentView;
+  final String? studentId;
 
   const CustomSubjectListItem(
-      {super.key, this.subject, this.isAddButton = false});
+      {super.key,
+      this.subject,
+      this.isAddButton = false,
+      this.isGradeStudentView = false,
+      this.studentId});
 
   @override
   State<CustomSubjectListItem> createState() => _CustomSubjectListItemState();
@@ -51,6 +59,13 @@ class _CustomSubjectListItemState extends State<CustomSubjectListItem>
               context: context,
               page: const SubjectCreateScreen(),
               transitionType: PageTransitionType.slideFromRight);
+        } else if (widget.isGradeStudentView) {
+          showCustomDialog(
+              context,
+              GradeStudentCreateScreen(
+                subject: widget.subject!,
+                studentId: widget.studentId,
+              ), isDismissible: false);
         } else {
           CustomPageTransition.navigateTo(
               context: context,

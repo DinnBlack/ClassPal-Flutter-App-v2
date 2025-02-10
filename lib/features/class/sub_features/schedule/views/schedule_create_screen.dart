@@ -28,7 +28,7 @@ class _ScheduleCreateScreenState extends State<ScheduleCreateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kTransparentColor,
+      backgroundColor: kBackgroundColor,
       appBar: _buildAppBar(context),
       body: _buildBody(),
     );

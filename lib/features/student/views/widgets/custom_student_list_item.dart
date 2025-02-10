@@ -105,7 +105,7 @@ class _CustomStudentListItemState extends State<CustomStudentListItem>
                           : 'assets/images/girl.jpg',
                     ) as ImageProvider,
                     radius: 30,
-                    onBackgroundImageError: (_, __) {}, // Prevent errors
+                    onBackgroundImageError: (_, __) {},
                   ),
                   if (widget.isPicker && isSelected)
                     Positioned(

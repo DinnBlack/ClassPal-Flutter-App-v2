@@ -3,6 +3,7 @@ import 'package:classpal_flutter_app/features/auth/models/role_model.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,6 +14,7 @@ class AuthService {
   static const String _baseUrl = 'https://cpserver.amrakk.rest/api/v1';
   final Dio _dio = Dio();
   late PersistCookieJar _cookieJar;
+  static final _googleSignIn = GoogleSignIn();
 
   AuthService() {
     _initialize();
@@ -146,22 +148,24 @@ class AuthService {
   }
 
   // Logout
-  Future<String?> logout() async {
+  Future<void> logout() async {
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/auth/logout'),
-        // headers: await _getHeaders(),
+      final response = await _dio.post(
+        '$_baseUrl/auth/logout',
+        options: Options(headers: {'Content-Type': 'application/json'}),
       );
+
+      print(response.data);
+
       if (response.statusCode == 200) {
         final prefs = await SharedPreferences.getInstance();
-        prefs.clear(); // Clear saved headers
-        return null;
+        prefs.clear();
+        print('Logout success');
       } else {
-        return jsonDecode(response.body)['message'] ?? 'Logout failed';
+        return jsonDecode(response.data)['message'] ?? 'Logout failed';
       }
     } catch (e) {
       print('Logout error: $e');
-      return 'An unexpected error occurred';
     }
   }
 
@@ -250,10 +254,24 @@ class AuthService {
     }
   }
 
+  static Future<GoogleSignInAccount?> signInWithGoogle() => _googleSignIn.signIn();
+
   // Xác thực qua Google
-  Future<void> authenticateWithGoogle(String cartId) async {
-    final googleAuthUrl =
-        'http://localhost:3000/api/v1/auth/google?cartId=$cartId';
+  Future<void> authenticateWithGoogle() async {
+    const googleAuthUrl = '$_baseUrl/auth/google';
     print('Open this link in your browser to authenticate: $googleAuthUrl');
+
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/auth/google'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        print('thanh cong');
+      } else {}
+    } catch (e) {
+      print('Error during fetching roles: $e');
+    }
   }
 }
