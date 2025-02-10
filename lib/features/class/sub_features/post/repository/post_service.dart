@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:classpal_flutter_app/features/class/sub_features/post/models/post_model.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -53,17 +54,8 @@ class PostService {
     }
   }
 
-  Future<void> insertNews(
-      File imageFile, String content, List<String> targetRoles) async {
+  Future<void> insertNews(File? imageFile, String content) async {
     try {
-      // Kiểm tra và lọc các giá trị hợp lệ
-      const validRoles = {"Executive", "Teacher", "Student", "Parent"};
-      targetRoles = targetRoles.where((role) => validRoles.contains(role)).toList();
-
-      if (targetRoles.isEmpty) {
-        throw Exception("targetRoles không hợp lệ!");
-      }
-
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
@@ -82,31 +74,26 @@ class PostService {
         'Content-Type': "multipart/form-data"
       };
 
-      String fileName = imageFile.path.split("/").last.replaceAll("'", "");
-
-      if (!imageFile.existsSync()) {
-        throw Exception('File không tồn tại: $fileName');
-      }
-
-      MultipartFile file = await MultipartFile.fromFile(
-        imageFile.path,
-        filename: fileName,
-        contentType: MediaType("image", "png"),
-      );
-
       FormData formData = FormData.fromMap({
-        "image": file,
         "content": content,
         "targetRoles": [],
       });
+
+      if (imageFile != null && imageFile.existsSync()) {
+        String fileName = imageFile.path.split("/").last.replaceAll("'", "");
+        MultipartFile file = await MultipartFile.fromFile(
+          imageFile.path,
+          filename: fileName,
+          contentType: MediaType("image", "png"),
+        );
+        formData.files.add(MapEntry("image", file));
+      }
 
       final response = await _dio.post(
         requestUrl,
         data: formData,
         options: Options(headers: headers),
       );
-
-      print(response.data);
 
       if (response.statusCode == 200) {
         print("News inserted successfully!");
@@ -117,6 +104,67 @@ class PostService {
     } on DioException catch (e) {
       print(e.response?.data);
       throw Exception('Lỗi khi gửi yêu cầu insert news: ${e.response?.data}');
+    }
+  }
+
+
+  Future<List<PostModel>> getGroupNews() async {
+    try {
+      await _initialize();
+
+      final profile = await ProfileService().getProfileFromSharedPreferences();
+      if (profile == null) {
+        print('Không có profile nào trong SharedPreferences');
+        return [];
+      }
+
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      final cookieHeader =
+      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      // Lấy thời gian từ 3 ngày trước
+      final DateTime fromDate =
+          DateTime.now();
+
+      // Tạo query parameters
+      final queryParams = {
+        'from': fromDate.toIso8601String(),
+        'limit': '10',
+        'targetRoles': [],
+      };
+
+      final requestUrl = '$_baseUrl/news';
+
+      // Headers với thông tin user
+      final headers = {
+        'Content-Type': 'application/json',
+        'Cookie': cookieHeader,
+        'x-profile-id': profile.id,
+      };
+
+      // Gọi API
+      final response = await _dio.get(
+        requestUrl,
+        queryParameters: queryParams,
+        options: Options(headers: headers),
+      );
+
+      // Xử lý response
+      if (response.statusCode == 200) {
+        final List data = response.data['data'];
+        print('done: $data');
+        return data.map((json) => PostModel.fromMap(json)).toList();
+      } else {
+        print('Lỗi khi lấy dữ liệu: ${response.statusCode} - ${response.data}');
+        return [];
+      }
+    } catch (e) {
+      print('Lỗi khi lấy tin tức nhóm: $e');
+      return [];
     }
   }
 }

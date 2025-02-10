@@ -18,11 +18,16 @@ import 'features/class/sub_features/subject/bloc/subject_bloc.dart';
 import 'features/profile/bloc/profile_bloc.dart';
 import 'features/student/bloc/student_bloc.dart';
 import 'features/student/sub_features/group/bloc/group_bloc.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import 'package:timeago/src/messages/vi_messages.dart'; // Đảm bảo thư viện có hỗ trợ tiếng Việt
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+  timeago.setLocaleMessages('vi', ViMessages());
 
   runApp(
     DevicePreview(

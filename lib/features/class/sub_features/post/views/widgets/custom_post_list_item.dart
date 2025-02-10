@@ -1,15 +1,14 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
-import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
-import 'package:classpal_flutter_app/core/widgets/custom_avatar.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/class/sub_features/post/views/post_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:photo_view/photo_view_gallery.dart';
+import '../../../../../../core/widgets/custom_avatar.dart';
 import '../../models/post_model.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class CustomPostListItem extends StatefulWidget {
   final PostModel post;
@@ -26,12 +25,21 @@ class CustomPostListItem extends StatefulWidget {
 }
 
 class _CustomPostListItemState extends State<CustomPostListItem> {
-  String formatDate(DateTime dateTime) {
-    final DateFormat formatter = DateFormat('dd \'thg\' MM, yyyy');
-    return formatter.format(dateTime);
-  }
 
-  int _currentImageIndex = 0;
+
+  String formatDate(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays == 1) {
+      return "Hôm qua";
+    } else if (difference.inDays > 1) {
+      final DateFormat formatter = DateFormat('dd \'thg\' MM, yyyy');
+      return formatter.format(dateTime);
+    } else {
+      return timeago.format(dateTime, locale: 'vi');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +47,11 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
       onTap: widget.disableOnTap
           ? null
           : () {
-        CustomPageTransition.navigateTo(
-            context: context,
-            page: PostDetailScreen(post: widget.post),
-            transitionType: PageTransitionType.slideFromRight);
-      },
+              CustomPageTransition.navigateTo(
+                  context: context,
+                  page: PostDetailScreen(post: widget.post),
+                  transitionType: PageTransitionType.slideFromRight);
+            },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: kPaddingMd),
         color: kWhiteColor,
@@ -55,13 +63,13 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
               padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
               child: Row(
                 children: [
-                  CustomAvatar(imageUrl: widget.post.creatorAvatar),
+                  CustomAvatar(imageUrl: widget.post.creator.avatarUrl),
                   const SizedBox(width: kMarginMd),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.post.creatorName,
+                        widget.post.creator.displayName,
                         style: AppTextStyle.semibold(kTextSizeMd),
                       ),
                       Text(
@@ -91,23 +99,13 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
                 padding: const EdgeInsets.only(bottom: kMarginMd),
                 child: SizedBox(
                   height: 300,
-                  child: PageView.builder(
-                    itemCount: widget.post.imageUrl!.length,
-                    itemBuilder: (context, index) {
-                      return GestureDetector(
-                        onTap: () => _showImageGallery(context),
-                        child: Image.network(
-                          widget.post.imageUrl![index],
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                        ),
-                      );
-                    },
-                    onPageChanged: (index) {
-                      setState(() {
-                        _currentImageIndex = index;
-                      });
-                    },
+                  child: GestureDetector(
+                    onTap: () => _showImageGallery(context),
+                    child: Image.network(
+                      widget.post.imageUrl!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                    ),
                   ),
                 ),
               ),
@@ -122,7 +120,7 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
                         color: kRedColor,
                       ),
                       const SizedBox(width: kMarginSm),
-                      Text('${widget.post.likes} lượt thích',
+                      Text('5 lượt thích',
                           style: AppTextStyle.regular(kTextSizeXxs)),
                     ],
                   ),
@@ -131,7 +129,10 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
                     onTap: () {
                       CustomPageTransition.navigateTo(
                           context: context,
-                          page: PostDetailScreen(post: widget.post, isFocusTextField: true,),
+                          page: PostDetailScreen(
+                            post: widget.post,
+                            isFocusTextField: true,
+                          ),
                           transitionType: PageTransitionType.slideFromRight);
                     },
                     child: Row(
@@ -141,7 +142,7 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
                           color: kGreyColor,
                         ),
                         const SizedBox(width: kMarginSm),
-                        Text('${widget.post.comments.length} bình luận',
+                        Text('5 bình luận',
                             style: AppTextStyle.regular(kTextSizeXxs)),
                       ],
                     ),
@@ -154,7 +155,7 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
                       borderRadius: BorderRadius.circular(kBorderRadiusLg),
                     ),
                     child: Text(
-                      '${widget.post.views} lượt xem',
+                      '5 lượt xem',
                       style: AppTextStyle.regular(kTextSizeXxs, kGreenColor),
                     ),
                   ),
@@ -172,39 +173,31 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
       context,
       MaterialPageRoute(
         builder: (context) => Scaffold(
-          appBar: CustomAppBar(
-            backgroundColor: kTransparentColor,
-            leftWidget: InkWell(
-              child: const Icon(
-                FontAwesomeIcons.arrowLeft,
-                color: kWhiteColor,
-              ),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ),
           backgroundColor: Colors.black,
-          body: PhotoViewGallery.builder(
-            itemCount: widget.post.imageUrl?.length ?? 0,
-            builder: (context, index) {
-              return PhotoViewGalleryPageOptions(
-                imageProvider: NetworkImage(widget.post.imageUrl![index]),
-                minScale: PhotoViewComputedScale.contained,
-                maxScale: PhotoViewComputedScale.covered,
-              );
-            },
-            scrollPhysics: const BouncingScrollPhysics(),
-            backgroundDecoration: const BoxDecoration(color: Colors.black),
-            pageController: PageController(initialPage: _currentImageIndex),
-            onPageChanged: (index) {
-              setState(() {
-                _currentImageIndex = index;
-              });
-            },
-            loadingBuilder: (context, event) => const Center(
-              child: CircularProgressIndicator(),
-            ),
+          body: Stack(
+            children: [
+              Center(
+                child: PhotoView(
+                  imageProvider: NetworkImage(widget.post.imageUrl!),
+                  minScale: PhotoViewComputedScale.contained,
+                  maxScale: PhotoViewComputedScale.covered,
+                ),
+              ),
+              Positioned(
+                top: 60,
+                left: 20,
+                child: InkWell(
+                  child: const Icon(
+                    FontAwesomeIcons.xmark,
+                    color: kWhiteColor,
+                    size: 24,
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),

@@ -13,5 +13,19 @@ class PostCreateSuccess extends PostState {}
 class PostCreateFailure extends PostState {
   final String error;
 
-  PostCreateFailure( this.error);
+  PostCreateFailure(this.error);
+}
+
+class PostFetchInProgress extends PostState {}
+
+class PostFetchSuccess extends PostState {
+  final List<PostModel> posts;
+
+  PostFetchSuccess(this.posts);
+}
+
+class PostFetchFailure extends PostState {
+  final String error;
+
+  PostFetchFailure(this.error);
 }

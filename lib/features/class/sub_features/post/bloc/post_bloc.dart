@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:classpal_flutter_app/features/class/sub_features/post/models/post_model.dart';
 import 'package:meta/meta.dart';
 
 import '../repository/post_service.dart';
@@ -13,6 +14,8 @@ class PostBloc extends Bloc<PostEvent, PostState> {
 
   PostBloc() : super(PostInitial()) {
     on<PostCreateStarted>(_onPostCreateStarted);
+    on<PostFetchStarted>(_onPostFetchStarted);
+
   }
 
   // Insert a new post
@@ -21,12 +24,23 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     emit(PostCreateInProgress());
     try {
       await postService.insertNews(event.imageFile,
-        event.content,
-         event.targetRoles);
+        event.content);
       print("Post created successfully");
       emit(PostCreateSuccess());
     } catch (e) {
       emit(PostCreateFailure("Failed to create post: ${e.toString()}"));
+    }
+  }
+
+  // Fetch a list of posts
+  Future<void> _onPostFetchStarted(
+      PostFetchStarted event, Emitter<PostState> emit) async {
+    emit(PostFetchInProgress());
+    try {
+      List<PostModel> posts = await postService.getGroupNews();
+      emit(PostFetchSuccess(posts));
+    } catch (e) {
+      emit(PostFetchFailure("Failed to fetch posts: ${e.toString()}"));
     }
   }
 }

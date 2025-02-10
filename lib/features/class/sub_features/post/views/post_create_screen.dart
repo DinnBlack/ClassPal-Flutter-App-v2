@@ -51,14 +51,17 @@ class _PostCreateScreenState extends State<PostCreateScreen> {
       return;
     }
 
+    // Nếu không có ảnh, truyền null
     File? imageFile = selectedImages.isNotEmpty ? selectedImages.first : null;
+
     context.read<PostBloc>().add(
       PostCreateStarted(
-        imageFile: imageFile!,
+        imageFile: imageFile,
         content: _contentController.text,
         targetRoles: ['Teacher'],
       ),
     );
+
     Navigator.pop(context);
   }
 

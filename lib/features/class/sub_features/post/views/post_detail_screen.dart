@@ -49,10 +49,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
               child: ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: widget.post.comments.length,
+                itemCount: 2,
                 itemBuilder: (context, index) {
-                  final comment = widget.post.comments[index];
-                  return CustomCommentItem(comment: comment);
+                  return Container();
                 },
                 separatorBuilder: (context, index) {
                   return const SizedBox(height: 10);
@@ -102,7 +101,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   CustomAppBar _buildAppBar(BuildContext context) {
     return CustomAppBar(
       backgroundColor: kWhiteColor,
-      title: 'Bài đăng của ${widget.post.creatorName}',
+      title: 'Bài đăng của',
       leftWidget: InkWell(
         child: const Icon(FontAwesomeIcons.arrowLeft),
         onTap: () {

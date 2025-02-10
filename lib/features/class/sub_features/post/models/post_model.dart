@@ -1,122 +1,75 @@
-import 'comment_model.dart';
-
 class PostModel {
-  final String _id;
-  final String creatorName;
-  final String creatorAvatar;
+  final String id;
   final String content;
-  final List<String>? imageUrl;
+  final String? imageUrl;
+  final List<String> targetRoles;
+  final Creator creator;
+  final String groupId;
+  final DateTime updatedAt;
   final DateTime createdAt;
-  final int likes;
-  final int views;
-  final List<CommentModel> comments;
 
-//<editor-fold desc="Data Methods">
   const PostModel({
-    required this.creatorName,
-    required this.creatorAvatar,
+    required this.id,
     required this.content,
     this.imageUrl,
+    required this.targetRoles,
+    required this.creator,
+    required this.groupId,
+    required this.updatedAt,
     required this.createdAt,
-    required this.likes,
-    required this.views,
-    required this.comments,
-    required String id,
-  }) : _id = id;
+  });
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is PostModel &&
-          runtimeType == other.runtimeType &&
-          _id == other._id &&
-          creatorName == other.creatorName &&
-          creatorAvatar == other.creatorAvatar &&
-          content == other.content &&
-          imageUrl == other.imageUrl &&
-          createdAt == other.createdAt &&
-          likes == other.likes &&
-          views == other.views &&
-          comments == other.comments);
-
-  @override
-  int get hashCode =>
-      _id.hashCode ^
-      creatorName.hashCode ^
-      creatorAvatar.hashCode ^
-      content.hashCode ^
-      imageUrl.hashCode ^
-      createdAt.hashCode ^
-      likes.hashCode ^
-      views.hashCode ^
-      comments.hashCode;
-
-  @override
-  String toString() {
-    return 'PostModel{' +
-        ' _id: $_id,' +
-        ' creatorName: $creatorName,' +
-        ' creatorAvatar: $creatorAvatar,' +
-        ' content: $content,' +
-        ' imageUrl: $imageUrl,' +
-        ' createdAt: $createdAt,' +
-        ' likes: $likes,' +
-        ' views: $views,' +
-        ' comments: $comments,' +
-        '}';
-  }
-
-  PostModel copyWith({
-    String? id,
-    String? creatorName,
-    String? creatorAvatar,
-    String? content,
-    List<String>? imageUrl,
-    DateTime? createdAt,
-    int? likes,
-    int? views,
-    List<CommentModel>? comments,
-  }) {
+  factory PostModel.fromMap(Map<String, dynamic> map) {
     return PostModel(
-      id: id ?? this._id,
-      creatorName: creatorName ?? this.creatorName,
-      creatorAvatar: creatorAvatar ?? this.creatorAvatar,
-      content: content ?? this.content,
-      imageUrl: imageUrl ?? this.imageUrl,
-      createdAt: createdAt ?? this.createdAt,
-      likes: likes ?? this.likes,
-      views: views ?? this.views,
-      comments: comments ?? this.comments,
+      id: map['_id'] as String,
+      content: map['content'] as String,
+      imageUrl: map['imageUrl'] as String?,
+      targetRoles: List<String>.from(map['targetRoles'] ?? []),
+      creator: Creator.fromMap(map['creator'] as Map<String, dynamic>),
+      groupId: map['groupId'] as String,
+      updatedAt: DateTime.parse(map['updatedAt'] as String),
+      createdAt: DateTime.parse(map['createdAt'] as String),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      '_id': this._id,
-      'creatorName': this.creatorName,
-      'creatorAvatar': this.creatorAvatar,
-      'content': this.content,
-      'imageUrl': this.imageUrl,
-      'createdAt': this.createdAt,
-      'likes': this.likes,
-      'views': this.views,
-      'comments': this.comments,
+      '_id': id,
+      'content': content,
+      'imageUrl': imageUrl,
+      'targetRoles': targetRoles,
+      'creator': creator.toMap(),
+      'groupId': groupId,
+      'updatedAt': updatedAt.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
     };
   }
+}
 
-  factory PostModel.fromMap(Map<String, dynamic> map) {
-    return PostModel(
+class Creator {
+  final String id;
+  final String displayName;
+  final String avatarUrl;
+
+  const Creator({
+    required this.id,
+    required this.displayName,
+    required this.avatarUrl,
+  });
+
+  factory Creator.fromMap(Map<String, dynamic> map) {
+    return Creator(
       id: map['_id'] as String,
-      creatorName: map['creatorName'] as String,
-      creatorAvatar: map['creatorAvatar'] as String,
-      content: map['content'] as String,
-      imageUrl: map['imageUrl'] as List<String>,
-      createdAt: map['createdAt'] as DateTime,
-      likes: map['likes'] as int,
-      views: map['views'] as int,
-      comments: map['comments'] as List<CommentModel>,
+      displayName: map['displayName'] as String,
+      avatarUrl: map['avatarUrl'] as String,
     );
   }
 
-//</editor-fold>
+  Map<String, dynamic> toMap() {
+    return {
+      '_id': id,
+      'displayName': displayName,
+      'avatarUrl': avatarUrl,
+    };
+  }
 }

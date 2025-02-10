@@ -5,7 +5,7 @@ sealed class PostEvent {}
 
 // Post create
 class PostCreateStarted extends PostEvent {
-  final File imageFile;
+  final File? imageFile;
   final String content;
   final List<String> targetRoles;
 
@@ -15,3 +15,6 @@ class PostCreateStarted extends PostEvent {
     required this.targetRoles,
   });
 }
+
+// Post fetch
+class PostFetchStarted extends PostEvent {}
