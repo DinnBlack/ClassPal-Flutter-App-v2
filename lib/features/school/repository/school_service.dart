@@ -63,16 +63,16 @@ class SchoolService {
     }
   }
 
-  Future<List<SchoolModel>> getAllSchools() async {
+  Future<Map<String, List<dynamic>>> getAllSchools() async {
     List<SchoolModel> schools = [];
-
+    List<ProfileModel> schoolProfiles = [];
     try {
       await _initialize();
-      List<ProfileModel> profiles = await getProfilesFromSharedPreferences();
+      final profiles = await getProfilesFromSharedPreferences();
 
       if (profiles.isEmpty) {
         print('Không có profile nào được lưu trong SharedPreferences');
-        return [];
+        return {'profiles': [], 'schools': []};
       }
 
       // Lấy cookies từ PersistCookieJar
@@ -89,16 +89,16 @@ class SchoolService {
         if (profile.groupType != 0) {
           continue;
         }
+
+        schoolProfiles.add(profile);
+
         final requestUrl = '$_baseUrl/schools/${profile.groupId}';
-        // print('Request URL: $requestUrl');
 
         final headers = {
           'Content-Type': 'application/json',
           'Cookie': cookieHeader,
           'x-profile-id': profile.id,
         };
-
-        // print('Request Headers: $headers');
 
         final response = await _dio.get(
           requestUrl,
@@ -107,20 +107,19 @@ class SchoolService {
 
         if (response.statusCode == 200) {
           schools.add(SchoolModel.fromMap(response.data['data']));
-          // break;
         } else if (response.statusCode == 404) {
           print('Không tìm thấy trường với ID profile: ${profile.id}');
-          return [];
+          return {'profiles': schoolProfiles, 'schools': []};
         } else {
           print(
               'Lỗi khi lấy trường: Mã lỗi ${response.statusCode}, Thông báo: ${response.data}');
           throw Exception('Failed to fetch school by ID: ${response.data}');
         }
       }
-      return schools;
+      return {'profiles': schoolProfiles, 'schools': schools};
     } catch (e) {
       print('Error fetching school by ID: $e');
-      return [];
+      return {'profiles': [], 'schools': []};
     }
   }
 

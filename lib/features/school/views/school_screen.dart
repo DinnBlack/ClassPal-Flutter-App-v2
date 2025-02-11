@@ -1,5 +1,6 @@
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:awesome_bottom_bar/tab_item.dart';
+import 'package:classpal_flutter_app/features/class/repository/class_service.dart';
 import 'package:classpal_flutter_app/features/school/models/school_model.dart';
 import 'package:classpal_flutter_app/features/school/views/school_page/school_directory_page.dart';
 import 'package:classpal_flutter_app/features/school/views/school_page/school_story_page.dart';
@@ -28,6 +29,7 @@ class _SchoolScreenState extends State<SchoolScreen> {
   @override
   void initState() {
     super.initState();
+    ClassService().getAllSchoolClass();
     _pageController = PageController(initialPage: _currentIndex);
 
     _pages = [

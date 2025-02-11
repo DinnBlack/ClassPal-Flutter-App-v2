@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
+import '../../profile/model/profile_model.dart';
 import '../models/school_model.dart';
 import '../repository/school_service.dart';
-import '../../auth/models/user_model.dart';
 
 part 'school_event.dart';
 
@@ -20,8 +20,14 @@ class SchoolBloc extends Bloc<SchoolEvent, SchoolState> {
       SchoolFetchStarted event, Emitter<SchoolState> emit) async {
     try {
       emit(SchoolFetchInProgress());
-      final schools = await schoolService.getAllSchools();
-      emit(SchoolFetchSuccess(schools));
+      final result = await schoolService.getAllSchools();
+      final profiles = result['profiles'] as List<ProfileModel>;
+      final schools = result['schools'] as List<SchoolModel>;
+
+      print(profiles);
+      print(schools);
+
+      emit(SchoolFetchSuccess(profiles, schools));
     }  on Exception catch (e) {
       emit(SchoolFetchFailure(e.toString()));
     }

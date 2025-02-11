@@ -9,9 +9,10 @@ final class SchoolInitial extends SchoolState {}
 class SchoolFetchInProgress extends SchoolState {}
 
 class SchoolFetchSuccess extends SchoolState {
+  final List<ProfileModel> profiles;
   final List<SchoolModel> schools;
 
-  SchoolFetchSuccess(this.schools);
+  SchoolFetchSuccess(this.profiles, this.schools);
 }
 
 class SchoolFetchFailure extends SchoolState {
@@ -23,12 +24,10 @@ class SchoolFetchFailure extends SchoolState {
 // Create a new School
 class SchoolCreateInProgress extends SchoolState {}
 
-class SchoolCreateSuccess extends SchoolState {
-}
+class SchoolCreateSuccess extends SchoolState {}
 
 class SchoolCreateFailure extends SchoolState {
   final String error;
 
   SchoolCreateFailure(this.error);
 }
-

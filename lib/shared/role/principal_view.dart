@@ -65,6 +65,8 @@ class _PrincipalViewState extends State<PrincipalView> {
                 }
                 if (state is SchoolFetchSuccess) {
                   final schools = state.schools;
+                  final profiles = state.profiles;
+
                   if (schools.isEmpty) {
                     return CustomListItem(
                       title: 'Chưa tham gia trường học nào!',
@@ -90,7 +92,10 @@ class _PrincipalViewState extends State<PrincipalView> {
                           leading: const CustomAvatar(
                             imageAsset: 'assets/images/school.jpg',
                           ),
-                          onTap: () {
+                          onTap: () async {
+                            await profileService
+                                .saveProfileToSharedPreferences(profiles[i]);
+
                             CustomPageTransition.navigateTo(
                                 context: context,
                                 page: SchoolScreen(
@@ -179,8 +184,6 @@ class _PrincipalViewState extends State<PrincipalView> {
                             imageAsset: 'assets/images/class.jpg',
                           ),
                           onTap: () async {
-                            await classService
-                                .saveClassToSharedPreferences(classes[i]);
                             await profileService
                                 .saveProfileToSharedPreferences(profiles[i]);
 

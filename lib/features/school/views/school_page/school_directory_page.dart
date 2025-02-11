@@ -1,9 +1,11 @@
+import 'package:classpal_flutter_app/features/class/views/class_create_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../core/config/app_constants.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
-import '../../../../core/widgets/custom_list_item.dart';
+import '../../../../core/widgets/custom_feature_dialog.dart';
+import '../../../../core/widgets/custom_page_transition.dart';
 import '../../../../core/widgets/custom_tab_bar.dart';
 import '../../../class/views/class_list_screen.dart';
 import '../../../teacher/views/teacher_list_screen.dart';
@@ -42,6 +44,32 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
     );
   }
 
+  void _showFeatureDialog(BuildContext context) {
+    showCustomFeatureDialog(
+      context,
+      [
+        'Thêm lớp học',
+        'Thêm giáo viên',
+      ],
+      [
+        () {
+          CustomPageTransition.navigateTo(
+            context: context,
+            page: const ClassCreateScreen(),
+            transitionType: PageTransitionType.slideFromBottom,
+          );
+        },
+        () {
+          CustomPageTransition.navigateTo(
+            context: context,
+            page: const ClassCreateScreen(),
+            transitionType: PageTransitionType.slideFromBottom,
+          );
+        },
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +80,7 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
             currentIndex: _currentIndex,
             onTabTapped: _onTabTapped,
             tabTitles: const ['Lớp học', 'Giáo viên'],
-            tabBarWidthRatio: 1,
+            tabBarWidthRatio: 0.9,
             lineHeight: 4,
             linePadding: 0,
             tabBarHeight: 40,
@@ -86,19 +114,25 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
           Navigator.pop(context);
         },
       ),
+      rightWidget: InkWell(
+        child: const Icon(FontAwesomeIcons.ellipsis),
+        onTap: () {
+          _showFeatureDialog(context);
+        },
+      ),
     );
   }
 
   Widget _buildClassesTab() {
-    return Expanded(
+    return const Expanded(
       child: ClassListScreen(classes: []),
     );
   }
 
   Widget _buildTeachersTab() {
-    return Expanded(
+    return const Expanded(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+        padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
         child: TeacherListScreen(teachers: []),
       ),
     );

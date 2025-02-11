@@ -14,7 +14,7 @@ import '../../../core/widgets/custom_page_transition.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../../../features/auth/bloc/auth_bloc.dart';
 import '../../../core/widgets/custom_loading_dialog.dart';
-import '../repository/auth_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginScreen extends StatefulWidget {
   static const route = 'LoginScreen';
@@ -58,6 +58,25 @@ class _LoginScreenState extends State<LoginScreen> {
           _emailOrPhoneNumberController.text.trim().isNotEmpty &&
           _passwordController.text.trim().isNotEmpty;
     });
+  }
+
+  Future<void> _openGoogleSignIn() async {
+    final Uri googleSignInUrl = Uri.parse('https://cpserver.amrakk.rest/api/v1/auth/google');
+    print(googleSignInUrl);
+    final Uri gmailAppUri = Uri.parse('mailto:');
+
+    // Kiểm tra xem có thể mở Gmail không
+    if (await canLaunchUrl(gmailAppUri)) {
+      await launchUrl(gmailAppUri);
+    } else {
+      // Nếu không có app Gmail, mở URL đăng nhập Google
+      if (await canLaunchUrl(googleSignInUrl)) {
+
+        await launchUrl(googleSignInUrl, mode: LaunchMode.externalApplication);
+      } else {
+        throw Exception('Không thể mở đường dẫn đăng nhập Google.');
+      }
+    }
   }
 
   @override
@@ -200,7 +219,9 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: kMarginLg),
                CustomButtonGoogle(
                 onTap: () {
-                  AuthService.signInWithGoogle();
+                  _openGoogleSignIn();
+                  // AuthService.signInWithGoogle();
+                  // AuthService().authenticateWithGoogle();
                 },
               ),
             ],
@@ -210,3 +231,5 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
+

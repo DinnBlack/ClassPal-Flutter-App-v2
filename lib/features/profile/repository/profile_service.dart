@@ -21,9 +21,6 @@ class ProfileService {
   // Lưu profile vào Shared Preferences
   Future<void> saveProfileToSharedPreferences(ProfileModel profile) async {
     final prefs = await SharedPreferences.getInstance();
-    if (prefs.containsKey('profile')) {
-      await prefs.remove('profile');
-    }
     final profileJson = jsonEncode(profile.toMap());
     await prefs.setString('profile', profileJson);
   }

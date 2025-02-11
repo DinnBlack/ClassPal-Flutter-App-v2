@@ -151,7 +151,8 @@ class ClassService {
           print('Không tìm thấy lớp với ID profile: ${profile.id}');
           return {'profiles': classProfiles, 'classes': []};
         } else {
-          print('Lỗi khi lấy lớp: Mã lỗi ${response.statusCode}, Thông báo: ${response.data}');
+          print(
+              'Lỗi khi lấy lớp: Mã lỗi ${response.statusCode}, Thông báo: ${response.data}');
           throw Exception('Failed to fetch class by ID: ${response.data}');
         }
       }
@@ -159,6 +160,52 @@ class ClassService {
     } catch (e) {
       print('Error fetching class by ID: $e');
       return {'profiles': [], 'classes': []};
+    }
+  }
+
+  Future<void> getAllSchoolClass() async {
+    try {
+      await _initialize();
+      final schoolProfile =
+          await ProfileService().getProfileFromSharedPreferences();
+
+      print('School profile: $schoolProfile');
+
+      // Lấy cookies từ PersistCookieJar
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      // Tạo cookie header cho yêu cầu
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final requestUrl = '$_baseUrl/classes/school/${schoolProfile!.groupId}';
+      final headers = {
+        'Content-Type': 'application/json',
+        'Cookie': cookieHeader,
+        'x-profile-id': schoolProfile.id,
+      };
+
+      final response = await _dio.get(
+        requestUrl,
+        options: Options(headers: headers),
+      );
+
+      print(response.statusCode);
+      print(response.data);
+
+      if (response.statusCode == 200) {
+      } else if (response.statusCode == 404) {
+        print('Không tìm thấy lớp với ID profile: ${schoolProfile.id}');
+      } else {
+        print(
+            'Lỗi khi lấy lớp: Mã lỗi ${response.statusCode}, Thông báo: ${response.data}');
+        throw Exception('Failed to fetch class by School ID: ${response.data}');
+      }
+    } catch (e) {
+      print('Error fetching class by School ID: $e');
     }
   }
 
@@ -216,7 +263,7 @@ class ClassService {
       final profile = await ProfileService().getProfileFromSharedPreferences();
 
       final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
       final finalAvatarUrl =
           avatarUrl ?? 'https://i.ibb.co/V9Znq7h/class-icon.png';
@@ -242,10 +289,10 @@ class ClassService {
       if (response.statusCode == 200) {
         return response.data['data'];
       } else {
-        throw Exception('Failed to insert personal class: ${response.data}');
+        throw Exception('Failed to insert school class: ${response.data}');
       }
     } catch (e) {
-      print('Error inserting personal class: $e');
+      print('Error inserting school class: $e');
       throw e;
     }
   }

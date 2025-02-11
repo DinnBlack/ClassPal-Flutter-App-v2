@@ -32,6 +32,17 @@ class ClassPersonalCreateFailure extends ClassState {
   ClassPersonalCreateFailure(this.error);
 }
 
+// Create a new school Class
+class ClassSchoolCreateInProgress extends ClassState {}
+
+class ClassSchoolCreateSuccess extends ClassState {}
+
+class ClassSchoolCreateFailure extends ClassState {
+  final String error;
+
+  ClassSchoolCreateFailure(this.error);
+}
+
 // Update class
 class ClassUpdateInProgress extends ClassState {}
 

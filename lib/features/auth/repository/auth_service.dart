@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:classpal_flutter_app/features/auth/models/role_model.dart';
+import 'package:classpal_flutter_app/features/auth/repository/google_service.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -100,6 +101,8 @@ class AuthService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
+      print(response.data);
+
       if (response.statusCode == 200) {
         print('Đăng nhập thành công');
 
@@ -114,8 +117,8 @@ class AuthService {
         print('Đăng nhập thất bại: ${response.data}');
         return null;
       }
-    } catch (e) {
-      print('Lỗi khi đăng nhập: $e');
+    } on DioException catch (e) {
+      print('Lỗi khi đăng nhập: ${e.response!.data}');
     }
     return null;
   }
@@ -172,6 +175,7 @@ class AuthService {
   // Quên mật khẩu (Forgot Password)
   Future<String?> forgotPassword(String email) async {
     try {
+      print(email);
       final response = await http.post(
         Uri.parse('$_baseUrl/auth/forgot-password'),
         headers: {'Content-Type': 'application/json'},
@@ -179,6 +183,8 @@ class AuthService {
           'email': email,
         }),
       );
+
+      print(response.body);
 
       if (response.statusCode == 200) {
         return null;
@@ -210,6 +216,7 @@ class AuthService {
         return null;
       } else {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
+        print(response.body);
         return responseData['message'] ?? 'Unknown error occurred';
       }
     } catch (e) {
@@ -239,7 +246,6 @@ class AuthService {
               roles.map((role) => jsonEncode(role.toMap())).toList();
           await prefs.setStringList('roles', roleJsonList);
 
-          print(roles);
           return roles;
         } else {
           throw Exception('No roles data available');
@@ -254,24 +260,29 @@ class AuthService {
     }
   }
 
-  static Future<GoogleSignInAccount?> signInWithGoogle() => _googleSignIn.signIn();
+  static Future<GoogleSignInAccount?> signInWithGoogle() =>
+      _googleSignIn.signIn();
 
-  // Xác thực qua Google
   Future<void> authenticateWithGoogle() async {
     const googleAuthUrl = '$_baseUrl/auth/google';
     print('Open this link in your browser to authenticate: $googleAuthUrl');
 
     try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/auth/google'),
-        headers: {'Content-Type': 'application/json'},
-      );
+       await GoogleController().authWithGoogle(isSignIn: true);
 
-      if (response.statusCode == 200) {
-        print('thanh cong');
-      } else {}
+       final response = await http.get(
+         Uri.parse('$_baseUrl/auth/google'),
+         headers: {'Content-Type': 'application/json'},
+       );
+
+       if (response.statusCode == 200) {
+         print('Authentication successful');
+       } else {
+         print('Failed to authenticate');
+       }
+
     } catch (e) {
-      print('Error during fetching roles: $e');
+      print('Error during Google authentication: $e');
     }
   }
 }

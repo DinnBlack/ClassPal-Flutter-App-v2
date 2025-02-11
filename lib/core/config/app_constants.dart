@@ -7,7 +7,7 @@ const String WELCOME_MESSAGE =
     "Chào mừng đến với ứng dụng ClassPal của chúng tôi!";
 
 class AppKey {
- static const String googleServerClientId = '<your-server-clientID>.apps.googleusercontent.com';
+ static const String googleServerClientId = '445439726037-ntsjeu0lsv9f0iutqgdcge1gjj6r8dvh.apps.googleusercontent.com';
 }
 
 const GOOGLE_CLIENT_ID_WEB = '<your-web-clientID>.apps.googleusercontent.com';
