@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:classpal_flutter_app/features/class/repository/class_service.dart';
 import 'package:cookie_jar/cookie_jar.dart';
@@ -181,9 +182,11 @@ class StudentService extends ProfileService {
 
       if (currentProfile?.groupType == 0) {
         final currentClass = await ClassService().getCurrentClass();
-        requestUrl = '$_baseUrl/profiles/${currentProfile?.groupType}/${currentProfile?.groupId}';
+        requestUrl =
+            '$_baseUrl/profiles/${currentProfile?.groupType}/${currentProfile?.groupId}';
       } else {
-        requestUrl = '$_baseUrl/profiles/${currentProfile?.groupType}/${currentProfile?.groupId}';
+        requestUrl =
+            '$_baseUrl/profiles/${currentProfile?.groupType}/${currentProfile?.groupId}';
       }
 
       final headers = {
@@ -196,8 +199,6 @@ class StudentService extends ProfileService {
         requestUrl,
         options: Options(headers: headers),
       );
-
-      print(response.data);
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
@@ -277,7 +278,8 @@ class StudentService extends ProfileService {
     }
   }
 
-  Future<void> updateStudent(ProfileModel profile, String newName) async {
+  Future<void> updateStudent(
+      String studentId, String? newName, File? file) async {
     try {
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
@@ -286,34 +288,41 @@ class StudentService extends ProfileService {
 
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
       final currentProfile = await getCurrentProfile();
 
-      final requestUrl = '$_baseUrl/classes/${profile.groupId}';
-
       final headers = {
-        'Content-Type': 'application/json',
         'Cookie': cookieHeader,
         'x-profile-id': currentProfile?.id,
       };
 
-      final response = await _dio.patch(
-        requestUrl,
-        data: jsonEncode(
-          {
-            'name': newName,
-          },
-        ),
-        options: Options(headers: headers),
-      );
+      // Kiểm tra nếu cả `newName` và `file` đều null -> Không làm gì cả
+      if (newName == null && file == null) {
+        throw Exception('Both newName and file cannot be null');
+      }
 
-      if (response.statusCode == 200) {
-        return response.data['data'];
-      } else {
-        throw Exception('Failed to update class: ${response.data}');
+
+      // Cập nhật tên nếu `newName` không null
+      if (newName != null) {
+        final requestUrl = '$_baseUrl/profiles/$studentId';
+        final response = await _dio.patch(
+          requestUrl,
+          data: jsonEncode({'displayName': newName}),
+          options: Options(
+              headers: {...headers, 'Content-Type': 'application/json'}),
+        );
+
+        if (response.statusCode != 200) {
+          throw Exception('Failed to update name: ${response.data}');
+        } else {
+        }
+      }
+
+      // Cập nhật ảnh đại diện nếu `file` không null
+      if (file != null) {
+        await updateAvatar(studentId, file);
       }
     } catch (e) {
-      print('Error updating class: $e');
+      print('Error updating student: $e');
       throw e;
     }
   }

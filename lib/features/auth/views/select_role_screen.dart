@@ -1,5 +1,6 @@
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/auth/views/widgets/custom_select_role_item.dart';
+import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
 import 'package:classpal_flutter_app/shared/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
@@ -43,11 +44,11 @@ class _SelectRoleScreenState extends State<SelectRoleScreen> {
         leftWidget: _isLoggedIn
             ? null
             : InkWell(
-          child: const Icon(FontAwesomeIcons.arrowLeft),
-          onTap: () {
-            Navigator.pop(context);
-          },
-        ),
+                child: const Icon(FontAwesomeIcons.arrowLeft),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -72,7 +73,9 @@ class _SelectRoleScreenState extends State<SelectRoleScreen> {
                   title: 'Ban giám hiệu',
                   subTitle: 'Quản lý trường học của bạn',
                   image: 'directors_role.png',
-                  onTap: () {
+                  onTap: () async {
+                    await ProfileService()
+                        .getProfilesByRole(['Executive', 'Teacher']);
                     CustomPageTransition.navigateTo(
                         context: context,
                         page: const MainScreen(
@@ -88,7 +91,8 @@ class _SelectRoleScreenState extends State<SelectRoleScreen> {
                   title: 'Giáo viên',
                   subTitle: 'Tạo và quản lý lớp học của bạn',
                   image: 'teacher_role.png',
-                  onTap: () {
+                  onTap: () async {
+                    await ProfileService().getProfilesByRole(['Teacher']);
                     CustomPageTransition.navigateTo(
                         context: context,
                         page: const MainScreen(
@@ -104,7 +108,8 @@ class _SelectRoleScreenState extends State<SelectRoleScreen> {
                   title: 'Phụ huynh',
                   subTitle: 'Kết nối với các con của bạn',
                   image: 'parent_role.png',
-                  onTap: () {
+                  onTap: () async {
+                    await ProfileService().getProfilesByRole(['Student']);
                     CustomPageTransition.navigateTo(
                         context: context,
                         page: const MainScreen(
@@ -120,7 +125,8 @@ class _SelectRoleScreenState extends State<SelectRoleScreen> {
                   title: 'Học sinh',
                   subTitle: 'Tham gia học tập lớp học của bạn',
                   image: 'student_role.png',
-                  onTap: () {
+                  onTap: () async {
+                    await ProfileService().getProfilesByRole(['Student']);
                     CustomPageTransition.navigateTo(
                         context: context,
                         page: const MainScreen(

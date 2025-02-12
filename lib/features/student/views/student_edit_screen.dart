@@ -25,11 +25,29 @@ class StudentEditScreen extends StatefulWidget {
 class _StudentEditScreenState extends State<StudentEditScreen> {
   final TextEditingController _nameController = TextEditingController();
   File? _selectedImage;
+  late String _initialName;
 
   @override
   void initState() {
     super.initState();
-    _nameController.text = widget.student.displayName ?? '';
+    _initialName = widget.student.displayName ?? '';
+    _nameController.text = _initialName;
+    _nameController.addListener(_updateValidity);
+  }
+
+  @override
+  void dispose() {
+    _nameController.removeListener(_updateValidity);
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  void _updateValidity() {
+    setState(() {});
+  }
+
+  bool get _isValid {
+    return _selectedImage != null || _nameController.text.trim() != _initialName.trim();
   }
 
   Future<void> _pickImage(ImageSource source) async {
@@ -41,6 +59,100 @@ class _StudentEditScreenState extends State<StudentEditScreen> {
       });
     }
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kWhiteColor,
+      appBar: _buildAppBar(context),
+      body: BlocListener<StudentBloc, StudentState>(
+        listener: (context, state) {
+          if (state is StudentUpdateInProgress || state is StudentDeleteInProgress) {
+            CustomLoadingDialog.show(context);
+          } else {
+            CustomLoadingDialog.dismiss(context);
+          }
+          if (state is StudentUpdateSuccess || state is StudentDeleteSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state is StudentUpdateSuccess ? 'Cập nhật thành công' : 'Xóa học sinh thành công')),
+            );
+            Navigator.pop(context);
+          } else if (state is StudentUpdateFailure || state is StudentDeleteFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Lỗi: ')),
+            );
+          }
+        },
+        child: _buildBody(),
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: kMarginXl),
+          GestureDetector(
+            onTap: _showImagePickerDialog,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(width: 2, color: kPrimaryColor),
+              ),
+              child: CircleAvatar(
+                radius: 50,
+                backgroundColor: kGreyMediumColor,
+                backgroundImage: _selectedImage != null
+                    ? FileImage(_selectedImage!)
+                    : (widget.student.avatarUrl.isNotEmpty)
+                    ? NetworkImage(widget.student.avatarUrl) as ImageProvider
+                    : const AssetImage('assets/images/default_avatar.png'),
+              ),
+            ),
+          ),
+          const SizedBox(height: kMarginMd),
+          GestureDetector(
+            onTap: _showImagePickerDialog,
+            child: Text(
+              'Chỉnh sửa ảnh đại diện',
+              style: AppTextStyle.semibold(kTextSizeXs, kPrimaryColor),
+            ),
+          ),
+          const SizedBox(height: kMarginXl),
+          CustomTextField(
+            controller: _nameController,
+            text: _nameController.text,
+          ),
+          const SizedBox(height: kMarginLg),
+          CustomButton(
+            text: 'Lưu thay đổi',
+            isValid: _isValid,
+            onTap: _isValid
+                ? () {
+              context.read<StudentBloc>().add(StudentUpdateStarted(
+                studentId: widget.student.id,
+                imageFile: _selectedImage,
+                name: _nameController.text.trim(),
+              ));
+            }
+                : null,
+          ),
+          const SizedBox(height: kMarginMd),
+          CustomButton(
+            text: 'Xóa học sinh',
+            backgroundColor: kRedColor,
+            onTap: () {
+              _showDeleteConfirmationDialog(context, widget.student);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
 
   void _showDeleteConfirmationDialog(
       BuildContext context, ProfileModel student) {
@@ -65,7 +177,7 @@ class _StudentEditScreenState extends State<StudentEditScreen> {
                 Navigator.pop(context);
               },
               child:
-                  const Text("Xác nhận", style: TextStyle(color: Colors.red)),
+              const Text("Xác nhận", style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -103,102 +215,6 @@ class _StudentEditScreenState extends State<StudentEditScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kWhiteColor,
-      appBar: _buildAppBar(context),
-      body: BlocListener<StudentBloc, StudentState>(
-        listener: (context, state) {
-          if (state is StudentUpdateAvatarInProgress ||
-              state is StudentDeleteInProgress) {
-            CustomLoadingDialog.show(context);
-          } else {
-            CustomLoadingDialog.dismiss(context);
-          }
-          if (state is StudentUpdateAvatarSuccess ||
-              state is StudentDeleteSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                  content: Text(state is StudentUpdateAvatarSuccess
-                      ? 'Cập nhật thành công'
-                      : 'Xóa học sinh thành công')),
-            );
-            Navigator.pop(context);
-          } else if (state is StudentUpdateAvatarFailure ||
-              state is StudentDeleteFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Lỗi: ')),
-            );
-          }
-        },
-        child: _buildBody(),
-      ),
-    );
-  }
-
-  Widget _buildBody() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: kMarginXl),
-          GestureDetector(
-            onTap: _showImagePickerDialog,
-            child: Container(
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(width: 2, color: kPrimaryColor)),
-              child: CircleAvatar(
-                radius: 50,
-                backgroundColor: kGreyMediumColor,
-                backgroundImage: _selectedImage != null
-                    ? FileImage(_selectedImage!)
-                    : (widget.student.avatarUrl.isNotEmpty)
-                        ? NetworkImage(widget.student.avatarUrl)
-                            as ImageProvider
-                        : const AssetImage('assets/images/default_avatar.png'),
-              ),
-            ),
-          ),
-          const SizedBox(height: kMarginMd),
-          GestureDetector(
-            onTap: _showImagePickerDialog,
-            child: Text(
-              'Chỉnh sửa ảnh đại diện',
-              style: AppTextStyle.semibold(kTextSizeXs, kPrimaryColor),
-            ),
-          ),
-          const SizedBox(height: kMarginXl),
-          CustomTextField(
-            controller: _nameController,
-            text: _nameController.text,
-          ),
-          const SizedBox(height: kMarginLg),
-          CustomButton(
-            text: 'Lưu thay đổi',
-            onTap: () {
-              if (_selectedImage != null) {
-                context.read<StudentBloc>().add(StudentUpdateAvatarStarted(
-                      profile: widget.student,
-                      imageFile: _selectedImage!,
-                    ));
-              }
-            },
-          ),
-          const SizedBox(height: kMarginMd),
-          CustomButton(
-            text: 'Xóa học sinh',
-            backgroundColor: kRedColor,
-            onTap: () {
-              _showDeleteConfirmationDialog(context, widget.student);
-            },
-          ),
-        ],
-      ),
-    );
-  }
 
   CustomAppBar _buildAppBar(BuildContext context) {
     return CustomAppBar(

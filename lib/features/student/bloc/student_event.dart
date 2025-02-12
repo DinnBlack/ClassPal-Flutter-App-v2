@@ -3,8 +3,7 @@ part of 'student_bloc.dart';
 @immutable
 sealed class StudentEvent {}
 
-class StudentFetchStarted extends StudentEvent {
-}
+class StudentFetchStarted extends StudentEvent {}
 
 class StudentCreateStarted extends StudentEvent {
   final String name;
@@ -18,9 +17,11 @@ class StudentDeleteStarted extends StudentEvent {
   StudentDeleteStarted({required this.studentId});
 }
 
-class StudentUpdateAvatarStarted extends StudentEvent {
-  final File imageFile;
-  final ProfileModel profile;
+class StudentUpdateStarted extends StudentEvent {
+  final File? imageFile;
+  final String studentId;
+  final String? name;
 
-  StudentUpdateAvatarStarted({required this.imageFile, required this.profile});
+  StudentUpdateStarted(
+      {required this.name, required this.imageFile, required this.studentId});
 }

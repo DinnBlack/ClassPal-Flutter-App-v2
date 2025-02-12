@@ -74,10 +74,10 @@ class ProfileService {
   Future<void> saveProfilesToSharedPreferences(
       List<ProfileModel> profiles) async {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('profiles');
     final profilesJson =
         jsonEncode(profiles.map((profile) => profile.toMap()).toList());
     await prefs.setString('profiles', profilesJson);
-    print('Profiles đã được lưu');
   }
 
   // Get profiles from SharedPreferences
@@ -136,6 +136,61 @@ class ProfileService {
       return [];
     }
   }
+
+  Future<List<ProfileModel>> getProfilesByRole(List<String> roles) async {
+    try {
+      await _initialize();
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        print('No cookies available for authentication');
+        return [];
+      }
+
+      // Tạo headers với cookies
+      final cookieHeader =
+      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      // Xây dựng query string cho danh sách roles
+      final rolesQuery = roles.map((role) => 'roles=$role').join('&');
+      final url = '$_baseUrl/profiles/me?$rolesQuery';
+
+      final response = await _dio.get(
+        url,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Cookie': cookieHeader,
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        if (response.data == null || !response.data.containsKey('data')) {
+          print("Response data is invalid: ${response.data}");
+          return [];
+        }
+
+        var profilesData = response.data['data'] as List;
+
+        List<ProfileModel> profiles = profilesData
+            .map((profile) => ProfileModel.fromMap(profile))
+            .toList();
+
+        // Lưu profiles vào SharedPreferences
+        await saveProfilesToSharedPreferences(profiles);
+
+        return profiles;
+      } else {
+        print('Failed to fetch profile: ${response.statusCode} - ${response.statusMessage}');
+        return [];
+      }
+    } catch (e, stacktrace) {
+      print('Error fetching profile: $e');
+      print(stacktrace);
+      return [];
+    }
+  }
+
 
   // Hàm lấy thông tin profile của người dùng
   Future<ProfileModel?> getProfileById(String id) async {
@@ -224,7 +279,7 @@ class ProfileService {
     }
   }
 
-  Future<void> updateAvatar(ProfileModel profile, File imageFile) async {
+  Future<void> updateAvatar(String studentId, File imageFile) async {
     try {
       // Lấy cookies từ trình quản lý CookieJar
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
@@ -239,7 +294,7 @@ class ProfileService {
       final currentProfile = await ProfileService().getCurrentProfile();
       if (currentProfile == null) throw Exception('Profile not found');
 
-      final requestUrl = '$_baseUrl/profiles/${profile.id}/avatar';
+      final requestUrl = '$_baseUrl/profiles/$studentId/avatar';
       final headers = {
         'Cookie': cookieHeader,
         'x-profile-id': currentProfile.id,

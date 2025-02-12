@@ -18,13 +18,12 @@ class StudentBloc extends Bloc<StudentEvent, StudentState> {
     on<StudentFetchStarted>(_onStudentFetchStarted);
     on<StudentCreateStarted>(_onStudentCreateStarted);
     on<StudentDeleteStarted>(_onStudentDeleteStarted);
-    on<StudentUpdateAvatarStarted>(_onStudentUpdateAvatarStarted);
-
+    on<StudentUpdateStarted>(_onStudentUpdateStarted);
   }
 
   // Fetch the list of student
-  Future<void> _onStudentFetchStarted(StudentFetchStarted event,
-      Emitter<StudentState> emit) async {
+  Future<void> _onStudentFetchStarted(
+      StudentFetchStarted event, Emitter<StudentState> emit) async {
     emit(StudentFetchInProgress());
     try {
       final students = await studentService.getAllStudentInClass();
@@ -35,8 +34,8 @@ class StudentBloc extends Bloc<StudentEvent, StudentState> {
   }
 
   // In the Bloc method:
-  Future<void> _onStudentCreateStarted(StudentCreateStarted event,
-      Emitter<StudentState> emit) async {
+  Future<void> _onStudentCreateStarted(
+      StudentCreateStarted event, Emitter<StudentState> emit) async {
     emit(StudentCreateInProgress());
     try {
       await studentService.insertStudent(event.name);
@@ -49,10 +48,9 @@ class StudentBloc extends Bloc<StudentEvent, StudentState> {
     }
   }
 
-
   // Delete Student
-  Future<void> _onStudentDeleteStarted(StudentDeleteStarted event,
-      Emitter<StudentState> emit) async {
+  Future<void> _onStudentDeleteStarted(
+      StudentDeleteStarted event, Emitter<StudentState> emit) async {
     emit(StudentDeleteInProgress());
     try {
       await studentService.deleteStudent(event.studentId);
@@ -66,17 +64,17 @@ class StudentBloc extends Bloc<StudentEvent, StudentState> {
   }
 
   // Update Student Avatar
-  Future<void> _onStudentUpdateAvatarStarted(StudentUpdateAvatarStarted event,
-      Emitter<StudentState> emit) async {
-    emit(StudentUpdateAvatarInProgress());
+  Future<void> _onStudentUpdateStarted(
+      StudentUpdateStarted event, Emitter<StudentState> emit) async {
+    emit(StudentUpdateInProgress());
     try {
-      await profileService.updateAvatar(event.profile, event.imageFile);
-      print("Student avatar updated successfully");
-      emit(StudentUpdateAvatarSuccess());
+      await studentService.updateStudent(event.studentId, event.name, event.imageFile);
+      print("Student updated successfully");
+      emit(StudentUpdateSuccess());
       add(StudentFetchStarted());
     } catch (e) {
       print("$e");
-      emit(StudentUpdateAvatarFailure("Failed to update student avatar: ${e.toString()}"));
+      emit(StudentUpdateFailure("Failed to update student: ${e.toString()}"));
     }
   }
 }

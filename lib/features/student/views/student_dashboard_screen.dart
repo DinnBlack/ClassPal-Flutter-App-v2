@@ -88,7 +88,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
           CustomTabBar(
             currentIndex: _currentIndex,
             onTabTapped: _onTabTapped,
-            tabTitles: const ['Thông tin', 'Điểm', 'Thống kê'],
+            tabTitles: const ['Điểm', 'Thống kê'],
             tabBarWidthRatio: 0.9,
             lineHeight: 4,
             linePadding: 0,
@@ -103,7 +103,6 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                 });
               },
               children: [
-                Container(),
                 Column(
                   children: [
                     const SizedBox(
