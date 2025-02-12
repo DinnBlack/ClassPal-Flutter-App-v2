@@ -1,18 +1,16 @@
 import 'dart:convert';
 
+import 'package:classpal_flutter_app/features/class/repository/class_service.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../auth/models/role_model.dart';
-import '../../class/models/class_model.dart';
 import '../../profile/model/profile_model.dart';
 import '../../profile/repository/profile_service.dart';
-import '../models/student_model.dart';
 
-class StudentService {
+class StudentService extends ProfileService {
   final String _baseUrl =
       'https://cpserver.amrakk.rest/api/v1/academic-service';
   final Dio _dio = Dio();
@@ -53,17 +51,6 @@ class StudentService {
     }
   }
 
-// Fetch students by ClassModel
-  Future<List<StudentModel>> fetchStudentsByClass(
-      ClassModel currentClass) async {
-    await Future.delayed(const Duration(seconds: 2));
-    try {
-      return [];
-    } catch (e) {
-      return [];
-    }
-  }
-
   Future<bool> insertStudent(String displayName) async {
     try {
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
@@ -71,18 +58,18 @@ class StudentService {
         throw Exception('No cookies available for authentication');
       }
 
+      final currentProfile = await getCurrentProfile();
+
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final profile = await ProfileService().getProfileFromSharedPreferences();
-
       final requestUrl =
-          '$_baseUrl/profiles/${profile?.groupType}/${profile?.groupId}';
+          '$_baseUrl/profiles/${currentProfile?.groupType}/${currentProfile?.groupId}';
 
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile?.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.post(
@@ -115,17 +102,17 @@ class StudentService {
         throw Exception('No cookies available for authentication');
       }
 
+      final currentProfile = await getCurrentProfile();
+
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
-      final profile = await ProfileService().getProfileFromSharedPreferences();
 
       final requestUrl = '$_baseUrl/profiles/$studentId';
 
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile?.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.delete(
@@ -150,13 +137,6 @@ class StudentService {
 
     try {
       await _initialize();
-
-      final classProfile =
-          await ProfileService().getProfileFromSharedPreferences();
-      if (classProfile == null) {
-        print('Không có profile nào trong SharedPreferences');
-        return [];
-      }
 
       // Lấy danh sách vai trò từ SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -191,21 +171,33 @@ class StudentService {
         throw Exception('No cookies available for authentication');
       }
 
+      final currentProfile = await getCurrentProfile();
+
       // Tạo cookie header cho yêu cầu
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final requestUrl = '$_baseUrl/profiles/1/${classProfile.groupId}';
+      String requestUrl;
+
+      if (currentProfile?.groupType == 0) {
+        final currentClass = await ClassService().getCurrentClass();
+        requestUrl = '$_baseUrl/profiles/${currentProfile?.groupType}/${currentProfile?.groupId}';
+      } else {
+        requestUrl = '$_baseUrl/profiles/${currentProfile?.groupType}/${currentProfile?.groupId}';
+      }
+
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': classProfile.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.get(
         requestUrl,
         options: Options(headers: headers),
       );
+
+      print(response.data);
 
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
@@ -237,18 +229,13 @@ class StudentService {
     try {
       await _initialize();
 
-      final classProfile =
-          await ProfileService().getProfileFromSharedPreferences();
-      if (classProfile == null) {
-        print('Không có profile nào trong SharedPreferences');
-        return [];
-      }
-
       // Lấy cookies từ PersistCookieJar
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
+
+      final currentProfile = await getCurrentProfile();
 
       // Tạo cookie header cho yêu cầu
       final cookieHeader =
@@ -257,7 +244,7 @@ class StudentService {
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': classProfile.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       // Gọi API cho từng studentId, dùng Future.wait để chạy song song
@@ -300,20 +287,15 @@ class StudentService {
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final profile = await ProfileService().getProfileFromSharedPreferences();
+      final currentProfile = await getCurrentProfile();
 
-      print(profile);
-
-      final requestUrl = '$_baseUrl/classes/${profile?.groupId}';
-      print('Request URL: $requestUrl');
+      final requestUrl = '$_baseUrl/classes/${profile.groupId}';
 
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile?.id,
+        'x-profile-id': currentProfile?.id,
       };
-
-      print('Request Headers: $headers');
 
       final response = await _dio.patch(
         requestUrl,
@@ -324,8 +306,6 @@ class StudentService {
         ),
         options: Options(headers: headers),
       );
-
-      print(response.data);
 
       if (response.statusCode == 200) {
         return response.data['data'];

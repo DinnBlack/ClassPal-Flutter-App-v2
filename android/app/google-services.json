@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "861296625288",
+    "project_id": "push-notification-nidzy",
+    "storage_bucket": "push-notification-nidzy.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:861296625288:android:bce057566c817c3fd1413d",
+        "android_client_info": {
+          "package_name": "com.example.classpal_flutter_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8TfkWH3FbI3M8WCfqxa_YRDlq7JCuvis"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

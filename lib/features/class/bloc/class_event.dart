@@ -5,6 +5,8 @@ sealed class ClassEvent {}
 
 class ClassPersonalFetchStarted extends ClassEvent {}
 
+class ClassSchoolFetchStarted extends ClassEvent {}
+
 class ClassPersonalCreateStarted extends ClassEvent {
   final String name;
   final String? avatarUrl;

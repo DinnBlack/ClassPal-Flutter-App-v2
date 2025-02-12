@@ -8,7 +8,9 @@ import '../../../../../core/widgets/custom_loading_dialog.dart';
 import '../bloc/subject_bloc.dart';
 
 class SubjectScreen extends StatelessWidget {
-  const SubjectScreen({super.key});
+  const SubjectScreen({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

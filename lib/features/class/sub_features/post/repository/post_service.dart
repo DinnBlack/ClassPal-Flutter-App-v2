@@ -9,9 +9,10 @@ import 'package:http_parser/http_parser.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../profile/model/profile_model.dart';
 import '../../../../profile/repository/profile_service.dart';
 
-class PostService {
+class PostService extends ProfileService {
   final String _baseUrl =
       'https://cpserver.amrakk.rest/api/v1/academic-service';
   final Dio _dio = Dio();
@@ -62,15 +63,14 @@ class PostService {
       }
 
       final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final profile = await ProfileService().getProfileFromSharedPreferences();
-      if (profile == null) throw Exception('Profile not found');
+      final currentProfile = await getCurrentProfile();
 
-      final requestUrl = '$_baseUrl/news/${profile.groupId}';
+      final requestUrl = '$_baseUrl/news/${currentProfile?.groupId}';
       final headers = {
         'Cookie': cookieHeader,
-        'x-profile-id': profile.id,
+        'x-profile-id': currentProfile?.id,
         'Content-Type': "multipart/form-data"
       };
 
@@ -107,16 +107,10 @@ class PostService {
     }
   }
 
-
   Future<List<PostModel>> getGroupNews() async {
     try {
       await _initialize();
 
-      final profile = await ProfileService().getProfileFromSharedPreferences();
-      if (profile == null) {
-        print('Không có profile nào trong SharedPreferences');
-        return [];
-      }
 
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
@@ -124,11 +118,12 @@ class PostService {
       }
 
       final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final currentProfile = await getCurrentProfile();
 
       // Lấy thời gian từ 3 ngày trước
-      final DateTime fromDate =
-          DateTime.now();
+      final DateTime fromDate = DateTime.now();
 
       // Tạo query parameters
       final queryParams = {
@@ -143,7 +138,7 @@ class PostService {
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       // Gọi API

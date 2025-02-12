@@ -101,8 +101,6 @@ class AuthService {
         options: Options(headers: {'Content-Type': 'application/json'}),
       );
 
-      print(response.data);
-
       if (response.statusCode == 200) {
         print('Đăng nhập thành công');
 
@@ -268,19 +266,18 @@ class AuthService {
     print('Open this link in your browser to authenticate: $googleAuthUrl');
 
     try {
-       await GoogleController().authWithGoogle(isSignIn: true);
+      await GoogleController().authWithGoogle(isSignIn: true);
 
-       final response = await http.get(
-         Uri.parse('$_baseUrl/auth/google'),
-         headers: {'Content-Type': 'application/json'},
-       );
+      final response = await http.get(
+        Uri.parse('$_baseUrl/auth/google'),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-       if (response.statusCode == 200) {
-         print('Authentication successful');
-       } else {
-         print('Failed to authenticate');
-       }
-
+      if (response.statusCode == 200) {
+        print('Authentication successful');
+      } else {
+        print('Failed to authenticate');
+      }
     } catch (e) {
       print('Error during Google authentication: $e');
     }

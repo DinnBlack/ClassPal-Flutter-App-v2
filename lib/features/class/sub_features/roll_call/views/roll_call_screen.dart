@@ -11,7 +11,6 @@ import 'package:intl/intl.dart';
 import '../../../../../core/utils/app_text_style.dart';
 import '../../../../../core/widgets/custom_loading_dialog.dart';
 import '../bloc/roll_call_bloc.dart';
-import '../repository/roll_call_service.dart';
 
 class RollCallScreen extends StatefulWidget {
   const RollCallScreen({super.key});
@@ -129,26 +128,6 @@ class _RollCallScreenState extends State<RollCallScreen> {
                     const SizedBox(width: kMarginLg),
                     _buildAttendanceCard('Đi trễ', countLate, kOrangeColor),
                   ],
-                ),
-                const SizedBox(height: kMarginMd),
-                CustomButton(
-                  text: 'Đánh dấu cả lớp có mặt',
-                  isValid: rollCallStatus.values.any((status) => status != 0),
-                  onTap: () async {
-                    setState(() {
-                      rollCallStatus.updateAll((key, value) => 0);
-                      _updateAttendance(
-                        rollCallStatus.entries.map((entry) => {entry.key: entry.value}).toList(),
-                      );
-                    });
-
-                    RollCallSessionModel? rollCallSession =
-                        await RollCallService().getRollCallSessionToday();
-                    if (rollCallSession != null) {
-                      await RollCallService()
-                          .getRollCallEntriesBySessionId(rollCallSession.id);
-                    }
-                  },
                 ),
                 const SizedBox(height: kMarginXl),
                 StudentListScreen(

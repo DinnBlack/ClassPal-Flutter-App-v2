@@ -9,6 +9,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../../core/widgets/custom_feature_dialog.dart';
 import '../../../../../core/widgets/custom_loading_dialog.dart';
 import '../../../../../core/widgets/custom_page_transition.dart';
+import '../../grade/views/grade_list_screen.dart';
 import '../bloc/subject_bloc.dart';
 
 class SubjectDetailScreen extends StatefulWidget {
@@ -118,11 +119,10 @@ class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
   }
 
   Widget _buildBody() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+      child: GradeListScreen(
+        subject: _subject!,
       ),
     );
   }

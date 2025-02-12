@@ -30,3 +30,19 @@ class GradeFetchByStudentIdFailure extends GradeState {
 
   GradeFetchByStudentIdFailure(this.error);
 }
+
+// Fetch grade by subject id
+class GradeFetchBySubjectIdInProgress extends GradeState {}
+
+class GradeFetchBySubjectIdSuccess extends GradeState {
+  final List<GradeModel> grades;
+
+  GradeFetchBySubjectIdSuccess(this.grades);
+}
+
+class GradeFetchBySubjectIdFailure extends GradeState {
+  final String error;
+
+  GradeFetchBySubjectIdFailure(this.error);
+}
+

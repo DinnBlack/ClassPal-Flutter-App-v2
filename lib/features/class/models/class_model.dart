@@ -2,7 +2,7 @@ import 'package:classpal_flutter_app/features/student/sub_features/group/model/g
 import '../../profile/model/profile_model.dart';
 
 class ClassModel {
-  final String _id;
+  final String id;
   final String name;
   final String avatarUrl;
   final String? schoolId;
@@ -13,26 +13,26 @@ class ClassModel {
   final List<ProfileModel>? teachers;
   final List<GroupWithStudentsModel>? groupWithStudents;
 
-  //<editor-fold desc="Data Methods">
+//<editor-fold desc="Data Methods">
   const ClassModel({
+    required this.id,
     required this.name,
     required this.avatarUrl,
     this.schoolId,
     required this.creatorId,
     required this.updatedAt,
     required this.createdAt,
-    required String id,
     this.students,
     this.teachers,
     this.groupWithStudents,
-  }) : _id = id;
+  });
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ClassModel &&
           runtimeType == other.runtimeType &&
-          _id == other._id &&
+          id == other.id &&
           name == other.name &&
           avatarUrl == other.avatarUrl &&
           schoolId == other.schoolId &&
@@ -45,7 +45,7 @@ class ClassModel {
 
   @override
   int get hashCode =>
-      _id.hashCode ^
+      id.hashCode ^
       name.hashCode ^
       avatarUrl.hashCode ^
       schoolId.hashCode ^
@@ -58,17 +58,17 @@ class ClassModel {
 
   @override
   String toString() {
-    return 'ClassModel{'
-        ' _id: $_id,'
-        ' name: $name,'
-        ' avatarUrl: $avatarUrl,'
-        ' schoolId: $schoolId,'
-        ' creatorId: $creatorId,'
-        ' updatedAt: $updatedAt,'
-        ' createdAt: $createdAt,'
-        ' students: $students,'
-        ' teachers: $teachers,'
-        ' groupWithStudents: $groupWithStudents'
+    return 'ClassModel{' +
+        ' id: $id,' +
+        ' name: $name,' +
+        ' avatarUrl: $avatarUrl,' +
+        ' schoolId: $schoolId,' +
+        ' creatorId: $creatorId,' +
+        ' updatedAt: $updatedAt,' +
+        ' createdAt: $createdAt,' +
+        ' students: $students,' +
+        ' teachers: $teachers,' +
+        ' groupWithStudents: $groupWithStudents,' +
         '}';
   }
 
@@ -85,7 +85,7 @@ class ClassModel {
     List<GroupWithStudentsModel>? groupWithStudents,
   }) {
     return ClassModel(
-      id: id ?? this._id,
+      id: id ?? this.id,
       name: name ?? this.name,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       schoolId: schoolId ?? this.schoolId,
@@ -100,23 +100,24 @@ class ClassModel {
 
   Map<String, dynamic> toMap() {
     return {
-      '_id': _id,
-      'name': name,
-      'avatarUrl': avatarUrl,
-      'schoolId': schoolId,
-      'creatorId': creatorId,
-      'updatedAt': updatedAt.toIso8601String(),
-      'createdAt': createdAt.toIso8601String(),
-      'students': students?.map((student) => student.toMap()).toList(),
-      'teachers': teachers?.map((teacher) => teacher.toMap()).toList(),
-      'groupWithStudents':
-          groupWithStudents?.map((group) => group.toMap()).toList(),
+      'id': this.id,
+      'name': this.name,
+      'avatarUrl': this.avatarUrl,
+      'schoolId': this.schoolId,
+      'creatorId': this.creatorId,
+      'updatedAt': this.updatedAt.toIso8601String(),
+      'createdAt': this.createdAt.toIso8601String(),
+      'students': this.students?.map((student) => student.toMap()).toList(),
+      'teachers': this.teachers?.map((teacher) => teacher.toMap()).toList(),
+      'groupWithStudents': this.groupWithStudents
+          ?.map((group) => group.toMap())
+          .toList(),
     };
   }
 
   factory ClassModel.fromMap(Map<String, dynamic> map) {
     return ClassModel(
-      id: map['_id'] ?? '',
+      id: map['_id'] ?? map['id'] ?? '',
       name: map['name'] as String,
       avatarUrl: map['avatarUrl'] as String,
       schoolId: map['schoolId'] as String?,
@@ -144,4 +145,6 @@ class ClassModel {
           : [],
     );
   }
+
+//</editor-fold>
 }

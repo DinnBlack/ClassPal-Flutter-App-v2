@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/config/app_constants.dart';
 import '../../../../../core/utils/app_text_style.dart';
 import '../../../../../core/widgets/custom_button.dart';
-import '../../../../../core/widgets/custom_loading_dialog.dart';
 import '../../../../../core/widgets/custom_page_transition.dart';
 import '../bloc/subject_bloc.dart';
 
@@ -61,9 +60,9 @@ class _SubjectListScreenState extends State<SubjectListScreen> {
                     mainAxisSpacing: kMarginLg,
                     childAspectRatio: itemWidth / itemHeight,
                   ),
-                  itemCount: state.subjects.length + 1,
+                  itemCount: widget.isGradeStudentView ? state.subjects.length : state.subjects.length + 1,
                   itemBuilder: (context, index) {
-                    if (index == state.subjects.length) {
+                    if (!widget.isGradeStudentView && index == state.subjects.length) {
                       return const CustomSubjectListItem(isAddButton: true);
                     }
                     final subject = state.subjects[index];

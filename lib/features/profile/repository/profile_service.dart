@@ -19,14 +19,14 @@ class ProfileService {
   }
 
   // Lưu profile vào Shared Preferences
-  Future<void> saveProfileToSharedPreferences(ProfileModel profile) async {
+  Future<void> saveCurrentProfile(ProfileModel profile) async {
     final prefs = await SharedPreferences.getInstance();
     final profileJson = jsonEncode(profile.toMap());
     await prefs.setString('profile', profileJson);
   }
 
   // Lấy profile từ Shared Preferences
-  Future<ProfileModel?> getProfileFromSharedPreferences() async {
+  Future<ProfileModel?> getCurrentProfile() async {
     final prefs = await SharedPreferences.getInstance();
     final profileJson = prefs.getString('profile');
 
@@ -96,7 +96,7 @@ class ProfileService {
   }
 
   // Hàm lấy thông tin profile của người dùng
-  Future<List<ProfileModel>> getProfileByUserId() async {
+  Future<List<ProfileModel>> getProfileByUser() async {
     try {
       await _initialize();
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
@@ -134,6 +134,47 @@ class ProfileService {
     } catch (e) {
       print('Error fetching profile: $e');
       return [];
+    }
+  }
+
+  // Hàm lấy thông tin profile của người dùng
+  Future<ProfileModel?> getProfileById(String id) async {
+    try {
+      await _initialize();
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      final currentProfile = await getCurrentProfile();
+
+      // Tạo headers với cookies
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final response = await _dio.get(
+        '$_baseUrl/profiles/$id',
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Cookie': cookieHeader,
+            'x-profile-id': currentProfile?.id
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        var profileData = response.data['data'];
+
+        ProfileModel profile = ProfileModel.fromMap(profileData);
+
+        return profile;
+      } else {
+        throw Exception('Failed to fetch profile: ${response.data}');
+      }
+    } catch (e) {
+      print('Error fetching profile: $e');
+      return null;
     }
   }
 
@@ -195,7 +236,7 @@ class ProfileService {
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final currentProfile = await ProfileService().getProfileFromSharedPreferences();
+      final currentProfile = await ProfileService().getCurrentProfile();
       if (currentProfile == null) throw Exception('Profile not found');
 
       final requestUrl = '$_baseUrl/profiles/${profile.id}/avatar';

@@ -24,9 +24,6 @@ class SchoolBloc extends Bloc<SchoolEvent, SchoolState> {
       final profiles = result['profiles'] as List<ProfileModel>;
       final schools = result['schools'] as List<SchoolModel>;
 
-      print(profiles);
-      print(schools);
-
       emit(SchoolFetchSuccess(profiles, schools));
     }  on Exception catch (e) {
       emit(SchoolFetchFailure(e.toString()));

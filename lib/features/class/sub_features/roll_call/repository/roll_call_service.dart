@@ -9,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../profile/repository/profile_service.dart';
 import '../models/roll_call_session_model.dart';
 
-class RollCallService {
+class RollCallService extends ProfileService {
   final String _baseUrl =
       'https://cpserver.amrakk.rest/api/v1/academic-service';
   final Dio _dio = Dio();
@@ -86,17 +86,15 @@ class RollCallService {
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final profile = await ProfileService().getProfileFromSharedPreferences();
-      if (profile?.groupId == null) {
-        throw Exception('Không tìm thấy nhóm của người dùng.');
-      }
+      final currentProfile = await getCurrentProfile();
 
-      final requestUrl = '$_baseUrl/rollcall/class/${profile?.groupId}';
+      final requestUrl =
+          '$_baseUrl/rollcall/class/${currentProfile?.groupId}';
 
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile?.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.post(
@@ -128,17 +126,17 @@ class RollCallService {
         throw Exception('No cookies available for authentication');
       }
 
+      final currentProfile = await getCurrentProfile();
+
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
-      final profile = await ProfileService().getProfileFromSharedPreferences();
 
       final requestUrl = '$_baseUrl/rollcall/$rollCallSessionId';
 
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile?.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       String statusString;
@@ -177,18 +175,13 @@ class RollCallService {
     try {
       await _initialize();
 
-      final classProfile =
-          await ProfileService().getProfileFromSharedPreferences();
-      if (classProfile == null) {
-        print('Không có profile nào trong SharedPreferences');
-        return [];
-      }
-
       // Lấy cookies từ PersistCookieJar
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
+
+      final currentProfile = await getCurrentProfile();
 
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
@@ -197,7 +190,7 @@ class RollCallService {
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': classProfile.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.get(
@@ -226,27 +219,23 @@ class RollCallService {
     try {
       await _initialize();
 
-      final classProfile =
-          await ProfileService().getProfileFromSharedPreferences();
-      if (classProfile == null) {
-        print('Không có profile nào trong SharedPreferences');
-        return [];
-      }
-
       // Lấy cookies từ PersistCookieJar
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
 
+      final currentProfile = await getCurrentProfile();
+
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final requestUrl = '$_baseUrl/rollcall/class/${classProfile.groupId}';
+      final requestUrl =
+          '$_baseUrl/rollcall/class/${currentProfile?.groupId}';
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': classProfile.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.get(
@@ -275,27 +264,23 @@ class RollCallService {
     try {
       await _initialize();
 
-      final classProfile =
-          await ProfileService().getProfileFromSharedPreferences();
-      if (classProfile == null) {
-        print('Không có profile nào trong SharedPreferences');
-        return null;
-      }
-
       // Lấy cookies từ PersistCookieJar
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
 
+      final currentProfile = await getCurrentProfile();
+
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final requestUrl = '$_baseUrl/rollcall/class/${classProfile.groupId}';
+      final requestUrl =
+          '$_baseUrl/rollcall/class/${currentProfile?.groupId}';
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': classProfile.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.get(
@@ -344,17 +329,17 @@ class RollCallService {
         throw Exception('No cookies available for authentication');
       }
 
+      final currentProfile = await getCurrentProfile();
+
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
-      final profile = await ProfileService().getProfileFromSharedPreferences();
 
       final requestUrl = '$_baseUrl/rollcall/$rollCallSessionId';
 
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile?.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.delete(

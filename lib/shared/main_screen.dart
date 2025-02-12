@@ -1,4 +1,3 @@
-import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/auth/repository/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,10 +33,14 @@ class _MainScreenState extends State<MainScreen> {
   UserModel? user;
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
+  @override
   void initState() {
     super.initState();
     _loadUser();
-    print(user);
   }
 
   Future<void> _loadUser() async {
@@ -64,7 +67,7 @@ class _MainScreenState extends State<MainScreen> {
         view = StudentView(user: user!);
         break;
       case 'parent':
-        view = ParentView(user: user!);
+        view = ParentView();
         break;
       default:
         view = PrincipalView(user: user!);
@@ -114,7 +117,7 @@ class _MainScreenState extends State<MainScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             CustomAvatar(
-              profile: user,
+              imageUrl: user!.avatarUrl,
               size: 30,
             ),
             const SizedBox(
@@ -139,7 +142,7 @@ class _MainScreenState extends State<MainScreen> {
           decoration: const BoxDecoration(
             color: kWhiteColor,
             borderRadius:
-            BorderRadius.vertical(top: Radius.circular(kMarginMd)),
+                BorderRadius.vertical(top: Radius.circular(kMarginMd)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -165,7 +168,9 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        context.read<AuthBloc>().add(AuthLogoutStarted(context: context));
+                        context
+                            .read<AuthBloc>()
+                            .add(AuthLogoutStarted(context: context));
                       },
                       child: Text(
                         'Đăng xuất',
@@ -203,8 +208,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
               const SizedBox(height: kMarginLg),
               GestureDetector(
-                onTap: () {
-                },
+                onTap: () {},
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
                   child: Row(

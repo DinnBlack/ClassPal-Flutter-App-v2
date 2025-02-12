@@ -1,6 +1,8 @@
+import 'package:classpal_flutter_app/core/config/firebase/firebase_api.dart';
 import 'package:classpal_flutter_app/features/school/bloc/school_bloc.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:easy_date_timeline/easy_date_timeline.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,11 +21,14 @@ import 'features/profile/bloc/profile_bloc.dart';
 import 'features/student/bloc/student_bloc.dart';
 import 'features/student/sub_features/group/bloc/group_bloc.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import 'package:timeago/src/messages/vi_messages.dart'; // Đảm bảo thư viện có hỗ trợ tiếng Việt
+import 'package:timeago/src/messages/vi_messages.dart';
 
+import 'features/teacher/bloc/teacher_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  await FirebaseApi().initNotifications();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
@@ -76,6 +81,9 @@ class MyApp extends StatelessWidget {
         BlocProvider<GradeBloc>(
           create: (context) => GradeBloc(),
         ),
+        BlocProvider<TeacherBloc>(
+          create: (context) => TeacherBloc(),
+        ),
       ],
       child: MaterialApp(
         title: 'ClassPal',
@@ -90,6 +98,7 @@ class MyApp extends StatelessWidget {
         themeMode: ThemeMode.system,
         onGenerateRoute: routes,
         initialRoute: isLoggedIn ? SelectRoleScreen.route : LoginScreen.route,
+        // initialRoute: SelectRoleScreen.route,
       ),
     );
   }

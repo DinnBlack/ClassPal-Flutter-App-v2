@@ -1,18 +1,17 @@
 import 'dart:convert';
 
+import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
 import 'package:classpal_flutter_app/features/student/repository/student_service.dart';
 import 'package:classpal_flutter_app/features/student/sub_features/group/model/group_model.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../profile/model/profile_model.dart';
-import '../../../../profile/repository/profile_service.dart';
 import '../model/group_with_students_model.dart';
 
-class GroupService {
+class GroupService extends ProfileService {
   final String _baseUrl =
       'https://cpserver.amrakk.rest/api/v1/academic-service';
   final Dio _dio = Dio();
@@ -31,28 +30,6 @@ class GroupService {
     await restoreCookies();
   }
 
-  // Khôi phục cookie từ SharedPreferences
-  Future<void> restoreCookies() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cookiesString = prefs.getString('cookies');
-
-    if (cookiesString != null) {
-      final cookieList = (jsonDecode(cookiesString) as List).map((cookie) {
-        return Cookie(cookie['name'], cookie['value'])
-          ..domain = cookie['domain']
-          ..path = cookie['path']
-          ..expires = cookie['expires'] != null
-              ? DateTime.fromMillisecondsSinceEpoch(cookie['expires'])
-              : null
-          ..httpOnly = cookie['httpOnly']
-          ..secure = cookie['secure'];
-      }).toList();
-
-      await _cookieJar.saveFromResponse(Uri.parse(_baseUrl), cookieList);
-      print('Cookies đã được khôi phục');
-    }
-  }
-
   Future<bool> insertGroup(String name, List<String> studentIds) async {
     try {
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
@@ -63,20 +40,15 @@ class GroupService {
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final profile = await ProfileService().getProfileFromSharedPreferences();
+      final currentProfile = await getCurrentProfile();
 
-      print(profile);
-
-      final requestUrl = '$_baseUrl/parties/${profile?.groupId}';
+      final requestUrl = '$_baseUrl/parties/${currentProfile?.groupId}';
 
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile?.id,
+        'x-profile-id': currentProfile?.id,
       };
-
-      print(name);
-      print(studentIds);
 
       final response = await _dio.post(
         requestUrl,
@@ -106,27 +78,22 @@ class GroupService {
     try {
       await _initialize();
 
-      final classProfile =
-          await ProfileService().getProfileFromSharedPreferences();
-      if (classProfile == null) {
-        print('Không có profile nào trong SharedPreferences');
-        return [];
-      }
-
       // Lấy cookies từ PersistCookieJar
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
 
+      final currentProfile = await getCurrentProfile();
+
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final requestUrl = '$_baseUrl/parties/${classProfile.groupId}';
+      final requestUrl = '$_baseUrl/parties/${currentProfile?.groupId}';
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': classProfile.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.get(
@@ -161,31 +128,31 @@ class GroupService {
     }
   }
 
-  Future<void> updateGroup(
-      GroupWithStudentsModel groupWithStudents, String? name, List<String>? studentIds) async {
+  Future<void> updateGroup(GroupWithStudentsModel groupWithStudents,
+      String? name, List<String>? studentIds) async {
     try {
+      await _initialize();
+
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
 
-      final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-      final profile = await ProfileService().getProfileFromSharedPreferences();
+      final currentProfile = await getCurrentProfile();
 
-      if (profile == null) {
-        throw Exception('No profile available');
-      }
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       // Cập nhật tên nhóm nếu có thay đổi
       if (name != null) {
-        final requestUrl = '$_baseUrl/parties/${profile.groupId}/${groupWithStudents.group.id}';
+        final requestUrl =
+            '$_baseUrl/parties/${currentProfile?.groupId}/${groupWithStudents.group.id}';
         print('Updating group name at URL: $requestUrl');
 
         final response = await _dio.patch(
@@ -203,14 +170,10 @@ class GroupService {
 
       if (studentIds != null) {
         final Set<String> initialStudentIds =
-        groupWithStudents.students.map((s) => s.id).toSet();
+            groupWithStudents.students.map((s) => s.id).toSet();
         final Set<String> newStudentIds = studentIds.toSet();
         final List<String> studentsToRemove =
-        initialStudentIds.difference(newStudentIds).toList();
-
-        print(initialStudentIds);
-        print(newStudentIds);
-        print(studentsToRemove);
+            initialStudentIds.difference(newStudentIds).toList();
 
         if (studentsToRemove.isNotEmpty) {
           print('Deleting students: $studentsToRemove');
@@ -218,7 +181,7 @@ class GroupService {
         }
 
         final requestUrl =
-            '$_baseUrl/parties/${profile.groupId}/${groupWithStudents.group.id}/members';
+            '$_baseUrl/parties/${currentProfile?.groupId}/${groupWithStudents.group.id}/members';
         print('Updating group members at URL: $requestUrl');
 
         final response = await _dio.patch(
@@ -239,25 +202,26 @@ class GroupService {
     }
   }
 
-
-  Future<bool> deleteStudentInGroup(GroupModel group, List<String> studentIds) async {
+  Future<bool> deleteStudentInGroup(
+      GroupModel group, List<String> studentIds) async {
     try {
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
 
+      final currentProfile = await getCurrentProfile();
+
       final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final profile = await ProfileService().getProfileFromSharedPreferences();
-
-      final requestUrl = '$_baseUrl/parties/${profile?.groupId}/${group.id}/members';
+      final requestUrl =
+          '$_baseUrl/parties/${currentProfile?.groupId}/${group.id}/members';
 
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile?.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.delete(
@@ -284,17 +248,18 @@ class GroupService {
         throw Exception('No cookies available for authentication');
       }
 
+      final currentProfile = await getCurrentProfile();
+
       final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final profile = await ProfileService().getProfileFromSharedPreferences();
-
-      final requestUrl = '$_baseUrl/parties/${profile?.groupId}/$groupId';
+      final requestUrl =
+          '$_baseUrl/parties/${currentProfile?.groupId}/$groupId';
 
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile?.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.delete(

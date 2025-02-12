@@ -1,5 +1,7 @@
+import 'package:classpal_flutter_app/features/class/repository/class_service.dart';
 import 'package:classpal_flutter_app/features/class/views/class_create_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../core/config/app_constants.dart';
@@ -7,7 +9,10 @@ import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../../core/widgets/custom_feature_dialog.dart';
 import '../../../../core/widgets/custom_page_transition.dart';
 import '../../../../core/widgets/custom_tab_bar.dart';
+import '../../../class/bloc/class_bloc.dart';
 import '../../../class/views/class_list_screen.dart';
+import '../../../teacher/bloc/teacher_bloc.dart';
+import '../../../teacher/views/teacher_create_screen.dart';
 import '../../../teacher/views/teacher_list_screen.dart';
 import '../../models/school_model.dart';
 
@@ -27,6 +32,8 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
   @override
   void initState() {
     super.initState();
+    context.read<TeacherBloc>().add(TeacherFetchStarted());
+    ClassService().getAllClassSchool();
     _currentIndex = 0;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _pageController.jumpToPage(_currentIndex);
@@ -55,14 +62,14 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
         () {
           CustomPageTransition.navigateTo(
             context: context,
-            page: const ClassCreateScreen(),
+            page: const ClassCreateScreen(isClassSchoolCreateView: true,),
             transitionType: PageTransitionType.slideFromBottom,
           );
         },
         () {
           CustomPageTransition.navigateTo(
             context: context,
-            page: const ClassCreateScreen(),
+            page: const TeacherCreateScreen(),
             transitionType: PageTransitionType.slideFromBottom,
           );
         },
@@ -111,6 +118,7 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
       leftWidget: InkWell(
         child: const Icon(FontAwesomeIcons.arrowLeft),
         onTap: () {
+          context.read<ClassBloc>().add(ClassPersonalFetchStarted());
           Navigator.pop(context);
         },
       ),
@@ -124,17 +132,13 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
   }
 
   Widget _buildClassesTab() {
-    return const Expanded(
-      child: ClassListScreen(classes: []),
-    );
+    return const ClassListScreen(isClassSchoolView: true,);
   }
 
   Widget _buildTeachersTab() {
-    return const Expanded(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
-        child: TeacherListScreen(teachers: []),
-      ),
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
+      child: TeacherListScreen(),
     );
   }
 }

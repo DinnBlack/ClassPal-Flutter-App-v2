@@ -1,4 +1,6 @@
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
+import 'package:classpal_flutter_app/features/class/sub_features/subject/views/subject_screen.dart';
+import 'package:classpal_flutter_app/features/student/views/student_create_screen.dart';
 import 'package:flutter/material.dart';
 import '../../../core/utils/app_text_style.dart';
 import '../../../core/config/app_constants.dart';
@@ -12,7 +14,6 @@ class ClassManagementScreen extends StatelessWidget {
   // Define a list of features
   final List<String> features = [
     "Điểm danh",
-    "Phân loại học sinh",
     "Quản lý điểm số",
     "Quản lý học sinh",
     "Gửi thông báo",
@@ -21,34 +22,25 @@ class ClassManagementScreen extends StatelessWidget {
   void onFeatureTapped(BuildContext context, String feature) {
     switch (feature) {
       case "Điểm danh":
-        CustomPageTransition.navigateTo(context: context, page: const RollCallScreen(), transitionType: PageTransitionType.slideFromBottom);
-        break;
-      case "Sắp xếp lịch học":
-        Navigator.pushNamed(context, '/schedule');
+        CustomPageTransition.navigateTo(
+            context: context,
+            page: const RollCallScreen(),
+            transitionType: PageTransitionType.slideFromBottom);
         break;
       case "Quản lý điểm số":
-        Navigator.pushNamed(
-            context, '/grade-management');
-        break;
-      case "Theo dõi tiến độ học tập":
-        Navigator.pushNamed(context,
-            '/progress-tracking');
+        CustomPageTransition.navigateTo(
+            context: context,
+            page: const SubjectScreen(),
+            transitionType: PageTransitionType.slideFromBottom);
         break;
       case "Quản lý học sinh":
-        Navigator.pushNamed(context,
-            '/student-management');
+        CustomPageTransition.navigateTo(
+            context: context,
+            page: const StudentCreateScreen(),
+            transitionType: PageTransitionType.slideFromBottom);
         break;
       case "Gửi thông báo":
-        Navigator.pushNamed(
-            context, '/send-notification');
-        break;
-      case "Quản lý giảng viên":
-        Navigator.pushNamed(context,
-            '/teacher-management');
-        break;
-      case "Lập kế hoạch học":
-        Navigator.pushNamed(
-            context, '/study-plan');
+        Navigator.pushNamed(context, '/send-notification');
         break;
       default:
         print("No route for feature: $feature");
@@ -72,8 +64,7 @@ class ClassManagementScreen extends StatelessWidget {
                   ),
                   child: _CustomHorizontalItem(
                     feature: features[index],
-                    onItemTap: (feature) => onFeatureTapped(
-                        context, feature),
+                    onItemTap: (feature) => onFeatureTapped(context, feature),
                   ),
                 );
               },
@@ -149,8 +140,7 @@ class _CustomHorizontalItemState extends State<_CustomHorizontalItem>
       onTap: () async {
         await _controller.reverse();
         _controller.forward();
-        widget.onItemTap(
-            widget.feature);
+        widget.onItemTap(widget.feature);
       },
       child: ScaleTransition(
         scale: _controller,
@@ -162,7 +152,7 @@ class _CustomHorizontalItemState extends State<_CustomHorizontalItem>
               decoration: BoxDecoration(
                 color: kGreyLightColor,
                 borderRadius: BorderRadius.circular(kBorderRadiusXl),
-                border:  Border.symmetric(
+                border: Border.symmetric(
                     vertical: BorderSide(width: 2, color: kGreyLightColor)),
               ),
               child: Text(

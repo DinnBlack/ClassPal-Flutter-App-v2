@@ -316,7 +316,13 @@ class _SubjectEditScreenState extends State<SubjectEditScreen> {
       title: 'Chỉnh sửa môn học',
       subtitle: widget.subject.name,
       leftWidget: InkWell(
-        onTap: () => _showExitConfirmationDialog(context),
+        onTap: () {
+          if (_isChanged) {
+            _showExitConfirmationDialog(context);
+          } else{
+            Navigator.pop(context);
+          }
+        },
         child: const Icon(FontAwesomeIcons.xmark),
       ),
     );

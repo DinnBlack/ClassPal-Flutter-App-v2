@@ -5,8 +5,10 @@ sealed class StudentState {}
 
 final class StudentInitial extends StudentState {}
 
-// Fetching the list of schools for a logged-in user
-class StudentFetchInProgress extends StudentState {}
+// Fetching the list of students for a logged-in user
+class StudentFetchInProgress extends StudentState {
+
+}
 
 class StudentFetchSuccess extends StudentState {
   final List<ProfileModel> students;

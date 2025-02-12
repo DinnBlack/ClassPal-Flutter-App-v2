@@ -13,6 +13,7 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
 
   ClassBloc() : super(ClassInitial()) {
     on<ClassPersonalFetchStarted>(_onClassPersonalFetchStarted);
+    on<ClassSchoolFetchStarted>(_onClassSchoolFetchStarted);
     on<ClassPersonalCreateStarted>(_onClassPersonalCreateStarted);
     on<ClassSchoolCreateStarted>(_onClassSchoolCreateStarted);
     on<ClassUpdateStarted>(_onClassUpdateStarted);
@@ -23,13 +24,26 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       ClassPersonalFetchStarted event, Emitter<ClassState> emit) async {
     emit(ClassPersonalFetchInProgress());
     try {
-      final result = await classService.getAllPersonalClass();
+      final result = await classService.getAllClassPersonal();
       final profiles = result['profiles'] as List<ProfileModel>;
       final classes = result['classes'] as List<ClassModel>;
 
       emit(ClassPersonalFetchSuccess(profiles, classes));
     } catch (e) {
       emit(ClassPersonalFetchFailure(
+          "Failed to fetch classes: ${e.toString()}"));
+    }
+  }
+
+  // Fetch the list of classes school
+  Future<void> _onClassSchoolFetchStarted(
+      ClassSchoolFetchStarted event, Emitter<ClassState> emit) async {
+    emit(ClassSchoolFetchInProgress());
+    try {
+      final classes = await classService.getAllClassSchool();
+      emit(ClassSchoolFetchSuccess(classes));
+    } catch (e) {
+      emit(ClassSchoolFetchFailure(
           "Failed to fetch classes: ${e.toString()}"));
     }
   }

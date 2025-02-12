@@ -55,11 +55,7 @@ class SubjectService {
     try {
       await _initialize();
 
-      final profile = await ProfileService().getProfileFromSharedPreferences();
-      if (profile == null) {
-        print('Không có profile nào trong SharedPreferences');
-        return [];
-      }
+      final currentProfile = await ProfileService().getCurrentProfile();
 
       // Lấy danh sách vai trò từ SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -80,11 +76,11 @@ class SubjectService {
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final requestUrl = '$_baseUrl/subjects/${profile.groupId}';
+      final requestUrl = '$_baseUrl/subjects/${currentProfile?.groupId}';
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.get(
@@ -114,11 +110,7 @@ class SubjectService {
     try {
       await _initialize();
 
-      final profile = await ProfileService().getProfileFromSharedPreferences();
-      if (profile == null) {
-        print('Không có profile nào trong SharedPreferences');
-        return null;
-      }
+      final currentProfile = await ProfileService().getCurrentProfile();
 
       // Lấy cookies từ PersistCookieJar
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
@@ -130,11 +122,11 @@ class SubjectService {
       final cookieHeader =
       cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final requestUrl = '$_baseUrl/subjects/${profile.groupId}/$subjectId';
+      final requestUrl = '$_baseUrl/subjects/${currentProfile?.groupId}/$subjectId';
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.get(
@@ -174,14 +166,14 @@ class SubjectService {
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final profile = await ProfileService().getProfileFromSharedPreferences();
+      final currentProfile = await ProfileService().getCurrentProfile();
 
-      final requestUrl = '$_baseUrl/subjects/${profile?.groupId}';
+      final requestUrl = '$_baseUrl/subjects/${currentProfile?.groupId}';
 
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile?.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.post(
@@ -214,19 +206,14 @@ class SubjectService {
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final profile = await ProfileService().getProfileFromSharedPreferences();
-      if (profile == null) throw Exception('Profile not found');
+      final currentProfile = await ProfileService().getCurrentProfile();
 
-      final requestUrl = '$_baseUrl/subjects/${profile.groupId}/${subject.id}';
+      final requestUrl = '$_baseUrl/subjects/${currentProfile?.groupId}/${subject.id}';
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile.id,
+        'x-profile-id': currentProfile?.id,
       };
-
-      print(subject);
-      print(name);
-      print(gradeTypes);
 
       // Lấy danh sách grade types hiện tại từ subject
       List<GradeTypeModel> initialGradeTypes = subject.gradeTypes;
@@ -287,15 +274,14 @@ class SubjectService {
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final profile = await ProfileService().getProfileFromSharedPreferences();
-      if (profile == null) throw Exception('Profile not found');
+      final currentProfile = await ProfileService().getCurrentProfile();
 
       final requestUrl =
-          '$_baseUrl/subjects/${profile.groupId}/$subjectId/grade';
+          '$_baseUrl/subjects/${currentProfile?.groupId}/$subjectId/grade';
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.patch(
@@ -322,15 +308,14 @@ class SubjectService {
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final profile = await ProfileService().getProfileFromSharedPreferences();
-      if (profile == null) throw Exception('Profile not found');
+      final currentProfile = await ProfileService().getCurrentProfile();
 
       final requestUrl =
-          '$_baseUrl/subjects/${profile.groupId}/$subjectId/grade';
+          '$_baseUrl/subjects/${currentProfile?.groupId}/$subjectId/grade';
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.delete(
@@ -356,14 +341,13 @@ class SubjectService {
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final profile = await ProfileService().getProfileFromSharedPreferences();
-      if (profile == null) throw Exception('Profile not found');
+      final currentProfile = await ProfileService().getCurrentProfile();
 
-      final requestUrl = '$_baseUrl/subjects/${profile.groupId}/$subjectId';
+      final requestUrl = '$_baseUrl/subjects/${currentProfile?.groupId}/$subjectId';
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       final response = await _dio.delete(

@@ -10,7 +10,7 @@ import '../../profile/model/profile_model.dart';
 import '../../profile/repository/profile_service.dart';
 import '../models/class_model.dart';
 
-class ClassService {
+class ClassService extends ProfileService {
   final String _baseUrl =
       'https://cpserver.amrakk.rest/api/v1/academic-service';
   final Dio _dio = Dio();
@@ -18,27 +18,6 @@ class ClassService {
 
   ClassService() {
     _initialize();
-  }
-
-  Future<void> saveClassToSharedPreferences(ClassModel currentClass) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (prefs.containsKey('class')) {
-      await prefs.remove('class');
-    }
-    final classJson = jsonEncode(currentClass.toMap());
-    await prefs.setString('class', classJson);
-  }
-
-  // Lấy class từ Shared Preferences
-  Future<ClassModel?> getClassFromSharedPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    final classJson = prefs.getString('class');
-
-    if (classJson != null) {
-      return ClassModel.fromMap(jsonDecode(classJson));
-    } else {
-      return null;
-    }
   }
 
   // Khởi tạo PersistCookieJar để lưu trữ cookie
@@ -50,60 +29,26 @@ class ClassService {
     await restoreCookies();
   }
 
-  // Khôi phục cookie từ SharedPreferences
-  Future<void> restoreCookies() async {
+  // Lưu profile vào Shared Preferences
+  Future<void> saveCurrentClass(ClassModel currentClass) async {
     final prefs = await SharedPreferences.getInstance();
-    final cookiesString = prefs.getString('cookies');
-
-    if (cookiesString != null) {
-      final cookieList = (jsonDecode(cookiesString) as List).map((cookie) {
-        return Cookie(cookie['name'], cookie['value'])
-          ..domain = cookie['domain']
-          ..path = cookie['path']
-          ..expires = cookie['expires'] != null
-              ? DateTime.fromMillisecondsSinceEpoch(cookie['expires'])
-              : null
-          ..httpOnly = cookie['httpOnly']
-          ..secure = cookie['secure'];
-      }).toList();
-
-      await _cookieJar.saveFromResponse(Uri.parse(_baseUrl), cookieList);
-      print('Cookies đã được khôi phục');
-    }
+    final currentClassJson = jsonEncode(currentClass.toMap());
+    await prefs.setString('currentClass', currentClassJson);
   }
 
-  // In SchoolService, fetch profiles from SharedPreferences
-  Future<List<ProfileModel>> getProfilesFromSharedPreferences() async {
+  // Lấy profile từ Shared Preferences
+  Future<ClassModel?> getCurrentClass() async {
     final prefs = await SharedPreferences.getInstance();
-    final profilesJson = prefs.getString('profiles');
+    final currentClassJson = prefs.getString('currentClass');
 
-    if (profilesJson != null) {
-      final List<dynamic> profilesData = jsonDecode(profilesJson);
-      return profilesData
-          .map((profile) => ProfileModel.fromMap(profile))
-          .toList();
+    if (currentClassJson != null) {
+      return ClassModel.fromMap(jsonDecode(currentClassJson));
     } else {
-      return [];
+      return null;
     }
   }
 
-  Future<void> preloadClasses() async {
-    try {
-      final data = await getAllPersonalClass();
-      final prefs = await SharedPreferences.getInstance();
-      final jsonData = jsonEncode({
-        'profiles': (data['profiles'])?.map((e) => e.toMap()).toList() ?? [],
-        'classes': (data['classes'])?.map((e) => e.toMap()).toList() ?? [],
-      });
-
-      await prefs.setString('cached_classes', jsonData);
-      print('Lớp học đã được tải trước và lưu cache.');
-    } catch (e) {
-      print('Lỗi khi tải trước lớp học: $e');
-    }
-  }
-
-  Future<Map<String, List<dynamic>>> getAllPersonalClass() async {
+  Future<Map<String, List<dynamic>>> getAllClassPersonal() async {
     List<ClassModel> classes = [];
     List<ProfileModel> classProfiles = [];
 
@@ -163,13 +108,11 @@ class ClassService {
     }
   }
 
-  Future<void> getAllSchoolClass() async {
+  Future<List<ClassModel>> getAllClassSchool() async {
+    List<ClassModel> classes = [];
+
     try {
       await _initialize();
-      final schoolProfile =
-          await ProfileService().getProfileFromSharedPreferences();
-
-      print('School profile: $schoolProfile');
 
       // Lấy cookies từ PersistCookieJar
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
@@ -181,31 +124,33 @@ class ClassService {
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final requestUrl = '$_baseUrl/classes/school/${schoolProfile!.groupId}';
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': schoolProfile.id,
-      };
+      final currentProfile = await getCurrentProfile();
 
       final response = await _dio.get(
-        requestUrl,
-        options: Options(headers: headers),
+        '$_baseUrl/classes/school/${currentProfile?.groupId}',
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Cookie': cookieHeader,
+            'x-profile-id': currentProfile?.id,
+          },
+        ),
       );
 
-      print(response.statusCode);
-      print(response.data);
-
       if (response.statusCode == 200) {
-      } else if (response.statusCode == 404) {
-        print('Không tìm thấy lớp với ID profile: ${schoolProfile.id}');
+        classes = (response.data['data'] as List<dynamic>)
+            .map((profile) =>
+                ClassModel.fromMap(profile as Map<String, dynamic>))
+            .toList();
+        return classes;
       } else {
         print(
             'Lỗi khi lấy lớp: Mã lỗi ${response.statusCode}, Thông báo: ${response.data}');
-        throw Exception('Failed to fetch class by School ID: ${response.data}');
+        throw Exception('Failed to fetch class by ID: ${response.data}');
       }
     } catch (e) {
-      print('Error fetching class by School ID: $e');
+      print('Error fetching classes by School ID: $e');
+      return classes;
     }
   }
 
@@ -255,12 +200,12 @@ class ClassService {
   // Insert personal class
   Future<void> insertSchoolClass(String name, String? avatarUrl) async {
     try {
+      await _initialize();
+
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
-
-      final profile = await ProfileService().getProfileFromSharedPreferences();
 
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
@@ -268,8 +213,10 @@ class ClassService {
       final finalAvatarUrl =
           avatarUrl ?? 'https://i.ibb.co/V9Znq7h/class-icon.png';
 
+      final currentProfile = await getCurrentProfile();
+
       final response = await _dio.post(
-        '$_baseUrl/classes/${profile?.groupId}',
+        '$_baseUrl/classes/${currentProfile?.groupId}',
         data: jsonEncode(
           {
             'name': name,
@@ -284,9 +231,7 @@ class ClassService {
         ),
       );
 
-      print(response.data);
-
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         return response.data['data'];
       } else {
         throw Exception('Failed to insert school class: ${response.data}');
@@ -299,6 +244,8 @@ class ClassService {
 
   Future<void> updateClass(String newName) async {
     try {
+      await _initialize();
+
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
@@ -307,17 +254,15 @@ class ClassService {
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final profile = await ProfileService().getProfileFromSharedPreferences();
+      final currentProfile = await getCurrentProfile();
 
-      print(profile);
-
-      final requestUrl = '$_baseUrl/classes/${profile?.groupId}';
+      final requestUrl = '$_baseUrl/classes/${currentProfile?.groupId}';
       print('Request URL: $requestUrl');
 
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': profile?.id,
+        'x-profile-id': currentProfile?.id,
       };
 
       print('Request Headers: $headers');
@@ -331,8 +276,6 @@ class ClassService {
         ),
         options: Options(headers: headers),
       );
-
-      print(response.data);
 
       if (response.statusCode == 200) {
         return response.data['data'];

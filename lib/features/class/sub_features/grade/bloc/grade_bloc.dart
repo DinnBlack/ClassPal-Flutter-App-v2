@@ -14,6 +14,7 @@ class GradeBloc extends Bloc<GradeEvent, GradeState> {
   GradeBloc() : super(GradeInitial()) {
     on<GradeCreateInStarted>(_onGradeCreateInStarted);
     on<GradeFetchByStudentIdStarted>(_onGradeFetchByStudentIdStarted);
+    on<GradeFetchBySubjectIdStarted>(_onGradeFetchBySubjectIdStarted);
   }
 
   // insert grade for student
@@ -39,6 +40,18 @@ class GradeBloc extends Bloc<GradeEvent, GradeState> {
       emit(GradeFetchByStudentIdSuccess(grades));
     } catch (e) {
       emit(GradeFetchByStudentIdFailure("Failed to fetch Grades: ${e.toString()}"));
+    }
+  }
+
+  // fetch grades for subject
+  Future<void> _onGradeFetchBySubjectIdStarted(
+      GradeFetchBySubjectIdStarted event, Emitter<GradeState> emit) async {
+    emit(GradeFetchBySubjectIdInProgress());
+    try {
+      List<GradeModel> grades = await gradeService.getGradesBySubjectId(event.subjectId);
+      emit(GradeFetchBySubjectIdSuccess(grades));
+    } catch (e) {
+      emit(GradeFetchBySubjectIdFailure("Failed to fetch Grades: ${e.toString()}"));
     }
   }
 }

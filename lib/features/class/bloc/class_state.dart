@@ -21,6 +21,21 @@ class ClassPersonalFetchFailure extends ClassState {
   ClassPersonalFetchFailure(this.error);
 }
 
+// Fetching the list of classes school
+class ClassSchoolFetchInProgress extends ClassState {}
+
+class ClassSchoolFetchSuccess extends ClassState {
+  final List<ClassModel> classes;
+
+  ClassSchoolFetchSuccess(this.classes);
+}
+
+class ClassSchoolFetchFailure extends ClassState {
+  final String error;
+
+  ClassSchoolFetchFailure(this.error);
+}
+
 // Create a new Personal Class
 class ClassPersonalCreateInProgress extends ClassState {}
 

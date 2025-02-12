@@ -19,8 +19,12 @@ import 'class_join_screen.dart';
 class ClassCreateScreen extends StatefulWidget {
   static const route = 'ClassCreateScreen';
   final bool isClassCreateFirst;
+  final bool isClassSchoolCreateView;
 
-  const ClassCreateScreen({super.key, this.isClassCreateFirst = false});
+  const ClassCreateScreen(
+      {super.key,
+      this.isClassCreateFirst = false,
+      this.isClassSchoolCreateView = false});
 
   @override
   _ClassCreateScreenState createState() => _ClassCreateScreenState();
@@ -99,11 +103,13 @@ class _ClassCreateScreenState extends State<ClassCreateScreen> {
       backgroundColor: kBackgroundColor,
       body: widget.isClassCreateFirst
           ? _buildWelcomeScreen()
-          : _buildCreationSteps(),
+          : widget.isClassSchoolCreateView
+              ? _buildClassSchoolCreationSteps()
+              : _buildClassPersonalCreationSteps(),
     );
   }
 
-  Widget _buildCreationSteps() {
+  Widget _buildClassPersonalCreationSteps() {
     return SafeArea(
       child: Column(
         children: [
@@ -117,6 +123,30 @@ class _ClassCreateScreenState extends State<ClassCreateScreen> {
                 children: [
                   _buildStep1(),
                   _buildStep2(),
+                  _buildStep3(),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClassSchoolCreationSteps() {
+    return SafeArea(
+      child: Column(
+        children: [
+          _buildProgressIndicator(),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+              child: PageView(
+                controller: _pageController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  _buildStep1(),
+                  _buildClassSchoolStep2(),
                   _buildStep3(),
                 ],
               ),
@@ -205,6 +235,25 @@ class _ClassCreateScreenState extends State<ClassCreateScreen> {
             text: 'Mời',
             isValid: _invitedEmails.isNotEmpty,
             onTap: _invitedEmails.isNotEmpty ? () => _navigateStep(2) : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClassSchoolStep2() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const SizedBox(height: kMarginXxl),
+          _buildStepTitle('Thêm giáo viên phụ trách!',
+              'Hãy phân công giáo viên để quản lý lớp học'),
+          const SizedBox(height: kMarginXxl),
+          CustomButton(
+            text: 'Phân công',
+            onTap: () => context
+                .read<ClassBloc>()
+                .add(ClassSchoolCreateStarted(name: _classNameController.text)),
           ),
         ],
       ),

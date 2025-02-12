@@ -125,7 +125,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/images/empty_student_view.png',
+              'assets/images/empty_student.png',
               height: 200,
             ),
             const SizedBox(height: kMarginLg),

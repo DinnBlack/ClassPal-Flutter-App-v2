@@ -24,3 +24,11 @@ class GradeFetchByStudentIdStarted extends GradeEvent {
 
   GradeFetchByStudentIdStarted(this.studentId);
 }
+
+// Grade fetch
+class GradeFetchBySubjectIdStarted extends GradeEvent {
+  final String subjectId;
+
+  GradeFetchBySubjectIdStarted(this.subjectId);
+}
+
