@@ -1,9 +1,9 @@
+import 'package:classpal_flutter_app/core/widgets/custom_list_item_skeleton.dart';
 import 'package:classpal_flutter_app/features/class/repository/class_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:skeleton_loader/skeleton_loader.dart';
 import '../../../core/config/app_constants.dart';
-import '../../../core/utils/app_text_style.dart';
 import '../../../core/widgets/custom_avatar.dart';
 import '../../../core/widgets/custom_list_item.dart';
 import '../../../core/widgets/custom_page_transition.dart';
@@ -47,7 +47,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
       builder: (context, state) {
         if (state is ClassPersonalFetchInProgress ||
             state is ClassSchoolFetchInProgress) {
-          return const Center(child: CircularProgressIndicator());
+          return _buildSkeletonLoading();
         } else if (state is ClassPersonalFetchFailure ||
             state is ClassSchoolFetchFailure) {
           // return _buildErrorView(state.error);
@@ -119,7 +119,6 @@ class _ClassListScreenState extends State<ClassListScreen> {
             onTap: () async {
               await ClassService().saveCurrentClass(currentClass);
 
-
               CustomPageTransition.navigateTo(
                   context: context,
                   page: ClassScreen(
@@ -139,6 +138,30 @@ class _ClassListScreenState extends State<ClassListScreen> {
     );
   }
 
+  Widget _buildSkeletonLoading() {
+    return FutureBuilder<List<ProfileModel>>(
+      future: ProfileService().getUserProfiles(),
+      builder: (context, snapshot) {
+        int itemCount = 1;
+        if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+          itemCount = snapshot.data!.where((profile) => profile.groupType == 1).length;
+          itemCount = itemCount > 0 ? itemCount : 1;
+        }
+
+        return ListView.separated(
+          itemCount: itemCount,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, index) => const SkeletonLoader(
+            builder: CustomListItemSkeleton(),
+          ),
+          separatorBuilder: (context, index) => const SizedBox(height: kMarginMd),
+        );
+      },
+    );
+  }
+
+
   Widget _buildEmptyClassView() {
     return CustomListItem(
       title: 'Chưa có lớp học cá nhân nào!',
@@ -153,15 +176,6 @@ class _ClassListScreenState extends State<ClassListScreen> {
             page: const ClassCreateScreen(),
             transitionType: PageTransitionType.slideFromRight);
       },
-    );
-  }
-
-  Widget _buildErrorView(String errorMessage) {
-    return Center(
-      child: Text(
-        errorMessage,
-        style: AppTextStyle.medium(kTextSizeLg),
-      ),
     );
   }
 }

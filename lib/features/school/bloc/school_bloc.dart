@@ -21,11 +21,11 @@ class SchoolBloc extends Bloc<SchoolEvent, SchoolState> {
     try {
       emit(SchoolFetchInProgress());
       final result = await schoolService.getAllSchools();
-      final profiles = result['profiles'] as List<ProfileModel>;
-      final schools = result['schools'] as List<SchoolModel>;
+      final profiles = List<ProfileModel>.from(result['profiles'] ?? []);
+      final schools = List<SchoolModel>.from(result['schools'] ?? []);
 
       emit(SchoolFetchSuccess(profiles, schools));
-    }  on Exception catch (e) {
+    } on Exception catch (e) {
       emit(SchoolFetchFailure(e.toString()));
     }
   }
@@ -41,6 +41,7 @@ class SchoolBloc extends Bloc<SchoolEvent, SchoolState> {
         event.avatarUrl,
       );
       emit(SchoolCreateSuccess());
+      add(SchoolFetchStarted());
     } on Exception catch (e) {
       emit(SchoolCreateFailure(e.toString()));
     }

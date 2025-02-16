@@ -4,7 +4,7 @@ import 'package:classpal_flutter_app/core/widgets/custom_list_item.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/utils/app_text_style.dart';
-import '../../class/views/widgets/custom_invite_dialog.dart';
+import '../../invitation/views/invitation_form.dart';
 import '../../student/models/student_model.dart';
 import '../../student/repository/student_data.dart';
 
@@ -14,12 +14,12 @@ class ParentConnectListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final studentsWithNoParent =
-    sampleStudent_1.where((student) => student.parentId == null).toList();
+        sampleStudent_1.where((student) => student.parentId == null).toList();
     final studentsConnected =
-    sampleStudent_1.where((student) => student.parentId != null).toList();
+        sampleStudent_1.where((student) => student.parentId != null).toList();
 
     void showInviteDialog(BuildContext context, String name) {
-      showCustomInviteDialog(context, 'Gửi lời mời', 'Đến P/h của $name');
+      showInvitationForm(context, '67a476001d0557e69365678d', 'Parent', 'Đinh hoàng Phúc');
     }
 
     return Padding(
@@ -27,7 +27,8 @@ class ParentConnectListScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStudentList('Chưa kết nối', studentsWithNoParent, 'Mời', showInviteDialog),
+          _buildStudentList(
+              'Chưa kết nối', studentsWithNoParent, 'Mời', showInviteDialog),
           const SizedBox(height: kMarginLg),
           _buildStudentList('Đã kết nối', studentsConnected, 'Xóa', null),
         ],
@@ -35,8 +36,8 @@ class ParentConnectListScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStudentList(
-      String title, List<StudentModel> students, String actionText, Function? onActionTap) {
+  Widget _buildStudentList(String title, List<StudentModel> students,
+      String actionText, Function? onActionTap) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -66,7 +67,6 @@ class ParentConnectListScreen extends StatelessWidget {
                         }
                       },
                       trailing: InkWell(
-
                         child: Text(
                           actionText,
                           style: AppTextStyle.medium(kTextSizeSm,

@@ -7,9 +7,6 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../../../profile/model/profile_model.dart';
 import '../models/grade_type_model.dart';
 
 class GradeService extends ProfileService {

@@ -33,7 +33,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await authService.getRoles();
       if (user != null) {
         emit(AuthLoginSuccess(user));
-        await profileService.getProfileByUser();
       } else {
         emit(AuthLoginFailure("Invalid credentials"));
       }

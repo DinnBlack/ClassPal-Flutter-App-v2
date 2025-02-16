@@ -51,7 +51,7 @@ class _ClassConnectScreenState extends State<ClassConnectScreen> {
             currentIndex: _currentIndex,
             onTabTapped: _onTabTapped,
             tabTitles: const ['Gia đình', 'Học sinh', 'Giáo viên'],
-            tabBarWidthRatio: 1,
+            tabBarWidthRatio: 0.9,
             lineHeight: 4,
             linePadding: 0,
             tabBarHeight: 40,

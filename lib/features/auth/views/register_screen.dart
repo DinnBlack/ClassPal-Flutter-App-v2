@@ -135,6 +135,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: kMarginMd),
               CustomTextField(
                 text: 'Số điện thoại',
+                isNumber: true,
                 controller: _phoneNumberController,
                 validator: Validators.validatePhone,
               ),

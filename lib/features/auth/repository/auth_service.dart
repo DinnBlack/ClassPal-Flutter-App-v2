@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:classpal_flutter_app/features/auth/models/role_model.dart';
 import 'package:classpal_flutter_app/features/auth/repository/google_service.dart';
+import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -11,7 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import 'package:http/http.dart' as http;
 
-class AuthService {
+class AuthService extends ProfileService {
   static const String _baseUrl = 'https://cpserver.amrakk.rest/api/v1';
   final Dio _dio = Dio();
   late PersistCookieJar _cookieJar;
@@ -29,53 +30,10 @@ class AuthService {
     _dio.interceptors.add(CookieManager(_cookieJar));
   }
 
-  // Lưu cookie vào SharedPreferences
-  Future<void> _saveCookies() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-
-    final cookieList = cookies.map((cookie) {
-      return {
-        'name': cookie.name,
-        'value': cookie.value,
-        'domain': cookie.domain,
-        'path': cookie.path,
-        'expires': cookie.expires?.millisecondsSinceEpoch,
-        'httpOnly': cookie.httpOnly,
-        'secure': cookie.secure,
-      };
-    }).toList();
-
-    prefs.setString('cookies', jsonEncode(cookieList));
-    print('Cookies đã được lưu');
-  }
-
-  // Khôi phục cookie từ SharedPreferences
-  Future<void> restoreCookies() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cookiesString = prefs.getString('cookies');
-
-    if (cookiesString != null) {
-      final cookieList = (jsonDecode(cookiesString) as List).map((cookie) {
-        return Cookie(cookie['name'], cookie['value'])
-          ..domain = cookie['domain']
-          ..path = cookie['path']
-          ..expires = cookie['expires'] != null
-              ? DateTime.fromMillisecondsSinceEpoch(cookie['expires'])
-              : null
-          ..httpOnly = cookie['httpOnly']
-          ..secure = cookie['secure'];
-      }).toList();
-
-      await _cookieJar.saveFromResponse(Uri.parse(_baseUrl), cookieList);
-      print('Cookies đã được khôi phục');
-    }
-  }
 
   Future<void> _saveUserToPrefs(UserModel user) async {
     final prefs = await SharedPreferences.getInstance();
     final profileJson = jsonEncode(user.toMap());
-    print(profileJson);
     await prefs.setString('user', profileJson);
   }
 
@@ -118,6 +76,7 @@ class AuthService {
     } on DioException catch (e) {
       print('Lỗi khi đăng nhập: ${e.response!.data}');
     }
+    print('Lỗi khi đăng nhập');
     return null;
   }
 

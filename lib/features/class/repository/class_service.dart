@@ -54,7 +54,7 @@ class ClassService extends ProfileService {
 
     try {
       await _initialize();
-      final profiles = await getProfilesFromSharedPreferences();
+      final profiles = await getUserProfiles();
 
       if (profiles.isEmpty) {
         print('Không có profile nào được lưu trong SharedPreferences');

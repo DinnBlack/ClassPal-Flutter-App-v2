@@ -7,5 +7,21 @@ class RollCallCreateStarted extends RollCallEvent {
   final String date;
   final List<Map<String, int>> studentsRollCall;
 
-  RollCallCreateStarted({required this.date, required this.studentsRollCall });
+  RollCallCreateStarted({required this.date, required this.studentsRollCall});
+}
+
+// Roll call fetch by date range
+class RollCallFetchByDateRangeStarted extends RollCallEvent {
+  final String startDate;
+  final String endDate;
+
+  RollCallFetchByDateRangeStarted(
+      {required this.startDate, required this.endDate});
+}
+
+// Roll call fetch by date
+class RollCallFetchByDateStarted extends RollCallEvent {
+  final String date;
+
+  RollCallFetchByDateStarted({required this.date});
 }

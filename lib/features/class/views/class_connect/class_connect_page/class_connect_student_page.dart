@@ -11,36 +11,36 @@ class ClassConnectStudentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          const SizedBox(
-            height: kMarginXl,
-          ),
-          Text(
-            '56%',
-            style: AppTextStyle.semibold(40, kPrimaryColor),
-          ),
-          const SizedBox(
-            height: kMarginSm,
-          ),
-          Text(
-            'Học sinh đã được kết nối',
-            style: AppTextStyle.semibold(kTextSizeSm),
-          ),
-          const SizedBox(
-            height: kMarginMd,
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
-            child: CustomButton(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+        child: Column(
+          children: [
+            const SizedBox(
+              height: kMarginXl,
+            ),
+            Text(
+              '56%',
+              style: AppTextStyle.semibold(40, kPrimaryColor),
+            ),
+            const SizedBox(
+              height: kMarginSm,
+            ),
+            Text(
+              'Học sinh đã được kết nối',
+              style: AppTextStyle.semibold(kTextSizeSm),
+            ),
+            const SizedBox(
+              height: kMarginMd,
+            ),
+            CustomButton(
               text: 'Mã lớp học',
             ),
-          ),
-          const SizedBox(
-            height: kMarginXl,
-          ),
-          const StudentConnectListScreen(),
-        ],
+            const SizedBox(
+              height: kMarginXl,
+            ),
+            const StudentConnectListScreen(),
+          ],
+        ),
       ),
     );
   }

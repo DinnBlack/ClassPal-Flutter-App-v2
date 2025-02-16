@@ -32,9 +32,9 @@ class SchoolService extends ProfileService {
     List<ProfileModel> schoolProfiles = [];
     try {
       await _initialize();
-      final profiles = await getProfilesFromSharedPreferences();
+      final profiles = await getUserProfiles();
 
-      if (profiles.isEmpty) {
+      if (profiles == [] || profiles.isEmpty) {
         print('Không có profile nào được lưu trong SharedPreferences');
         return {'profiles': [], 'schools': []};
       }
@@ -80,6 +80,8 @@ class SchoolService extends ProfileService {
           throw Exception('Failed to fetch school by ID: ${response.data}');
         }
       }
+      print(schools);
+
       return {'profiles': schoolProfiles, 'schools': schools};
     } catch (e) {
       print('Error fetching school by ID: $e');
@@ -120,7 +122,7 @@ class SchoolService extends ProfileService {
         ),
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         return response.data['data'];
       } else {
         throw Exception('Failed to insert school: ${response.data}');

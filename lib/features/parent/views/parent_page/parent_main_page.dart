@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/widgets/custom_tab_bar.dart';
-import '../../../class/sub_features/post/views/post_list_screen.dart';
+import '../../../post/views/post_list_screen.dart';
 
 class ParentMainPage extends StatefulWidget {
   const ParentMainPage({super.key});

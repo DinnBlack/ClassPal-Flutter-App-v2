@@ -1,16 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:classpal_flutter_app/features/class/sub_features/post/models/post_model.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../../profile/model/profile_model.dart';
-import '../../../../profile/repository/profile_service.dart';
+import '../../profile/repository/profile_service.dart';
+import '../models/post_model.dart';
 
 class PostService extends ProfileService {
   final String _baseUrl =
@@ -31,28 +29,6 @@ class PostService extends ProfileService {
 
     // Restore cookies when initializing
     await restoreCookies();
-  }
-
-  // Khôi phục cookie từ SharedPreferences
-  Future<void> restoreCookies() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cookiesString = prefs.getString('cookies');
-
-    if (cookiesString != null) {
-      final cookieList = (jsonDecode(cookiesString) as List).map((cookie) {
-        return Cookie(cookie['name'], cookie['value'])
-          ..domain = cookie['domain']
-          ..path = cookie['path']
-          ..expires = cookie['expires'] != null
-              ? DateTime.fromMillisecondsSinceEpoch(cookie['expires'])
-              : null
-          ..httpOnly = cookie['httpOnly']
-          ..secure = cookie['secure'];
-      }).toList();
-
-      await _cookieJar.saveFromResponse(Uri.parse(_baseUrl), cookieList);
-      print('Cookies đã được khôi phục');
-    }
   }
 
   Future<void> insertNews(File? imageFile, String content) async {

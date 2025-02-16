@@ -30,28 +30,6 @@ class StudentService extends ProfileService {
     await restoreCookies();
   }
 
-  // Khôi phục cookie từ SharedPreferences
-  Future<void> restoreCookies() async {
-    final prefs = await SharedPreferences.getInstance();
-    final cookiesString = prefs.getString('cookies');
-
-    if (cookiesString != null) {
-      final cookieList = (jsonDecode(cookiesString) as List).map((cookie) {
-        return Cookie(cookie['name'], cookie['value'])
-          ..domain = cookie['domain']
-          ..path = cookie['path']
-          ..expires = cookie['expires'] != null
-              ? DateTime.fromMillisecondsSinceEpoch(cookie['expires'])
-              : null
-          ..httpOnly = cookie['httpOnly']
-          ..secure = cookie['secure'];
-      }).toList();
-
-      await _cookieJar.saveFromResponse(Uri.parse(_baseUrl), cookieList);
-      print('Cookies đã được khôi phục');
-    }
-  }
-
   Future<bool> insertStudent(String displayName) async {
     try {
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
@@ -181,7 +159,6 @@ class StudentService extends ProfileService {
       String requestUrl;
 
       if (currentProfile?.groupType == 0) {
-        final currentClass = await ClassService().getCurrentClass();
         requestUrl =
             '$_baseUrl/profiles/${currentProfile?.groupType}/${currentProfile?.groupId}';
       } else {
@@ -205,6 +182,8 @@ class StudentService extends ProfileService {
         List<ProfileModel> allProfiles = data
             .map((profileData) => ProfileModel.fromMap(profileData))
             .toList();
+
+        print(data);
 
         // Lọc danh sách chỉ chứa học sinh
         students = allProfiles

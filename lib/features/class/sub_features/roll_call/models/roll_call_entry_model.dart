@@ -9,6 +9,7 @@ class RollCallEntryModel {
   final String? remarks;
   final DateTime updatedAt;
   final DateTime createdAt;
+  final String? studentName;
 
 //<editor-fold desc="Data Methods">
   const RollCallEntryModel({
@@ -20,6 +21,7 @@ class RollCallEntryModel {
     this.remarks,
     required this.updatedAt,
     required this.createdAt,
+    required this.studentName,
   });
 
   @override
@@ -34,7 +36,8 @@ class RollCallEntryModel {
           status == other.status &&
           remarks == other.remarks &&
           updatedAt == other.updatedAt &&
-          createdAt == other.createdAt);
+          createdAt == other.createdAt &&
+          studentName == other.studentName);
 
   @override
   int get hashCode =>
@@ -45,7 +48,8 @@ class RollCallEntryModel {
       status.hashCode ^
       remarks.hashCode ^
       updatedAt.hashCode ^
-      createdAt.hashCode;
+      createdAt.hashCode ^
+      studentName.hashCode;
 
   @override
   String toString() {
@@ -58,6 +62,7 @@ class RollCallEntryModel {
         ' remarks: $remarks,' +
         ' updatedAt: $updatedAt,' +
         ' createdAt: $createdAt,' +
+        ' studentName: $createdAt,' +
         '}';
   }
 
@@ -70,6 +75,7 @@ class RollCallEntryModel {
     String? remarks,
     DateTime? updatedAt,
     DateTime? createdAt,
+    String? studentName,
   }) {
     return RollCallEntryModel(
       id: id ?? this.id,
@@ -80,6 +86,7 @@ class RollCallEntryModel {
       remarks: remarks ?? this.remarks,
       updatedAt: updatedAt ?? this.updatedAt,
       createdAt: createdAt ?? this.createdAt,
+      studentName: studentName ?? this.studentName,
     );
   }
 
@@ -93,6 +100,7 @@ class RollCallEntryModel {
       'remarks': this.remarks,
       'updatedAt': this.updatedAt,
       'createdAt': this.createdAt,
+      'studentName': this.studentName,
     };
   }
 
@@ -103,12 +111,13 @@ class RollCallEntryModel {
       profileId: map['profileId'] as String,
       classId: map['classId'] as String,
       status: RollCallStatus.values.firstWhere(
-            (e) => e.name == map['status'],
+        (e) => e.name == map['status'],
         orElse: () => RollCallStatus.absent,
       ),
       remarks: map['remarks'] as String?,
       updatedAt: DateTime.parse(map['updatedAt']),
       createdAt: DateTime.parse(map['createdAt']),
+      studentName: map['studentName'] as String? ?? '',
     );
   }
 

@@ -1,7 +1,6 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
-import 'package:classpal_flutter_app/features/class/sub_features/post/views/post_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +8,8 @@ import 'package:photo_view/photo_view.dart';
 import '../../../../../../core/widgets/custom_avatar.dart';
 import '../../models/post_model.dart';
 import 'package:timeago/timeago.dart' as timeago;
+
+import '../post_detail_screen.dart';
 
 class CustomPostListItem extends StatefulWidget {
   final PostModel post;
@@ -25,8 +26,6 @@ class CustomPostListItem extends StatefulWidget {
 }
 
 class _CustomPostListItemState extends State<CustomPostListItem> {
-
-
   String formatDate(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
@@ -53,7 +52,9 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
                   transitionType: PageTransitionType.slideFromRight);
             },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: kPaddingMd),
+        padding: widget.disableOnTap
+            ? null
+            : const EdgeInsets.symmetric(vertical: kPaddingMd),
         color: kWhiteColor,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,9 +95,9 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
               ),
             ),
             if (widget.post.imageUrl != null &&
-                widget.post.imageUrl!.isNotEmpty)
+                widget.post.imageUrl!.isNotEmpty )
               Padding(
-                padding: const EdgeInsets.only(bottom: kMarginMd),
+                padding:  widget.disableOnTap ? const EdgeInsets.only(bottom: 0) : const EdgeInsets.only(bottom: kMarginMd),
                 child: SizedBox(
                   height: 300,
                   child: GestureDetector(
@@ -109,59 +110,51 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
                   ),
                 ),
               ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
-              child: Row(
-                children: [
-                  Row(
-                    children: [
-                      const Icon(
-                        FontAwesomeIcons.heart,
-                        color: kRedColor,
-                      ),
-                      const SizedBox(width: kMarginSm),
-                      Text('5 lượt thích',
-                          style: AppTextStyle.regular(kTextSizeXxs)),
-                    ],
-                  ),
-                  const SizedBox(width: kMarginMd),
-                  GestureDetector(
-                    onTap: () {
-                      CustomPageTransition.navigateTo(
+            widget.disableOnTap
+                ? const SizedBox.shrink()
+                : Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+                    child: GestureDetector(
+                      onTap: () {
+                        CustomPageTransition.navigateTo(
                           context: context,
                           page: PostDetailScreen(
                             post: widget.post,
                             isFocusTextField: true,
                           ),
-                          transitionType: PageTransitionType.slideFromRight);
-                    },
-                    child: Row(
-                      children: [
-                        const Icon(
-                          FontAwesomeIcons.comment,
-                          color: kGreyColor,
+                          transitionType: PageTransitionType.slideFromRight,
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.grey.shade300),
                         ),
-                        const SizedBox(width: kMarginSm),
-                        Text('5 bình luận',
-                            style: AppTextStyle.regular(kTextSizeXxs)),
-                      ],
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              FontAwesomeIcons.solidCommentDots,
+                              color: kPrimaryColor,
+                              size: 18,
+                            ),
+                            SizedBox(width: 6),
+                            Text(
+                              'Bình luận',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: kPrimaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.all(kPaddingSm),
-                    decoration: BoxDecoration(
-                      color: kGreenColor.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(kBorderRadiusLg),
-                    ),
-                    child: Text(
-                      '5 lượt xem',
-                      style: AppTextStyle.regular(kTextSizeXxs, kGreenColor),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),

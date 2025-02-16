@@ -119,9 +119,18 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: kMarginLg),
               CustomTextField(
-                text: 'Email',
+                text: 'Email hoặc Số điện thoại',
                 controller: _emailOrPhoneNumberController,
-                validator: Validators.validateEmail,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Email hoặc số điện thoại không được để trống';
+                  }
+                  if (Validators.validateEmail(value) != null &&
+                      Validators.validatePhone(value) != null) {
+                    return 'Email hoặc số điện thoại không hợp lệ';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: kMarginMd),
               CustomTextField(
@@ -220,8 +229,6 @@ class _LoginScreenState extends State<LoginScreen> {
                CustomButtonGoogle(
                 onTap: () {
                   _openGoogleSignIn();
-                  // AuthService.signInWithGoogle();
-                  // AuthService().authenticateWithGoogle();
                 },
               ),
             ],

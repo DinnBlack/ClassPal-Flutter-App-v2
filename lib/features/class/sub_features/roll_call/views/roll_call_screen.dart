@@ -106,7 +106,7 @@ class _RollCallScreenState extends State<RollCallScreen> {
             Navigator.pop(context);
           } else if (state is RollCallCreateFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Tạo điểm danh thất bại')),
+              const SnackBar(content: Text('Bạn đã điểm danh ngày hôm nay')),
             );
           }
         },

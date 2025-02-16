@@ -1,5 +1,4 @@
 import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
-import 'package:classpal_flutter_app/features/class/sub_features/report/views/report_screen.dart';
 import 'package:classpal_flutter_app/features/class/views/class_information_screen.dart';
 import 'package:classpal_flutter_app/features/student/views/student_create_screen.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +12,7 @@ import '../../../student/sub_features/group/views/group_list_screen.dart';
 import '../../../student/views/student_list_screen.dart';
 import '../../models/class_model.dart';
 import '../../repository/class_service.dart';
+import '../../sub_features/roll_call/views/roll_call_report_screen.dart';
 import '../../sub_features/subject/views/subject_screen.dart';
 import '../class_connect/class_connect_screen.dart';
 import '../class_management_screen.dart';
@@ -89,7 +89,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
         () {
           CustomPageTransition.navigateTo(
             context: context,
-            page: const ReportScreen(),
+            page: const RollCallReportScreen(),
             transitionType: PageTransitionType.slideFromBottom,
           );
         },

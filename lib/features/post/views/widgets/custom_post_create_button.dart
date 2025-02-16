@@ -2,9 +2,10 @@ import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_avatar.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
-import 'package:classpal_flutter_app/features/class/sub_features/post/views/post_create_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import '../post_create_screen.dart';
 
 class PostCreateButton extends StatefulWidget {
   const PostCreateButton({super.key});

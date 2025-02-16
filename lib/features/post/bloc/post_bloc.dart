@@ -1,12 +1,13 @@
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
-import 'package:classpal_flutter_app/features/class/sub_features/post/models/post_model.dart';
 import 'package:meta/meta.dart';
 
+import '../models/post_model.dart';
 import '../repository/post_service.dart';
 
 part 'post_event.dart';
+
 part 'post_state.dart';
 
 class PostBloc extends Bloc<PostEvent, PostState> {
@@ -15,7 +16,6 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   PostBloc() : super(PostInitial()) {
     on<PostCreateStarted>(_onPostCreateStarted);
     on<PostFetchStarted>(_onPostFetchStarted);
-
   }
 
   // Insert a new post
@@ -23,10 +23,10 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       PostCreateStarted event, Emitter<PostState> emit) async {
     emit(PostCreateInProgress());
     try {
-      await postService.insertNews(event.imageFile,
-        event.content);
+      await postService.insertNews(event.imageFile, event.content);
       print("Post created successfully");
       emit(PostCreateSuccess());
+      add(PostFetchStarted());
     } catch (e) {
       emit(PostCreateFailure("Failed to create post: ${e.toString()}"));
     }

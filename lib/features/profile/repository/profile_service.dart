@@ -15,7 +15,7 @@ class ProfileService {
   late PersistCookieJar _cookieJar;
 
   ProfileService() {
-    _initialize();
+    initialize();
   }
 
   // Lưu profile vào Shared Preferences
@@ -38,7 +38,7 @@ class ProfileService {
   }
 
   // Khởi tạo PersistCookieJar để lưu trữ cookie
-  Future<void> _initialize() async {
+  Future<void> initialize() async {
     final directory = await getApplicationDocumentsDirectory();
     final cookieStorage = FileStorage('${directory.path}/cookies');
     _cookieJar = PersistCookieJar(storage: cookieStorage);
@@ -71,7 +71,7 @@ class ProfileService {
   }
 
   // Lưu List<ProfileModel> vào SharedPreferences
-  Future<void> saveProfilesToSharedPreferences(
+  Future<void> saveUserProfiles(
       List<ProfileModel> profiles) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('profiles');
@@ -81,7 +81,7 @@ class ProfileService {
   }
 
   // Get profiles from SharedPreferences
-  Future<List<ProfileModel>> getProfilesFromSharedPreferences() async {
+  Future<List<ProfileModel>> getUserProfiles() async {
     final prefs = await SharedPreferences.getInstance();
     final profilesJson = prefs.getString('profiles');
 
@@ -98,7 +98,7 @@ class ProfileService {
   // Hàm lấy thông tin profile của người dùng
   Future<List<ProfileModel>> getProfileByUser() async {
     try {
-      await _initialize();
+      await initialize();
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
@@ -126,7 +126,7 @@ class ProfileService {
             .toList();
 
         // Lưu profiles vào SharedPreferences
-        await saveProfilesToSharedPreferences(profiles);
+        await saveUserProfiles(profiles);
         return profiles;
       } else {
         throw Exception('Failed to fetch profile: ${response.data}');
@@ -139,7 +139,7 @@ class ProfileService {
 
   Future<List<ProfileModel>> getProfilesByRole(List<String> roles) async {
     try {
-      await _initialize();
+      await initialize();
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         print('No cookies available for authentication');
@@ -177,7 +177,7 @@ class ProfileService {
             .toList();
 
         // Lưu profiles vào SharedPreferences
-        await saveProfilesToSharedPreferences(profiles);
+        await saveUserProfiles(profiles);
 
         return profiles;
       } else {
@@ -195,7 +195,7 @@ class ProfileService {
   // Hàm lấy thông tin profile của người dùng
   Future<ProfileModel?> getProfileById(String id) async {
     try {
-      await _initialize();
+      await initialize();
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
@@ -268,7 +268,7 @@ class ProfileService {
             .toList();
 
         // Save profiles to SharedPreferences
-        await saveProfilesToSharedPreferences(profiles);
+        await saveUserProfiles(profiles);
         return profiles;
       } else {
         throw Exception('Failed to fetch profiles: ${response.data}');

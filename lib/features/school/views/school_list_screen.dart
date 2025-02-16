@@ -4,9 +4,12 @@ import 'package:classpal_flutter_app/features/school/views/school_join_screen.da
 import 'package:classpal_flutter_app/features/school/views/school_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:skeleton_loader/skeleton_loader.dart';
 import '../../../core/config/app_constants.dart';
 import '../../../core/widgets/custom_avatar.dart';
 import '../../../core/widgets/custom_list_item.dart';
+import '../../../core/widgets/custom_list_item_skeleton.dart';
 import '../../../core/widgets/custom_page_transition.dart';
 import '../../profile/model/profile_model.dart';
 import '../../profile/repository/profile_service.dart';
@@ -30,7 +33,6 @@ class _SchoolListScreenState extends State<SchoolListScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     context.read<SchoolBloc>().add(SchoolFetchStarted());
   }
@@ -40,49 +42,8 @@ class _SchoolListScreenState extends State<SchoolListScreen> {
     return BlocBuilder<SchoolBloc, SchoolState>(
       builder: (context, state) {
         if (state is SchoolFetchInProgress) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (state is SchoolFetchSuccess) {
-          schools = state.schools;
-          profiles = state.profiles;
-
-          if (schools.isEmpty) {
-            if (widget.isTeacherView) {
-              return CustomListItem(
-                title: 'Chưa tham gia trường học nào!',
-                subtitle: 'Tham gia trường học của bạn',
-                leading: const CustomAvatar(
-                  imageAsset: 'assets/images/school.jpg',
-                ),
-                onTap: () {
-                  CustomPageTransition.navigateTo(
-                      context: context,
-                      page: const SchoolJoinScreen(),
-                      transitionType: PageTransitionType.slideFromBottom);
-                },
-              );
-            } else {
-              return CustomListItem(
-                title: 'Chưa tham gia trường học nào!',
-                subtitle: 'Tham gia trường học của bạn',
-                leading: const CustomAvatar(
-                  imageAsset: 'assets/images/school.jpg',
-                ),
-                onTap: () {
-                  CustomPageTransition.navigateTo(
-                      context: context,
-                      page: const SchoolCreateScreen(),
-                      transitionType: PageTransitionType.slideFromBottom);
-                },
-              );
-            }
-          } else if (widget.isTeacherView) {
-            return _buildListSchoolTeacherView();
-          } else {
-            return _buildListSchoolView();
-          }
-        } else {
+          return _buildSkeletonLoading();
+        } else if (state is SchoolFetchFailure) {
           return CustomListItem(
             title: 'Chưa tham gia trường học nào!',
             subtitle: 'Tham gia trường học của bạn',
@@ -92,11 +53,77 @@ class _SchoolListScreenState extends State<SchoolListScreen> {
             onTap: () {
               CustomPageTransition.navigateTo(
                   context: context,
-                  page: const SchoolCreateScreen(),
+                  page: const SchoolJoinScreen(),
                   transitionType: PageTransitionType.slideFromBottom);
             },
           );
         }
+
+        if (state is SchoolFetchSuccess) {
+          schools = state.schools;
+          profiles = state.profiles;
+        }
+        if (schools.isEmpty) {
+          if (widget.isTeacherView) {
+            return CustomListItem(
+              title: 'Chưa tham gia trường học nào!',
+              subtitle: 'Tham gia trường học của bạn',
+              leading: const CustomAvatar(
+                imageAsset: 'assets/images/school.jpg',
+              ),
+              onTap: () {
+                CustomPageTransition.navigateTo(
+                    context: context,
+                    page: const SchoolJoinScreen(),
+                    transitionType: PageTransitionType.slideFromBottom);
+              },
+            );
+          } else {
+            return CustomListItem(
+              title: 'Chưa tham gia trường học nào!',
+              subtitle: 'Tham gia trường học của bạn',
+              leading: const CustomAvatar(
+                imageAsset: 'assets/images/school.jpg',
+              ),
+              onTap: () {
+                CustomPageTransition.navigateTo(
+                    context: context,
+                    page: const SchoolCreateScreen(),
+                    transitionType: PageTransitionType.slideFromBottom);
+              },
+            );
+          }
+        } else if (widget.isTeacherView) {
+          return _buildListSchoolTeacherView();
+        } else {
+          return _buildListSchoolView();
+        }
+      },
+    );
+  }
+
+  Widget _buildSkeletonLoading() {
+    return FutureBuilder<List<ProfileModel>>(
+      future: ProfileService().getUserProfiles(),
+      builder: (context, snapshot) {
+        int itemCount = 1;
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
+          itemCount =
+              snapshot.data!.where((profile) => profile.groupType == 0).length;
+          itemCount = itemCount > 0 ? itemCount : 1;
+        }
+
+        return ListView.separated(
+          itemCount: itemCount,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, index) => const SkeletonLoader(
+            builder: CustomListItemSkeleton(),
+          ),
+          separatorBuilder: (context, index) =>
+              const SizedBox(height: kMarginMd),
+        );
       },
     );
   }
