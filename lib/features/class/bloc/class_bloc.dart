@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import '../../profile/model/profile_model.dart';
@@ -17,6 +19,9 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
     on<ClassPersonalCreateStarted>(_onClassPersonalCreateStarted);
     on<ClassSchoolCreateStarted>(_onClassSchoolCreateStarted);
     on<ClassUpdateStarted>(_onClassUpdateStarted);
+    on<ClassDeleteStarted>(_onClassDeleteStarted);
+    on<ClassSchoolBindRelStarted>(_onClassSchoolBindRelStarted);
+    on<ClassSchoolUnBindRelStarted>(_onClassSchoolUnBindRelStarted);
   }
 
   // Fetch the list of classes personal
@@ -43,8 +48,7 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       final classes = await classService.getAllClassSchool();
       emit(ClassSchoolFetchSuccess(classes));
     } catch (e) {
-      emit(ClassSchoolFetchFailure(
-          "Failed to fetch classes: ${e.toString()}"));
+      emit(ClassSchoolFetchFailure("Failed to fetch classes: ${e.toString()}"));
     }
   }
 
@@ -68,11 +72,9 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       ClassSchoolCreateStarted event, Emitter<ClassState> emit) async {
     try {
       emit(ClassSchoolCreateInProgress());
-      await classService.insertSchoolClass(
-        event.name,
-        event.avatarUrl,
-      );
-      emit(ClassSchoolCreateSuccess());
+      final result = await classService.insertSchoolClass(event.name, event.avatarUrl);
+      emit(ClassSchoolCreateSuccess(result));
+      add(ClassSchoolFetchStarted());
     } on Exception catch (e) {
       emit(ClassSchoolCreateFailure(e.toString()));
     }
@@ -89,6 +91,43 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       emit(ClassUpdateSuccess());
     } on Exception catch (e) {
       emit(ClassUpdateFailure(e.toString()));
+    }
+  }
+
+  // Delete a class
+  Future<void> _onClassDeleteStarted(
+      ClassDeleteStarted event, Emitter<ClassState> emit) async {
+    try {
+      emit(ClassDeleteInProgress());
+      await classService.deleteClass(event.classId);
+      emit(ClassDeleteSuccess());
+      add(ClassSchoolFetchStarted());
+    } on Exception catch (e) {
+      emit(ClassDeleteFailure(e.toString()));
+    }
+  }
+
+  // Bind a class to a school
+  Future<void> _onClassSchoolBindRelStarted(
+      ClassSchoolBindRelStarted event, Emitter<ClassState> emit) async {
+    try {
+      emit(ClassSchoolBindRelInProgress());
+      await classService.bindRelationship(event.profileIds);
+      emit(ClassSchoolBindRelSuccess());
+    } on Exception catch (e) {
+      emit(ClassSchoolBindRelFailure(e.toString()));
+    }
+  }
+
+  // Unbind a class from a school
+  Future<void> _onClassSchoolUnBindRelStarted(
+      ClassSchoolUnBindRelStarted event, Emitter<ClassState> emit) async {
+    try {
+      emit(ClassSchoolUnBindRelInProgress());
+      await classService.bindRelationship(event.profileIds);
+      emit(ClassSchoolUnBindRelSuccess());
+    } on Exception catch (e) {
+      emit(ClassSchoolUnBindRelFailure(e.toString()));
     }
   }
 }

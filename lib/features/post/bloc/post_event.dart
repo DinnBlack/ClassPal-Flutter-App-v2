@@ -18,3 +18,10 @@ class PostCreateStarted extends PostEvent {
 
 // Post fetch
 class PostFetchStarted extends PostEvent {}
+
+// Post delete
+class PostDeleteStarted extends PostEvent {
+  final String newsId;
+
+  PostDeleteStarted( this.newsId);
+}

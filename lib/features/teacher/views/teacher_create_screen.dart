@@ -23,7 +23,6 @@ class TeacherCreateScreen extends StatefulWidget {
 class _TeacherCreateScreenState extends State<TeacherCreateScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneNumberController = TextEditingController();
 
   bool _isValid = false;
 
@@ -32,7 +31,6 @@ class _TeacherCreateScreenState extends State<TeacherCreateScreen> {
     super.initState();
     _nameController.addListener(_validateForm);
     _emailController.addListener(_validateForm);
-    _phoneNumberController.addListener(_validateForm);
   }
 
   void _validateForm() {
@@ -42,15 +40,10 @@ class _TeacherCreateScreenState extends State<TeacherCreateScreen> {
       final isEmailValid =
           Validators.validateEmail(_emailController.text) == null;
 
-      final isPhoneNumberValid =
-          Validators.validatePhone(_phoneNumberController.text) == null;
-
       _isValid = isNameValid &&
           _nameController.text.trim().isNotEmpty &&
           isEmailValid &&
-          _emailController.text.trim().isNotEmpty &&
-          isPhoneNumberValid &&
-          _phoneNumberController.text.trim().isNotEmpty;
+          _emailController.text.trim().isNotEmpty;
     });
   }
 
@@ -108,13 +101,6 @@ class _TeacherCreateScreenState extends State<TeacherCreateScreen> {
               controller: _emailController,
               validator: Validators.validateEmail,
             ),
-            const SizedBox(height: kMarginMd),
-            CustomTextField(
-              text: 'Số điện thoại',
-              isNumber: true,
-              controller: _phoneNumberController,
-              validator: Validators.validatePhone,
-            ),
             const SizedBox(height: kMarginLg),
             CustomButton(
               text: 'Thêm giáo viên',
@@ -134,9 +120,9 @@ class _TeacherCreateScreenState extends State<TeacherCreateScreen> {
   CustomAppBar _buildAppBar(BuildContext context) {
     return CustomAppBar(
       title: 'Thêm giáo viên mới',
-      leftWidget: IconButton(
-        icon: const Icon(FontAwesomeIcons.xmark),
-        onPressed: () => Navigator.pop(context),
+      leftWidget: GestureDetector(
+        child: const Icon(FontAwesomeIcons.xmark),
+        onTap: () => Navigator.pop(context),
       ),
     );
   }

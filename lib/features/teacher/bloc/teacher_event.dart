@@ -10,3 +10,15 @@ class TeacherCreateStarted extends TeacherEvent {
 }
 
 class TeacherFetchStarted extends TeacherEvent {}
+
+class TeacherCreateBatchStarted extends TeacherEvent {
+  final List<String> names;
+
+  TeacherCreateBatchStarted({required this.names});
+}
+
+class TeacherDeleteStarted extends TeacherEvent {
+  final String teacherId;
+
+  TeacherDeleteStarted({required this.teacherId});
+}

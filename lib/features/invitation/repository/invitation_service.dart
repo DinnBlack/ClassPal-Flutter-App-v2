@@ -28,7 +28,7 @@ class InvitationService extends ProfileService {
 
   // Thêm trường mới
   Future<bool> sendInvitationMails(
-      String role, String profileId, String email) async {
+      String role, String studentName, String email) async {
     try {
       await _initialize();
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
@@ -42,8 +42,12 @@ class InvitationService extends ProfileService {
       final currentProfile = await getCurrentProfile();
 
       print(role);
-      print(profileId);
+      print(studentName);
       print(email);
+
+      final parentProfile =  await insertProfile('p/h của $studentName', 'Parent', 1);
+
+      await addChildForParent(parentProfile!.id, '67a476161d0557e69365678f');
 
       final response = await _dio.post(
         '$_baseUrl/invitations/mail',
@@ -52,7 +56,7 @@ class InvitationService extends ProfileService {
             'groupId': currentProfile?.groupId,
             'groupType': currentProfile?.groupType,
             'role': role,
-            'profileId': profileId,
+            'profileId': parentProfile.id,
             'emails': [email],
             'expireMinutes': 1440
           },
@@ -65,8 +69,6 @@ class InvitationService extends ProfileService {
           },
         ),
       );
-
-      print(response.data['data']);
 
       if (response.statusCode == 201) {
         print('Success ${response.data['data']}');

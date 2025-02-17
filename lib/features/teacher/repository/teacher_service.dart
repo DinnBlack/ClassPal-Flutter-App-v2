@@ -31,6 +31,7 @@ class TeacherService extends ProfileService {
 
   Future<bool> insertTeacher(String displayName) async {
     try {
+      await _initialize();
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
@@ -43,6 +44,8 @@ class TeacherService extends ProfileService {
 
       final requestUrl =
           '$_baseUrl/profiles/${currentProfile?.groupType}/${currentProfile?.groupId}';
+
+      print(requestUrl);
 
       final headers = {
         'Content-Type': 'application/json',
@@ -70,6 +73,27 @@ class TeacherService extends ProfileService {
     } on DioException catch (e) {
       print('Error inserting teacher: ${e.response}');
       throw e;
+    }
+  }
+
+  Future<bool> insertBatchTeacher(List<String> names) async {
+    try {
+      final results = await Future.wait(
+        names.map((name) => insertTeacher(name)),
+      );
+      return results.every((result) => result == true);
+    } catch (e) {
+      print("Error inserting teachers: $e");
+      return false;
+    }
+  }
+
+  Future<bool> deleteTeacher(String teacherId) async {
+    try {
+      return deleteProfile(teacherId);
+    } catch (e) {
+      print("Error delete teachers: $e");
+      return false;
     }
   }
 
@@ -118,7 +142,8 @@ class TeacherService extends ProfileService {
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final requestUrl = '$_baseUrl/profiles/0/${currentProfile?.groupId}';
+      final requestUrl =
+          '$_baseUrl/profiles/${currentProfile?.groupType}/${currentProfile?.groupId}';
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,

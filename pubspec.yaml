@@ -74,6 +74,8 @@ dependencies:
   skeletons: ^0.0.3
   shimmer: ^2.0.0
   skeleton_loader: ^2.0.0+4
+  top_snackbar_flutter: ^3.2.0
+  random_color: ^1.0.6-nullsafety
 
 dev_dependencies:
   flutter_test:

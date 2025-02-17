@@ -14,6 +14,8 @@ class TeacherBloc extends Bloc<TeacherEvent, TeacherState> {
   TeacherBloc() : super(TeacherInitial()) {
     on<TeacherFetchStarted>(_onTeacherFetchStarted);
     on<TeacherCreateStarted>(_onTeacherCreateStarted);
+    on<TeacherCreateBatchStarted>(_onTeacherCreateBatchStarted);
+    on<TeacherDeleteStarted>(_onTeacherDeleteStarted);
   }
 
   // Fetch the list of teacher
@@ -36,10 +38,43 @@ class TeacherBloc extends Bloc<TeacherEvent, TeacherState> {
       await teacherService.insertTeacher(event.name);
       print("Teacher created successfully");
       emit(TeacherCreateSuccess());
+      add(TeacherFetchStarted());
     } catch (e) {
       print("Error creating teacher: $e");
       emit(TeacherCreateFailure(
           error: '"Failed to create teacher: ${e.toString()}"'));
+    }
+  }
+
+  // Teacher Create Batch
+  Future<void> _onTeacherCreateBatchStarted(
+      TeacherCreateBatchStarted event, Emitter<TeacherState> emit) async {
+    emit(TeacherCreateBatchInProgress());
+    try {
+      await teacherService.insertBatchTeacher(event.names);
+      print("Teachers created successfully");
+      emit(TeacherCreateBatchSuccess());
+      add(TeacherFetchStarted());
+    } catch (e) {
+      print("Error creating teachers: $e");
+      emit(TeacherCreateBatchFailure(
+          error: '"Failed to create teachers: ${e.toString()}"'));
+    }
+  }
+
+  // Teacher Delete
+  Future<void> _onTeacherDeleteStarted(TeacherDeleteStarted event,
+      Emitter<TeacherState> emit) async {
+    emit(TeacherDeleteInProgress());
+    try {
+      await teacherService.deleteTeacher(event.teacherId);
+      print("Teacher deleted successfully");
+      emit(TeacherDeleteSuccess());
+      add(TeacherFetchStarted());
+    } catch (e) {
+      print("Error deleting teacher: $e");
+      emit(TeacherDeleteFailure(
+          error: '"Failed to delete teacher: ${e.toString()}"'));
     }
   }
 }

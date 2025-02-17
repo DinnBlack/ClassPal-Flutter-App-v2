@@ -50,7 +50,11 @@ class ClassPersonalCreateFailure extends ClassState {
 // Create a new school Class
 class ClassSchoolCreateInProgress extends ClassState {}
 
-class ClassSchoolCreateSuccess extends ClassState {}
+class ClassSchoolCreateSuccess extends ClassState {
+  final ClassModel currentClass;
+
+  ClassSchoolCreateSuccess(this.currentClass);
+}
 
 class ClassSchoolCreateFailure extends ClassState {
   final String error;
@@ -67,4 +71,37 @@ class ClassUpdateFailure extends ClassState {
   final String error;
 
   ClassUpdateFailure(this.error);
+}
+
+// delete class
+class ClassDeleteInProgress extends ClassState {}
+
+class ClassDeleteSuccess extends ClassState {}
+
+class ClassDeleteFailure extends ClassState {
+  final String error;
+
+  ClassDeleteFailure(this.error);
+}
+
+// Create a new school Class
+class ClassSchoolBindRelInProgress extends ClassState {}
+
+class ClassSchoolBindRelSuccess extends ClassState {}
+
+class ClassSchoolBindRelFailure extends ClassState {
+  final String error;
+
+  ClassSchoolBindRelFailure(this.error);
+}
+
+// delete class
+class ClassSchoolUnBindRelInProgress extends ClassState {}
+
+class ClassSchoolUnBindRelSuccess extends ClassState {}
+
+class ClassSchoolUnBindRelFailure extends ClassState {
+  final String error;
+
+  ClassSchoolUnBindRelFailure(this.error);
 }

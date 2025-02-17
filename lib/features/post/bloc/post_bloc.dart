@@ -16,6 +16,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   PostBloc() : super(PostInitial()) {
     on<PostCreateStarted>(_onPostCreateStarted);
     on<PostFetchStarted>(_onPostFetchStarted);
+    on<PostDeleteStarted>(_onPostDeleteStarted);
   }
 
   // Insert a new post
@@ -41,6 +42,20 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       emit(PostFetchSuccess(posts));
     } catch (e) {
       emit(PostFetchFailure("Failed to fetch posts: ${e.toString()}"));
+    }
+  }
+
+  // Delete a post
+  Future<void> _onPostDeleteStarted(
+      PostDeleteStarted event, Emitter<PostState> emit) async {
+    emit(PostDeleteInProgress());
+    try {
+      await postService.deleteNews(event.newsId);
+      print("Post deleted successfully");
+      emit(PostDeleteSuccess());
+      add(PostFetchStarted());
+    } catch (e) {
+      emit(PostDeleteFailure("Failed to delete post: ${e.toString()}"));
     }
   }
 }

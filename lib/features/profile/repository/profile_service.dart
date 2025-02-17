@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:classpal_flutter_app/features/class/repository/class_service.dart';
 import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
@@ -8,6 +9,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http_parser/http_parser.dart';
 
+import '../../auth/models/role_model.dart';
+
 class ProfileService {
   final String _baseUrl =
       'https://cpserver.amrakk.rest/api/v1/academic-service';
@@ -15,7 +18,7 @@ class ProfileService {
   late PersistCookieJar _cookieJar;
 
   ProfileService() {
-    initialize();
+    _initialize();
   }
 
   // Lưu profile vào Shared Preferences
@@ -38,7 +41,7 @@ class ProfileService {
   }
 
   // Khởi tạo PersistCookieJar để lưu trữ cookie
-  Future<void> initialize() async {
+  Future<void> _initialize() async {
     final directory = await getApplicationDocumentsDirectory();
     final cookieStorage = FileStorage('${directory.path}/cookies');
     _cookieJar = PersistCookieJar(storage: cookieStorage);
@@ -71,8 +74,7 @@ class ProfileService {
   }
 
   // Lưu List<ProfileModel> vào SharedPreferences
-  Future<void> saveUserProfiles(
-      List<ProfileModel> profiles) async {
+  Future<void> saveUserProfiles(List<ProfileModel> profiles) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('profiles');
     final profilesJson =
@@ -95,10 +97,180 @@ class ProfileService {
     }
   }
 
+  Future<ProfileModel?> insertProfile(
+      String name, String role, int groupType) async {
+    try {
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      // Tạo headers với cookies
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final currentProfile = await getCurrentProfile();
+      final currentClass = await ClassService().getCurrentClass();
+
+      var responseUrl = '$_baseUrl/profiles/1/${currentClass?.id}';
+
+      if (groupType == 0) {
+        responseUrl = '$_baseUrl/profiles/0/${currentProfile?.id}';
+      }
+
+      print(responseUrl);
+      print(name);
+      print(role);
+
+      final response = await _dio.post(
+        responseUrl,
+        data: jsonEncode(
+          {
+            'displayName': name,
+            'roles': [role]
+          },
+        ),
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Cookie': cookieHeader,
+            'x-profile-id': currentProfile?.id,
+          },
+        ),
+      );
+
+      if (response.statusCode == 201) {
+        print('Create profile successfully: ${response.data}');
+        final List<dynamic> dataList = response.data['data'];
+        return ProfileModel.fromMap(dataList.first);
+      } else {
+        print('Create profile fail: ${response.data}');
+        return null;
+      }
+    } on DioException catch (e) {
+      print('Failed to create profile: ${e.response?.data}');
+      return null;
+    }
+  }
+
+  Future<bool> insertBatchProfile(
+      List<String> names, String role, int groupType) async {
+    try {
+
+      // Chạy các yêu cầu song song để cải thiện hiệu suất
+      final results = await Future.wait(
+        names.map((name) => insertProfile(name, role, groupType)),
+      );
+
+      // Kiểm tra nếu có ít nhất một profile tạo thành công
+      return results.any((profile) => profile != null);
+    } on DioException catch (e) {
+      print('Failed to create batch profiles: ${e.response?.data}');
+      return false;
+    }
+  }
+
+  Future<bool> deleteProfile(String profileId) async {
+    try {
+      await _initialize();
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      // Tạo headers với cookies
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final currentProfile = await getCurrentProfile();
+
+      print(profileId);
+
+      final response = await _dio.delete(
+        '$_baseUrl/profiles/$profileId',
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Cookie': cookieHeader,
+            'x-profile-id': currentProfile?.id,
+          },
+        ),
+      );
+
+      if (response.statusCode == 201) {
+        print('Delete profile successfully: ${response.data}');
+        final List<dynamic> dataList = response.data['data'];
+        return true;
+      } else {
+        print('Delete profile fail: ${response.data}');
+        return false;
+      }
+    } on DioException catch (e) {
+      print('Failed to delete profile: ${e.response?.data}');
+      return true;
+    }
+  }
+
+  // Hàm lấy thông tin profile của người dùng
+  Future<List<ProfileModel>?> getProfilesByGroup(int groupType) async {
+    try {
+      await _initialize();
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      // Tạo headers với cookies
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final currentProfile = await getCurrentProfile();
+      final currentClass = await ClassService().getCurrentClass();
+
+      print('getProfilesByGroup: ${currentClass!.id}');
+
+      var responseUrl = '$_baseUrl/profiles/1/${currentClass?.id}';
+
+      print('responseUrl: $responseUrl');
+
+      if (groupType == 0) {
+        responseUrl = '$_baseUrl/profiles/0/${currentClass?.id}';
+      }
+
+      final response = await _dio.get(
+        responseUrl,
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Cookie': cookieHeader,
+            'x-profile-id': currentProfile?.id,
+          },
+        ),
+      );
+
+      print('response: ${response.data}');
+
+      if (response.statusCode == 200) {
+        var profilesData = response.data['data'] as List;
+        List<ProfileModel> profiles = profilesData
+            .map((profile) => ProfileModel.fromMap(profile))
+            .toList();
+
+        return profiles;
+      } else {
+        print('Get profiles by group fail: ${response.data}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching profiles by group: $e');
+      return null;
+    }
+  }
+
   // Hàm lấy thông tin profile của người dùng
   Future<List<ProfileModel>> getProfileByUser() async {
     try {
-      await initialize();
+      await _initialize();
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
@@ -139,7 +311,7 @@ class ProfileService {
 
   Future<List<ProfileModel>> getProfilesByRole(List<String> roles) async {
     try {
-      await initialize();
+      await _initialize();
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         print('No cookies available for authentication');
@@ -148,7 +320,7 @@ class ProfileService {
 
       // Tạo headers với cookies
       final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
       // Xây dựng query string cho danh sách roles
       final rolesQuery = roles.map((role) => 'roles=$role').join('&');
@@ -181,7 +353,8 @@ class ProfileService {
 
         return profiles;
       } else {
-        print('Failed to fetch profile: ${response.statusCode} - ${response.statusMessage}');
+        print(
+            'Failed to fetch profile: ${response.statusCode} - ${response.statusMessage}');
         return [];
       }
     } catch (e, stacktrace) {
@@ -191,11 +364,10 @@ class ProfileService {
     }
   }
 
-
   // Hàm lấy thông tin profile của người dùng
   Future<ProfileModel?> getProfileById(String id) async {
     try {
-      await initialize();
+      await _initialize();
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
@@ -226,6 +398,105 @@ class ProfileService {
         return profile;
       } else {
         throw Exception('Failed to fetch profile: ${response.data}');
+      }
+    } catch (e) {
+      print('Error fetching profile: $e');
+      return null;
+    }
+  }
+
+  Future<List<ProfileModel>> getRelatedToProfile(String parentId) async {
+    try {
+      await _initialize();
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      final currentProfile = await getCurrentProfile();
+
+      // Tạo headers với cookies
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final response = await _dio.get(
+        '$_baseUrl/profiles/$parentId/related',
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Cookie': cookieHeader,
+            'x-profile-id': currentProfile?.id
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        var profileData = response.data['data'];
+
+        final studentRoleId = await getRoleIdByName('Student');
+
+        // Chuyển profileData thành danh sách các ProfileModel
+        List<ProfileModel> profiles = profileData
+            .map<ProfileModel>((data) => ProfileModel.fromMap(data))
+            .toList();
+
+        // Lọc danh sách các ProfileModel có chứa studentRoleId trong roles
+        List<ProfileModel> filteredProfiles = profiles
+            .where(
+              (profile) => profile.roles.contains(studentRoleId),
+            )
+            .toList();
+
+        return filteredProfiles;
+      } else {
+        throw Exception('Failed to fetch profile related: ${response.data}');
+      }
+    } catch (e) {
+      print('Error fetching profile related: $e');
+      return [];
+    }
+  }
+
+  // Hàm lấy thông tin profile của người dùng
+  Future<ProfileModel?> addChildForParent(
+      String parentId, String childId) async {
+    try {
+      await _initialize();
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      final currentProfile = await getCurrentProfile();
+
+      // Tạo headers với cookies
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final response = await _dio.post(
+        '$_baseUrl/profiles/$parentId/rels',
+        data: jsonEncode({
+          'childIds': [childId]
+        }),
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Cookie': cookieHeader,
+            'x-profile-id': currentProfile?.id
+          },
+        ),
+      );
+
+      print(response.data);
+
+      if (response.statusCode == 200) {
+        var profileData = response.data['data'];
+
+        ProfileModel profile = ProfileModel.fromMap(profileData);
+
+        return profile;
+      } else {
+        throw Exception('Failed to add profile: ${response.data}');
       }
     } catch (e) {
       print('Error fetching profile: $e');
@@ -279,6 +550,85 @@ class ProfileService {
     }
   }
 
+  Future<String?> getRoleIdByName(String roleName) async {
+    // Lấy danh sách vai trò từ SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? roleJsonList = prefs.getStringList('roles');
+
+    if (roleJsonList == null) {
+      print('Không tìm thấy danh sách roles trong SharedPreferences');
+      return null;
+    }
+
+    // Chuyển đổi danh sách JSON thành danh sách RoleModel
+    List<RoleModel> roles = roleJsonList
+        .map((roleJson) => RoleModel.fromMap(jsonDecode(roleJson)))
+        .toList();
+
+    // Tìm role ID theo roleName
+    for (var role in roles) {
+      if (role.name == roleName) {
+        return role.id;
+      }
+    }
+
+    print('Không tìm thấy role $roleName');
+    return null;
+  }
+
+  Future<void> updateProfile({
+    required String profileId,
+    String? name,
+    List<String>? roles,
+  }) async {
+    try {
+      // Lấy cookies từ PersistCookieJar
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      final currentProfile = await getCurrentProfile();
+      if (currentProfile == null || currentProfile.id.isEmpty) {
+        throw Exception('Failed to retrieve current profile');
+      }
+
+      // Tạo cookie header cho yêu cầu
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Cookie': cookieHeader,
+        'x-profile-id': currentProfile.id,
+      };
+
+      final requestUrl = '$_baseUrl/profiles/$profileId';
+
+      final Map<String, dynamic> data = {};
+      if (name != null) data['displayName'] = name;
+      if (roles != null) data['roles'] = roles;
+
+      if (data.isEmpty) {
+        throw Exception('No update data provided');
+      }
+
+      final response = await _dio.patch(
+        requestUrl,
+        data: jsonEncode(data),
+        options: Options(headers: headers),
+      );
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception(
+            'Failed to update profile: ${response.statusMessage ?? response.data}');
+      }
+    } catch (e) {
+      print('Error updating profile: $e');
+      throw e;
+    }
+  }
+
   Future<void> updateAvatar(String studentId, File imageFile) async {
     try {
       // Lấy cookies từ trình quản lý CookieJar
@@ -305,9 +655,6 @@ class ProfileService {
       List<String> parts = imageFile.path.split("/");
       String fileName = parts.last.replaceAll("'", "");
 
-      print('Response imageFile: $fileName');
-      print('Response requestUrl: $requestUrl');
-
       // Kiểm tra file có tồn tại không
       if (!imageFile.existsSync()) {
         throw Exception('File không tồn tại: $fileName');
@@ -318,10 +665,6 @@ class ProfileService {
       // Tạo FormData chứa file ảnh
       FormData formData = FormData.fromMap({"image": file});
 
-      print(formData.fields);
-
-      print('Response headers: $headers');
-
       // Gửi yêu cầu API
       final response = await _dio.patch(
         requestUrl,
@@ -331,9 +674,6 @@ class ProfileService {
         ),
       );
 
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Data: ${response.data}');
-
       if (response.statusCode == 200) {
         print("Avatar cập nhật thành công!");
         return response.data['data'];
@@ -341,10 +681,6 @@ class ProfileService {
         throw Exception('Lỗi cập nhật avatar: ${response.data}');
       }
     } on DioException catch (e) {
-      // print(e.response?.headers);
-      print(e.response?.requestOptions.data);
-      print(e.response?.data);
-      print(e.response?.statusCode);
       throw Exception(
           'Lỗi khi gửi yêu cầu cập nhật avatar: ${e.response?.data}');
     }

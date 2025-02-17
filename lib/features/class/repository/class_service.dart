@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
@@ -137,6 +138,8 @@ class ClassService extends ProfileService {
         ),
       );
 
+      print(response.data);
+
       if (response.statusCode == 200) {
         classes = (response.data['data'] as List<dynamic>)
             .map((profile) =>
@@ -155,7 +158,7 @@ class ClassService extends ProfileService {
   }
 
   // Insert personal class
-  Future<void> insertPersonalClass(String name, String? avatarUrl) async {
+  Future<void> insertPersonalClass(String name, File? avatarUrl) async {
     try {
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
@@ -184,9 +187,7 @@ class ClassService extends ProfileService {
         ),
       );
 
-      print(response.data);
-
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         return response.data['data'];
       } else {
         throw Exception('Failed to insert personal class: ${response.data}');
@@ -197,8 +198,7 @@ class ClassService extends ProfileService {
     }
   }
 
-  // Insert personal class
-  Future<void> insertSchoolClass(String name, String? avatarUrl) async {
+  Future<ClassModel> insertSchoolClass(String name, String? avatarUrl) async {
     try {
       await _initialize();
 
@@ -208,7 +208,7 @@ class ClassService extends ProfileService {
       }
 
       final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
       final finalAvatarUrl =
           avatarUrl ?? 'https://i.ibb.co/V9Znq7h/class-icon.png';
@@ -232,7 +232,11 @@ class ClassService extends ProfileService {
       );
 
       if (response.statusCode == 201) {
-        return response.data['data'];
+        // Use expand to extract and return the first class model from the list
+        final classData = (response.data['data'] as List)
+            .expand((data) => [ClassModel.fromMap(data)]).first;
+
+        return classData;
       } else {
         throw Exception('Failed to insert school class: ${response.data}');
       }
@@ -241,6 +245,9 @@ class ClassService extends ProfileService {
       throw e;
     }
   }
+
+
+
 
   Future<void> updateClass(String newName) async {
     try {
@@ -284,6 +291,95 @@ class ClassService extends ProfileService {
       }
     } catch (e) {
       print('Error updating class: $e');
+      throw e;
+    }
+  }
+
+  Future<bool> deleteClass(String classId) async {
+    try {
+      await _initialize();
+
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final currentProfile = await getCurrentProfile();
+
+      print(classId);
+
+      final requestUrl = '$_baseUrl/classes/$classId';
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Cookie': cookieHeader,
+        'x-profile-id': currentProfile?.id,
+      };
+
+      final response = await _dio.delete(
+        requestUrl,
+        options: Options(headers: headers),
+      );
+
+      print(response.statusCode);
+      print(response.data);
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print('Error updating class: $e');
+      return false;
+    }
+  }
+
+  // Insert personal class
+  Future<void> bindRelationship(List<String> profileIds) async {
+    try {
+      await _initialize();
+
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      final cookieHeader =
+      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final currentProfile = await getCurrentProfile();
+
+      final currentClass = await getCurrentClass();
+
+      final response = await _dio.post(
+        '$_baseUrl/classes/${currentClass?.id}/rels',
+        data: jsonEncode(
+          {
+            'profiles': profileIds
+          },
+        ),
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Cookie': cookieHeader,
+            'x-profile-id': currentProfile?.id,
+          },
+        ),
+      );
+
+      print(response.data);
+
+      if (response.statusCode == 200) {
+        return response.data['data'];
+      } else {
+        throw Exception('Failed to insert school class: ${response.data}');
+      }
+    } catch (e) {
+      print('Error inserting school class: $e');
       throw e;
     }
   }

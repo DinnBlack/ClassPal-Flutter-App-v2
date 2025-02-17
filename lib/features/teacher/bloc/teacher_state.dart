@@ -30,3 +30,25 @@ class TeacherFetchFailure extends TeacherState {
 
   TeacherFetchFailure(this.error);
 }
+
+// create batch teacher
+class TeacherCreateBatchInProgress extends TeacherState {}
+
+class TeacherCreateBatchSuccess extends TeacherState {}
+
+class TeacherCreateBatchFailure extends TeacherState {
+  final String error;
+
+  TeacherCreateBatchFailure({required this.error});
+}
+
+// delete teacher
+class TeacherDeleteInProgress extends TeacherState {}
+
+class TeacherDeleteSuccess extends TeacherState {}
+
+class TeacherDeleteFailure extends TeacherState {
+  final String error;
+
+  TeacherDeleteFailure({required this.error});
+}

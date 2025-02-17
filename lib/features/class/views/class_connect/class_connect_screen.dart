@@ -9,6 +9,7 @@ import 'class_connect_page/class_connect_student_page.dart';
 import 'class_connect_page/class_connect_teacher_page.dart';
 
 class ClassConnectScreen extends StatefulWidget {
+
   final int? pageIndex;
   const ClassConnectScreen({super.key, this.pageIndex = 0});
 

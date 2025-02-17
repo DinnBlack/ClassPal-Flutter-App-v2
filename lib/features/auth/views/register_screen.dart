@@ -3,6 +3,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import '../../../core/config/app_constants.dart';
 import '../../../core/utils/app_text_style.dart';
 import '../../../core/utils/validators.dart';
@@ -174,9 +176,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   if (state is AuthRegisterSuccess) {
                     Navigator.pop(context);
+                    showTopSnackBar(
+                      Overlay.of(context),
+                      const CustomSnackBar.success(
+                        message: 'Đăng ký thành công!',
+                      ),
+                    );
                   } else if (state is AuthRegisterFailure) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Đăng ký thất bại')),
+                    showTopSnackBar(
+                      Overlay.of(context),
+                      const CustomSnackBar.error(
+                        message: 'Đăng ký không thành công! Vui lòng kiểm tra lại.',
+                      ),
                     );
                   }
                 },

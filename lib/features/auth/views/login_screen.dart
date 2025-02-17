@@ -5,6 +5,8 @@ import 'package:classpal_flutter_app/features/auth/views/widgets/custom_button_g
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import '../../../core/config/app_constants.dart';
 import '../../../core/utils/app_text_style.dart';
 import '../../../core/utils/validators.dart';
@@ -30,6 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailOrPhoneNumberController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isValid = false;
+  late AnimationController localAnimationController;
 
   @override
   void initState() {
@@ -61,7 +64,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _openGoogleSignIn() async {
-    final Uri googleSignInUrl = Uri.parse('https://cpserver.amrakk.rest/api/v1/auth/google');
+    final Uri googleSignInUrl =
+        Uri.parse('https://cpserver.amrakk.rest/api/v1/auth/google');
     print(googleSignInUrl);
     final Uri gmailAppUri = Uri.parse('mailto:');
 
@@ -71,7 +75,6 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       // Nếu không có app Gmail, mở URL đăng nhập Google
       if (await canLaunchUrl(googleSignInUrl)) {
-
         await launchUrl(googleSignInUrl, mode: LaunchMode.externalApplication);
       } else {
         throw Exception('Không thể mở đường dẫn đăng nhập Google.');
@@ -152,12 +155,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (state is AuthLoginSuccess) {
                     CustomPageTransition.navigateTo(
                         context: context,
-                        page: const SelectRoleScreen(
-                        ),
+                        page: const SelectRoleScreen(),
                         transitionType: PageTransitionType.slideFromRight);
                   } else if (state is AuthLoginFailure) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Đăng nhập thất bại')),
+                    showTopSnackBar(
+                      Overlay.of(context),
+                      const CustomSnackBar.error(
+                        message: 'Đăng nhập không thành công. Vui lòng kiểm tra lại.',
+                      ),
                     );
                   }
                 },
@@ -226,7 +231,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               const SizedBox(height: kMarginLg),
-               CustomButtonGoogle(
+              CustomButtonGoogle(
                 onTap: () {
                   _openGoogleSignIn();
                 },
@@ -238,5 +243,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
-
-

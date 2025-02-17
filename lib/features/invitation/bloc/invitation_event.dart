@@ -5,9 +5,9 @@ sealed class InvitationEvent {}
 
 class InvitationCreateStarted extends InvitationEvent {
   final String role;
-  final String profileId;
+  final String studentName;
   final String email;
 
   InvitationCreateStarted(
-      {required this.role, required this.profileId, required this.email});
+      {required this.role, required this.studentName, required this.email});
 }

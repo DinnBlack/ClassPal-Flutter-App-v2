@@ -1,13 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:classpal_flutter_app/features/class/repository/class_service.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../auth/models/role_model.dart';
 import '../../profile/model/profile_model.dart';
 import '../../profile/repository/profile_service.dart';
 
@@ -32,172 +29,49 @@ class StudentService extends ProfileService {
 
   Future<bool> insertStudent(String displayName) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final currentProfile = await getCurrentProfile();
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
-      final requestUrl =
-          '$_baseUrl/profiles/${currentProfile?.groupType}/${currentProfile?.groupId}';
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
-
-      final response = await _dio.post(
-        requestUrl,
-        data: jsonEncode(
-          {
-            'displayName': displayName,
-            'roles': ['Student']
-          },
-        ),
-        options: Options(headers: headers),
-      );
-
-      if (response.statusCode == 201) {
-        // If the student is created successfully, return true
+      final result = await insertProfile(displayName, 'Student', 1);
+      if (result != null) {
         return true;
       } else {
-        throw Exception('Failed to insert student: ${response.data}');
+        return false;
       }
-    } on DioException catch (e) {
-      print('Error inserting student: ${e.response}');
-      throw e;
+    } catch (e) {
+      print('Error inserting student: $e');
+      return false;
     }
   }
 
   Future<bool> deleteStudent(String studentId) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final currentProfile = await getCurrentProfile();
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
-      final requestUrl = '$_baseUrl/profiles/$studentId';
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
-
-      final response = await _dio.delete(
-        requestUrl,
-        options: Options(headers: headers),
-      );
-
-      if (response.statusCode == 200) {
-        // If the student is deleted successfully, return true
-        return true;
-      } else {
-        throw Exception('Failed to delete student: ${response.data}');
-      }
-    } on DioException catch (e) {
-      print('Error deleting student: ${e.response}');
-      throw e;
+      return await deleteProfile(studentId);
+    } catch (e) {
+      print('Error delete student: $e');
+      return false;
     }
   }
 
-  Future<List<ProfileModel>> getAllStudentInClass() async {
-    List<ProfileModel> students = [];
-
+  Future<List<ProfileModel>?> getStudents() async {
     try {
-      await _initialize();
 
-      // Lấy danh sách vai trò từ SharedPreferences
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String>? roleJsonList = prefs.getStringList('roles');
+      final profiles = await getProfilesByGroup(1);
 
-      if (roleJsonList == null) {
-        print('Không tìm thấy danh sách roles trong SharedPreferences');
-        return [];
-      }
+      print(profiles);
 
-      List<RoleModel> roles = roleJsonList
-          .map((roleJson) => RoleModel.fromMap(jsonDecode(roleJson)))
-          .toList();
-
-      // Tìm role ID của Student
-      String? studentRoleId;
-      for (var role in roles) {
-        if (role.name == "Student") {
-          studentRoleId = role.id;
-          break;
-        }
-      }
+      final studentRoleId = await getRoleIdByName('Student');
 
       if (studentRoleId == null) {
-        print('Không tìm thấy role Student');
+        print("Không tìm thấy role Parent");
         return [];
       }
 
-      // Lấy cookies từ PersistCookieJar
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
+      // Lọc danh sách các hồ sơ có vai trò là Student
+      final studentProfiles = profiles
+          ?.where((profile) => profile.roles.contains(studentRoleId))
+          .toList();
 
-      final currentProfile = await getCurrentProfile();
-
-      // Tạo cookie header cho yêu cầu
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
-      String requestUrl;
-
-      if (currentProfile?.groupType == 0) {
-        requestUrl =
-            '$_baseUrl/profiles/${currentProfile?.groupType}/${currentProfile?.groupId}';
-      } else {
-        requestUrl =
-            '$_baseUrl/profiles/${currentProfile?.groupType}/${currentProfile?.groupId}';
-      }
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
-
-      final response = await _dio.get(
-        requestUrl,
-        options: Options(headers: headers),
-      );
-
-      if (response.statusCode == 200) {
-        final data = response.data['data'] as List;
-        List<ProfileModel> allProfiles = data
-            .map((profileData) => ProfileModel.fromMap(profileData))
-            .toList();
-
-        print(data);
-
-        // Lọc danh sách chỉ chứa học sinh
-        students = allProfiles
-            .where((profile) => profile.roles.contains(studentRoleId))
-            .toList();
-
-        return students;
-      } else {
-        print(
-            'Lỗi khi lấy dữ liệu: Mã lỗi ${response.statusCode}, Thông báo: ${response.data}');
-        return [];
-      }
+      return studentProfiles;
     } catch (e) {
-      print('Error fetching student by ID: $e');
+      print("Lỗi khi lấy danh sách phụ huynh: $e");
       return [];
     }
   }
@@ -260,43 +134,10 @@ class StudentService extends ProfileService {
   Future<void> updateStudent(
       String studentId, String? newName, File? file) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-      final currentProfile = await getCurrentProfile();
-
-      final headers = {
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
-
-      // Kiểm tra nếu cả `newName` và `file` đều null -> Không làm gì cả
-      if (newName == null && file == null) {
-        throw Exception('Both newName and file cannot be null');
-      }
-
-
-      // Cập nhật tên nếu `newName` không null
+      if (newName == null && file == null) return;
       if (newName != null) {
-        final requestUrl = '$_baseUrl/profiles/$studentId';
-        final response = await _dio.patch(
-          requestUrl,
-          data: jsonEncode({'displayName': newName}),
-          options: Options(
-              headers: {...headers, 'Content-Type': 'application/json'}),
-        );
-
-        if (response.statusCode != 200) {
-          throw Exception('Failed to update name: ${response.data}');
-        } else {
-        }
+        await updateProfile(profileId: studentId, name: newName);
       }
-
-      // Cập nhật ảnh đại diện nếu `file` không null
       if (file != null) {
         await updateAvatar(studentId, file);
       }

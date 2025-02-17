@@ -1,5 +1,6 @@
 import 'package:classpal_flutter_app/features/class/repository/class_service.dart';
 import 'package:classpal_flutter_app/features/class/views/class_create_screen.dart';
+import 'package:classpal_flutter_app/features/teacher/views/teacher_create_batch_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -56,13 +57,26 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
       context,
       [
         'Thêm lớp học',
+        'Thêm lớp đồng loạt',
         'Thêm giáo viên',
+        'Thêm giáo viên đồng loạt'
       ],
       [
         () {
           CustomPageTransition.navigateTo(
             context: context,
-            page: const ClassCreateScreen(isClassSchoolCreateView: true,),
+            page: const ClassCreateScreen(
+              isClassSchoolCreateView: true,
+            ),
+            transitionType: PageTransitionType.slideFromBottom,
+          );
+        },
+        () {
+          CustomPageTransition.navigateTo(
+            context: context,
+            page: const ClassCreateScreen(
+              isClassSchoolCreateView: true,
+            ),
             transitionType: PageTransitionType.slideFromBottom,
           );
         },
@@ -70,6 +84,13 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
           CustomPageTransition.navigateTo(
             context: context,
             page: const TeacherCreateScreen(),
+            transitionType: PageTransitionType.slideFromBottom,
+          );
+        },
+        () {
+          CustomPageTransition.navigateTo(
+            context: context,
+            page: const TeacherCreateBatchScreen(),
             transitionType: PageTransitionType.slideFromBottom,
           );
         },
@@ -132,7 +153,20 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
   }
 
   Widget _buildClassesTab() {
-    return const ClassListScreen(isClassSchoolView: true,);
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
+      child: Column(
+        children: [
+          SizedBox(height: kMarginMd),
+          Expanded(
+            child: ClassListScreen(
+              isClassSchoolView: true,
+            ),
+          ),
+          SizedBox(height: kMarginMd),
+        ],
+      ),
+    );
   }
 
   Widget _buildTeachersTab() {

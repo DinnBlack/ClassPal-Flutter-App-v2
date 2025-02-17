@@ -3,6 +3,7 @@ import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
 import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
 import 'package:classpal_flutter_app/features/student/views/student_edit_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../core/widgets/custom_tab_bar.dart';
@@ -11,6 +12,7 @@ import '../../../core/widgets/custom_page_transition.dart';
 import '../../class/sub_features/grade/views/grade_student_list_screen.dart';
 import '../../class/sub_features/subject/views/subject_list_screen.dart';
 import '../../class/views/class_connect/class_connect_screen.dart';
+import '../bloc/student_bloc.dart';
 
 class StudentDashboardScreen extends StatefulWidget {
   final ProfileModel student;
@@ -56,7 +58,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
         'Xóa học sinh',
       ],
       [
-        () {
+            () {
           CustomPageTransition.navigateTo(
             context: context,
             page: StudentEditScreen(
@@ -65,7 +67,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             transitionType: PageTransitionType.slideFromBottom,
           );
         },
-        () {
+            () {
           CustomPageTransition.navigateTo(
             context: context,
             page: const ClassConnectScreen(
@@ -73,6 +75,9 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             ),
             transitionType: PageTransitionType.slideFromBottom,
           );
+        },
+            () {
+          _showDeleteConfirmationDialog(context, widget.student);
         },
       ],
     );
@@ -142,6 +147,38 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
           _showFeatureDialog(context);
         },
       ),
+    );
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context,
+      ProfileModel student) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Xác nhận xóa"),
+          content: Text(
+              "Bạn có chắc muốn hủy bỏ học sinh '${student
+                  .displayName}' không?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Hủy", style: TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: () {
+                context
+                    .read<StudentBloc>()
+                    .add(StudentDeleteStarted(studentId: student.id));
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              child:
+              const Text("Xác nhận", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
     );
   }
 }

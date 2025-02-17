@@ -1,3 +1,4 @@
+import 'package:classpal_flutter_app/features/post/views/widgets/custom_post_create_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/config/app_constants.dart';
@@ -27,18 +28,40 @@ class _PostListScreenState extends State<PostListScreen> {
     return BlocBuilder<PostBloc, PostState>(
       builder: (context, state) {
         if (state is PostFetchInProgress) {
-          return _buildSkeletonLoading();
+          return SingleChildScrollView(child: _buildSkeletonLoading());
         }
         if (state is PostFetchSuccess) {
           if (state.posts.isEmpty) {
-            return _buildEmptyPostView();
+            return Expanded(child: _buildEmptyPostView());
           }
           return ListView.separated(
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: state.posts.length,
+            itemCount: state.posts.length + 1,
             itemBuilder: (context, index) {
-              return CustomPostListItem(post: state.posts[index]);
+              if (index == 0) {
+                return const Column(
+                  children: [
+                    SizedBox(
+                      height: kMarginLg,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
+                      child: PostCreateButton(),
+                    ),
+                    SizedBox(
+                      height: kMarginLg,
+                    ),
+                  ],
+                );
+              }
+              return Column(
+                children: [
+                  CustomPostListItem(post: state.posts[index - 1]),
+                  const SizedBox(
+                    height: kMarginLg,
+                  ),
+                ],
+              );
             },
             separatorBuilder: (context, index) {
               return Container(

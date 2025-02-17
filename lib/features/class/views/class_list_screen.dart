@@ -45,12 +45,11 @@ class _ClassListScreenState extends State<ClassListScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<ClassBloc, ClassState>(
       builder: (context, state) {
-        if (state is ClassPersonalFetchInProgress ||
-            state is ClassSchoolFetchInProgress) {
+        if (state is ClassPersonalFetchInProgress) {
           return _buildSkeletonLoading();
-        } else if (state is ClassPersonalFetchFailure ||
-            state is ClassSchoolFetchFailure) {
-          // return _buildErrorView(state.error);
+        }
+        if (state is ClassSchoolFetchInProgress) {
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (state is ClassSchoolFetchSuccess) {
@@ -89,7 +88,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
           subtitle: classesText,
           onTap: () async {
             await ProfileService().saveCurrentProfile(profile);
-
+            await ClassService().saveCurrentClass(currentClass);
             CustomPageTransition.navigateTo(
                 context: context,
                 page: ClassScreen(
@@ -105,36 +104,28 @@ class _ClassListScreenState extends State<ClassListScreen> {
 
   Widget _buildListClassSchoolView() {
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
       shrinkWrap: true,
-      itemCount: classes.length + 2,
+      itemCount: classes.length,
       itemBuilder: (context, index) {
-        if (index == 0) {
-          return const SizedBox(height: kMarginMd);
-        } else if (index == classes.length + 1) {
-          return const SizedBox(height: kMarginMd);
-        } else {
-          final currentClass = classes[index - 1];
-          return CustomListItem(
-            onTap: () async {
-              await ClassService().saveCurrentClass(currentClass);
-
-              CustomPageTransition.navigateTo(
-                  context: context,
-                  page: ClassScreen(
-                    currentClass: currentClass,
-                  ),
-                  transitionType: PageTransitionType.slideFromRight);
-            },
-            title: currentClass.name,
-            leading: const CustomAvatar(
-              imageAsset: 'assets/images/class.jpg',
-            ),
-            hasTrailingArrow: true,
-          );
-        }
+        final currentClass = classes[index];
+        return CustomListItem(
+          onTap: () async {
+            await ClassService().saveCurrentClass(currentClass);
+            CustomPageTransition.navigateTo(
+                context: context,
+                page: ClassScreen(
+                  currentClass: currentClass,
+                ),
+                transitionType: PageTransitionType.slideFromRight);
+          },
+          title: currentClass.name,
+          leading: const CustomAvatar(
+            imageAsset: 'assets/images/class.jpg',
+          ),
+          hasTrailingArrow: true,
+        );
       },
-      separatorBuilder: (context, index) => const SizedBox(height: kMarginLg),
+      separatorBuilder: (context, index) => const SizedBox(height: kMarginMd),
     );
   }
 
@@ -143,8 +134,10 @@ class _ClassListScreenState extends State<ClassListScreen> {
       future: ProfileService().getUserProfiles(),
       builder: (context, snapshot) {
         int itemCount = 1;
-        if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-          itemCount = snapshot.data!.where((profile) => profile.groupType == 1).length;
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
+          itemCount =
+              snapshot.data!.where((profile) => profile.groupType == 1).length;
           itemCount = itemCount > 0 ? itemCount : 1;
         }
 
@@ -155,12 +148,12 @@ class _ClassListScreenState extends State<ClassListScreen> {
           itemBuilder: (context, index) => const SkeletonLoader(
             builder: CustomListItemSkeleton(),
           ),
-          separatorBuilder: (context, index) => const SizedBox(height: kMarginMd),
+          separatorBuilder: (context, index) =>
+              const SizedBox(height: kMarginMd),
         );
       },
     );
   }
-
 
   Widget _buildEmptyClassView() {
     return CustomListItem(

@@ -20,7 +20,7 @@ class InvitationBloc extends Bloc<InvitationEvent, InvitationState> {
       emit(InvitationCreateInProgress());
       await invitationService.sendInvitationMails(
         event.role,
-        event.profileId,
+        event.studentName,
         event.email,
       );
       emit(InvitationCreateSuccess());

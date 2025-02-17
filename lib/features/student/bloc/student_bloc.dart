@@ -26,8 +26,8 @@ class StudentBloc extends Bloc<StudentEvent, StudentState> {
       StudentFetchStarted event, Emitter<StudentState> emit) async {
     emit(StudentFetchInProgress());
     try {
-      final students = await studentService.getAllStudentInClass();
-      emit(StudentFetchSuccess(students));
+      final students = await studentService.getStudents();
+      emit(StudentFetchSuccess(students!));
     } catch (e) {
       emit(StudentFetchFailure("Failed to fetch students: ${e.toString()}"));
     }

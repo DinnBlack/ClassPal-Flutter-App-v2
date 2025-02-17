@@ -3,6 +3,8 @@ import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import '../../../core/widgets/custom_loading_dialog.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../bloc/student_bloc.dart';
@@ -42,12 +44,21 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
           }
 
           if (state is StudentCreateSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Tạo học sinh Thành công')),
+            showTopSnackBar(
+              Overlay.of(context),
+              const CustomSnackBar.success(
+                message: 'Tạo học sinh thành công!',
+              ),
             );
           } else if (state is StudentCreateFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Tạo học sinh thất bại')),
+            );
+            showTopSnackBar(
+              Overlay.of(context),
+              const CustomSnackBar.error(
+                message: 'Tạo học sinh thất bại!',
+              ),
             );
           }
         },
@@ -71,7 +82,6 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
             onChanged: _updateHasText,
             suffixIcon: InkWell(
               onTap: () {
-                // Add event to start student creation
                 context
                     .read<StudentBloc>()
                     .add(StudentCreateStarted(name: _controller.text));

@@ -16,6 +16,7 @@ class PostCreateFailure extends PostState {
   PostCreateFailure(this.error);
 }
 
+// Post update
 class PostFetchInProgress extends PostState {}
 
 class PostFetchSuccess extends PostState {
@@ -28,4 +29,15 @@ class PostFetchFailure extends PostState {
   final String error;
 
   PostFetchFailure(this.error);
+}
+
+// Post delete
+class PostDeleteInProgress extends PostState {}
+
+class PostDeleteSuccess extends PostState {}
+
+class PostDeleteFailure extends PostState {
+  final String error;
+
+  PostDeleteFailure(this.error);
 }

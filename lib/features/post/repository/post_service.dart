@@ -71,7 +71,9 @@ class PostService extends ProfileService {
         options: Options(headers: headers),
       );
 
-      if (response.statusCode == 200) {
+      print(response.statusCode);
+
+      if (response.statusCode == 201) {
         print("News inserted successfully!");
         return response.data['data'];
       } else {
@@ -86,7 +88,6 @@ class PostService extends ProfileService {
   Future<List<PostModel>> getGroupNews() async {
     try {
       await _initialize();
-
 
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
@@ -136,6 +137,35 @@ class PostService extends ProfileService {
     } catch (e) {
       print('Lỗi khi lấy tin tức nhóm: $e');
       return [];
+    }
+  }
+
+  Future<void> deleteNews(String newsId) async {
+    try {
+      await _initialize();
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+      final currentProfile = await getCurrentProfile();
+      final requestUrl = '$_baseUrl/news/${currentProfile?.groupId}/$newsId';
+      final headers = {
+        'Cookie': cookieHeader,
+        'x-profile-id': currentProfile?.id,
+      };
+      final response = await _dio.delete(
+        requestUrl,
+        options: Options(headers: headers),
+      );
+      if (response.statusCode == 200) {
+        print("News deleted successfully!");
+      } else {
+        throw Exception('Error deleting news: ${response.data}');
+      }
+    } catch (e) {
+      print('Error deleting news: $e');
     }
   }
 }

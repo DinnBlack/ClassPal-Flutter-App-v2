@@ -18,7 +18,6 @@ class _GroupListScreenState extends State<GroupListScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<GroupBloc>().add(GroupFetchStarted());
   }
 
   @override

@@ -63,7 +63,6 @@ class _StudentListScreenState extends State<StudentListScreen> {
     if (widget.studentsInGroup != null) {
       selectedStudentIds = widget.studentsInGroup!.map((s) => s.id).toList();
     }
-    context.read<StudentBloc>().add(StudentFetchStarted());
   }
 
   @override

@@ -1,7 +1,5 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
-import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
-import 'package:classpal_flutter_app/features/class/sub_features/roll_call/models/roll_call_session_model.dart';
 import 'package:classpal_flutter_app/features/student/views/student_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

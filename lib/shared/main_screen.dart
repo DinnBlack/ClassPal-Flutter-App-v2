@@ -67,7 +67,7 @@ class _MainScreenState extends State<MainScreen> {
         view = StudentView(user: user!);
         break;
       case 'parent':
-        view = ParentView();
+        view = const ParentView();
         break;
       default:
         view = PrincipalView(user: user!);

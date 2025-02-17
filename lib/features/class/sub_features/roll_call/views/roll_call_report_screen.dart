@@ -1,3 +1,4 @@
+import 'package:classpal_flutter_app/core/widgets/custom_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -83,7 +84,6 @@ class _RollCallReportScreenState extends State<RollCallReportScreen> {
         children: [
           _buildWeekHeader(),
           _buildWeekSelector(weekDays),
-          const SizedBox(height: 20),
           Expanded(
             child: BlocBuilder<RollCallBloc, RollCallState>(
               builder: (context, state) {
@@ -96,11 +96,21 @@ class _RollCallReportScreenState extends State<RollCallReportScreen> {
 
                   return entriesForDay.isEmpty
                       ? const Center(child: Text("Không có dữ liệu điểm danh."))
-                      : ListView.builder(
+                      : ListView.separated(
                           itemCount: entriesForDay.length,
+                          padding: const EdgeInsets.symmetric(vertical: kPaddingMd),
                           itemBuilder: (context, index) {
-                            return _buildRollCallItem(entriesForDay[index]);
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+                              child: _buildRollCallItem(entriesForDay[index]),
+                            );
                           },
+                          separatorBuilder: (context, index) => Container(
+                            height: 1,
+                            color: kGreyMediumColor,
+                            margin:
+                                const EdgeInsets.symmetric(vertical: kMarginMd),
+                          ),
                         );
                 } else if (state is RollCallFetchByDateRangeFailure) {
                   return Center(child: Text(state.error));
@@ -127,7 +137,7 @@ class _RollCallReportScreenState extends State<RollCallReportScreen> {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Colors.blueAccent,
+              color: kPrimaryColor,
             ),
           ),
           _buildArrowButton(Icons.arrow_forward, _nextWeek),
@@ -171,11 +181,11 @@ class _RollCallReportScreenState extends State<RollCallReportScreen> {
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         decoration: BoxDecoration(
           color: isSelected
-              ? Colors.blueAccent
+              ? kPrimaryColor
               : (isToday ? Colors.lightBlue.shade100 : Colors.white),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? Colors.blue : Colors.grey.shade300,
+            color: isSelected ? kPrimaryColor : Colors.grey.shade300,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -206,73 +216,46 @@ class _RollCallReportScreenState extends State<RollCallReportScreen> {
   }
 
   Widget _buildRollCallItem(RollCallEntryModel entry) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Avatar + trạng thái
-            CircleAvatar(
-              radius: 28,
-              backgroundColor: _getStatusColor(entry.status).withOpacity(0.2),
-              child: Icon(
-                _getStatusIcon(entry.status),
-                color: _getStatusColor(entry.status),
-                size: 30,
-              ),
-            ),
-            const SizedBox(width: 12),
-
-            // Thông tin học sinh
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    entry.studentName ?? "Chưa rõ tên",
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.access_time, size: 16, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Text(
-                        DateFormat('HH:mm, dd/MM/yyyy').format(entry.createdAt),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Trạng thái (hiển thị bằng Chip)
-            Chip(
-              label: Text(
-                _getStatusText(entry.status),
-                style: const TextStyle(color: Colors.white),
-              ),
-              backgroundColor: _getStatusColor(entry.status),
-            ),
-          ],
+    return CustomListItem(
+      isAnimation: false,
+      title: entry.studentName,
+      subtitle: DateFormat('HH:mm, dd/MM/yyyy').format(entry.createdAt),
+      leading: CircleAvatar(
+        radius: 28,
+        backgroundColor: _getStatusColor(entry.status).withOpacity(0.2),
+        child: Icon(
+          _getStatusIcon(entry.status),
+          color: _getStatusColor(entry.status),
+          size: 30,
         ),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Chip(
+            label: Text(
+              _getStatusText(entry.status),
+              style: const TextStyle(color: Colors.white),
+            ),
+            backgroundColor: _getStatusColor(entry.status),
+          ),
+          const SizedBox(width: kMarginMd,),
+          GestureDetector(
+            child: const Icon(Icons.more_vert),
+            onTap: () {
+              _showOptions(entry);
+            },
+          ),
+        ],
       ),
     );
   }
 
+// Hàm để hiển thị các lựa chọn khi nhấn nút "..."
+  void _showOptions(RollCallEntryModel entry) {
+    // Ví dụ: Hiển thị dialog, menu, hoặc thực hiện các hành động khác
+    print("Options for student: ${entry.studentName}");
+  }
 
   // Hàm lấy biểu tượng theo trạng thái
   IconData _getStatusIcon(RollCallStatus status) {
@@ -298,7 +281,7 @@ class _RollCallReportScreenState extends State<RollCallReportScreen> {
       case RollCallStatus.late:
         return Colors.orange;
       case RollCallStatus.excused:
-        return Colors.blue;
+        return kPrimaryColor;
     }
   }
 
@@ -331,7 +314,7 @@ class _RollCallReportScreenState extends State<RollCallReportScreen> {
 
   Widget _buildArrowButton(IconData icon, VoidCallback onPressed) {
     return IconButton(
-      icon: Icon(icon, color: Colors.blueAccent, size: 30),
+      icon: Icon(icon, color: kPrimaryColor, size: 30),
       onPressed: onPressed,
     );
   }

@@ -2,10 +2,13 @@ import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view.dart';
 import '../../../../../../core/widgets/custom_avatar.dart';
+import '../../../../core/widgets/custom_feature_dialog.dart';
+import '../../bloc/post_bloc.dart';
 import '../../models/post_model.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -26,6 +29,51 @@ class CustomPostListItem extends StatefulWidget {
 }
 
 class _CustomPostListItemState extends State<CustomPostListItem> {
+  void _showFeatureDialog(BuildContext context) {
+    showCustomFeatureDialog(
+      context,
+      [
+        'Xóa bài viết',
+        'Chỉnh sửa bài viết',
+      ],
+      [
+        () {
+          _showDeleteConfirmationDialog(context);
+        },
+        () {
+          print('chinh sua');
+        },
+      ],
+    );
+  }
+
+  void _showDeleteConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Xác nhận xóa"),
+          content: const Text("Bạn có chắc chắn muốn xóa bài viết này không?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Đóng hộp thoại
+              },
+              child: const Text("Hủy"),
+            ),
+            TextButton(
+              onPressed: () {
+                context.read<PostBloc>().add(PostDeleteStarted(widget.post.id));
+                Navigator.pop(context); // Đóng hộp thoại
+              },
+              child: const Text("Xóa", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   String formatDate(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
@@ -64,7 +112,7 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
               padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
               child: Row(
                 children: [
-                  CustomAvatar(imageUrl: widget.post.creator.avatarUrl),
+                  CustomAvatar(profile: widget.post.creator),
                   const SizedBox(width: kMarginMd),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +129,9 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
                   ),
                   const Spacer(),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      _showFeatureDialog(context);
+                    },
                     child: const Icon(FontAwesomeIcons.ellipsis),
                   ),
                 ],
@@ -95,9 +145,11 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
               ),
             ),
             if (widget.post.imageUrl != null &&
-                widget.post.imageUrl!.isNotEmpty )
+                widget.post.imageUrl!.isNotEmpty)
               Padding(
-                padding:  widget.disableOnTap ? const EdgeInsets.only(bottom: 0) : const EdgeInsets.only(bottom: kMarginMd),
+                padding: widget.disableOnTap
+                    ? const EdgeInsets.only(bottom: 0)
+                    : const EdgeInsets.only(bottom: kMarginMd),
                 child: SizedBox(
                   height: 300,
                   child: GestureDetector(

@@ -104,15 +104,15 @@ class ProfileModel {
 
   factory ProfileModel.fromMap(Map<String, dynamic> map) {
     return ProfileModel(
-      id: map['id'] ?? map['_id'] ?? '',  // Sử dụng 'id' nếu có, nếu không thì dùng '_id'
-      displayName: map['displayName'] as String,
-      avatarUrl: map['avatarUrl'] as String,
-      userId: map['userId'] != null ? map['userId'] as String : null,  // Ensure userId can be null
-      groupId: map['groupId'] as String,
-      groupType: map['groupType'] as int,
-      roles: List<String>.from(map['roles'] as List),
-      updatedAt: DateTime.parse(map['updatedAt'] as String),
-      createdAt: DateTime.parse(map['createdAt'] as String),
+      id: map['id'] ?? map['_id'] ?? '', // Tránh null cho id
+      displayName: map['displayName'] ?? '', // Tránh null cho displayName
+      avatarUrl: map['avatarUrl'] ?? '', // Tránh null cho avatarUrl
+      userId: map['userId'] as String?, // Không ép kiểu nếu null
+      groupId: map['groupId'] ?? '', // Tránh null cho groupId
+      groupType: map['groupType'] ?? 0, // Nếu null, mặc định là 0
+      roles: (map['roles'] as List?)?.map((e) => e.toString()).toList() ?? [], // Xử lý roles
+      updatedAt: DateTime.tryParse(map['updatedAt'] ?? '') ?? DateTime.now(), // Tránh lỗi DateTime null
+      createdAt: DateTime.tryParse(map['createdAt'] ?? '') ?? DateTime.now(), // Tránh lỗi DateTime null
     );
   }
 

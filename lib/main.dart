@@ -15,6 +15,7 @@ import 'features/class/sub_features/grade/bloc/grade_bloc.dart';
 import 'features/class/sub_features/roll_call/bloc/roll_call_bloc.dart';
 import 'features/class/sub_features/subject/bloc/subject_bloc.dart';
 import 'features/invitation/bloc/invitation_bloc.dart';
+import 'features/parent/bloc/parent_bloc.dart';
 import 'features/post/bloc/post_bloc.dart';
 import 'features/post/sub_feature/comment/bloc/comment_bloc.dart';
 import 'features/profile/bloc/profile_bloc.dart';
@@ -86,7 +87,9 @@ class MyApp extends StatelessWidget {
           create: (context) => InvitationBloc(),
         ),BlocProvider<CommentBloc>(
           create: (context) => CommentBloc(),
-        ),
+        ),BlocProvider<ParentBloc>(
+    create: (context) => ParentBloc(),
+    ),
       ],
       child: MaterialApp(
         title: 'ClassPal',

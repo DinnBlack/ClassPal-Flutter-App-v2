@@ -93,6 +93,9 @@ class _PrincipalViewState extends State<PrincipalView> {
               height: kMarginLg,
             ),
             const ClassListScreen(),
+            const SizedBox(
+              height: kMarginLg,
+            ),
           ],
         ),
       ),

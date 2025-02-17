@@ -40,7 +40,7 @@ class _TeacherViewState extends State<TeacherView> {
               height: kMarginLg,
             ),
             Text(
-              'Trường học',
+              'Tham gia trường học',
               style: AppTextStyle.semibold(kTextSizeMd),
             ),
             const SizedBox(

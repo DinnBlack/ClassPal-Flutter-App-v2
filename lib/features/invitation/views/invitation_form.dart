@@ -11,14 +11,13 @@ import '../bloc/invitation_bloc.dart';
 
 class InvitationForm extends StatefulWidget {
   final String? subtitle;
-  final String profileId;
+  final String name;
   final String role;
 
   const InvitationForm({
     super.key,
     this.subtitle,
-    required this.profileId,
-    required this.role,
+    required this.role, required this.name,
   });
 
   @override
@@ -86,7 +85,7 @@ class _InvitationFormState extends State<InvitationForm> {
                         context.read<InvitationBloc>().add(
                               InvitationCreateStarted(
                                 role: widget.role,
-                                profileId: '67a476001d0557e69365678d',
+                                studentName: 'Đinh Hoàng Phúc',
                                 email: email,
                               ),
                             );
@@ -105,7 +104,7 @@ class _InvitationFormState extends State<InvitationForm> {
 }
 
 void showInvitationForm(
-    BuildContext context, String profileId, String role, String? subtitle) {
+    BuildContext context, String name, String role, String? subtitle) {
   showGeneralDialog(
     context: context,
     barrierDismissible: false,
@@ -122,7 +121,7 @@ void showInvitationForm(
             child: Material(
               color: Colors.transparent,
               child: InvitationForm(
-                profileId: profileId,
+                name: name,
                 role: role,
                 subtitle: subtitle,
               ),

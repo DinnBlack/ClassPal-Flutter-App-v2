@@ -1,9 +1,6 @@
 import 'package:classpal_flutter_app/features/class/models/class_model.dart';
 import 'package:classpal_flutter_app/features/school/models/school_model.dart';
-import 'package:classpal_flutter_app/features/student/models/student_model.dart';
 import 'package:flutter/material.dart';
-
-import '../../features/auth/models/user_model.dart';
 import '../../features/auth/views/forgot_password_screen.dart';
 import '../../features/auth/views/login_screen.dart';
 import '../../features/auth/views/register_screen.dart';
@@ -68,11 +65,8 @@ Route<dynamic> routes(RouteSettings settings) {
                 currentClass: currentClass,
               ));
     case ClassCreateScreen.route:
-      final args = settings.arguments as Map<String, dynamic>?;
-      final isClassCreateFirst = args?['isClassCreateFirst'] ?? false;
       return MaterialPageRoute(
-        builder: (context) =>
-            ClassCreateScreen(isClassCreateFirst: isClassCreateFirst),
+        builder: (context) => const ClassCreateScreen(),
       );
     case ClassJoinScreen.route:
       return MaterialPageRoute(builder: (context) => const ClassJoinScreen());
