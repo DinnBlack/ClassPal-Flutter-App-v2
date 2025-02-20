@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:random_color/random_color.dart';
 
+import '../config/app_constants.dart';
+
 class CustomAvatar extends StatelessWidget {
   final dynamic profile;
   final String? imageAsset;
@@ -35,124 +37,66 @@ class CustomAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color avatarBackground = backgroundColor ?? _getRandomColor(); // Chỉ sinh màu nếu backgroundColor không được truyền
+    bool shouldUseInitials = (text != null && text!.isNotEmpty) ||
+        (profile?.displayName != null && profile.displayName.isNotEmpty);
+
+    final Color avatarBackground = shouldUseInitials
+        ? _getRandomColor()
+        : kPrimaryColor;
+
+    String initials = shouldUseInitials
+        ? _getInitials(text ?? profile?.displayName ?? '')
+        : '';
 
     // Nếu có ảnh, hiển thị ảnh
     if (imageAsset != null && imageAsset!.isNotEmpty) {
-      return Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: avatarBackground,
-        ),
-        child: ClipOval(
-          child: Image.asset(
-            imageAsset!,
-            fit: BoxFit.cover,
-          ),
-        ),
-      );
+      return _buildImageAvatar(Image.asset(imageAsset!));
     }
 
     if (imageUrl != null && imageUrl!.isNotEmpty) {
-      // Check if the avatarUrl is equal to the default placeholder image
       if (imageUrl == 'https://i.ibb.co/s224bhZ/profile-icon.png') {
-        // Use initials if the avatar URL matches the placeholder
-        return Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: avatarBackground,
-          ),
-          child: Center(
-            child: Text(
-              _getInitials(text ?? profile?.displayName ?? ''), // Use initials based on name or text
-              style: TextStyle(
-                fontSize: size * 0.4,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        );
+        return _buildInitialsAvatar(initials, avatarBackground);
       } else {
-        // Show the image if the URL is not the placeholder
-        return Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: avatarBackground,
-          ),
-          child: ClipOval(
-            child: Image.network(
-              imageUrl!,
-              fit: BoxFit.cover,
-            ),
-          ),
-        );
+        return _buildImageAvatar(Image.network(imageUrl!));
       }
     }
 
-    // Nếu có text, sử dụng text để lấy chữ cái đầu
-    if (text != null && text!.isNotEmpty) {
-      return Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: avatarBackground, // Sử dụng màu từ backgroundColor hoặc ngẫu nhiên
-        ),
-        child: Center(
-          child: Text(
-            _getInitials(text!), // Lấy chữ cái đầu
-            style: TextStyle(
-              fontSize: size * 0.4,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      );
+    // Nếu có text hoặc profile.name, hiển thị chữ cái đầu
+    if (shouldUseInitials) {
+      return _buildInitialsAvatar(initials, avatarBackground);
     }
 
-    // Nếu không có text và không có ảnh, hiển thị chữ cái đầu của tên trong profile
-    String avatarUrl = profile?.avatarUrl ?? '';
+    // Mặc định nếu không có gì, vẫn hiển thị nền màu mặc định
+    return _buildInitialsAvatar("?", kPrimaryColor);
+  }
+
+  Widget _buildImageAvatar(Image image) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: kPrimaryColor,
+      ),
+      child: ClipOval(child: image),
+    );
+  }
+
+  Widget _buildInitialsAvatar(String initials, Color bgColor) {
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: avatarBackground, // Sử dụng màu từ backgroundColor hoặc ngẫu nhiên
+        color: bgColor,
       ),
-      child: ClipOval(
-        child: avatarUrl.isNotEmpty
-            ? avatarUrl == 'https://i.ibb.co/s224bhZ/profile-icon.png'
-        // Check if the URL is the placeholder and use initials
-            ? Center(
-          child: Text(
-            _getInitials(profile?.displayName ?? ''),
-            style: TextStyle(
-              fontSize: size * 0.4,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        )
-            : Image.network(
-          avatarUrl,
-          fit: BoxFit.cover,
-        )
-            : Center(
-          child: Text(
-            _getInitials(profile?.displayName ?? ''), // Lấy chữ cái từ profile.name
-            style: TextStyle(
-              fontSize: size * 0.4,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
+      child: Center(
+        child: Text(
+          initials,
+          style: TextStyle(
+            fontSize: size * 0.4,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),

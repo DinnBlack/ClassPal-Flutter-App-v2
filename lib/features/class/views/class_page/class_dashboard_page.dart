@@ -164,8 +164,9 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
             TextButton(
               onPressed: () {
                 if (_formKey.currentState?.validate() ?? false) {
-                  context.read<ClassBloc>().add(ClassDeleteStarted(
-                      classId: widget.currentClass.id));
+                  context
+                      .read<ClassBloc>()
+                      .add(ClassDeleteStarted(classId: widget.currentClass.id));
                   Navigator.pop(context);
                   Navigator.pop(context);
                 }
@@ -202,8 +203,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
         },
         listener: (context, state) {
           if (state is StudentFetchInProgress) {
-            CustomLoadingDialog.show(
-                context);
+            CustomLoadingDialog.show(context);
           } else if (state is StudentFetchFailure ||
               state is StudentFetchSuccess) {
             CustomLoadingDialog.dismiss(context);
@@ -299,7 +299,10 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
         onTap: () => _showFeatureDialog(context),
       ),
       bottomWidget: students.isNotEmpty
-          ? ClassManagementScreen(isHorizontal: true)
+          ? ClassManagementScreen(
+              isHorizontal: true,
+              students: students,
+            )
           : null,
       additionalHeight: students.isNotEmpty ? 55 : 0,
     );

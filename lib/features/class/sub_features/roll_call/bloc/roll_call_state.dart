@@ -35,7 +35,7 @@ class RollCallFetchByDateRangeFailure extends RollCallState {
 class RollCallFetchByDateInProgress extends RollCallState {}
 
 class RollCallFetchByDateSuccess extends RollCallState {
-  final List<RollCallEntryModel> rollCallEntries;
+  final RollCallEntryModel rollCallEntries;
 
   RollCallFetchByDateSuccess({required this.rollCallEntries});
 }

@@ -108,16 +108,9 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                 });
               },
               children: [
-                Column(
-                  children: [
-                    const SizedBox(
-                      height: kPaddingMd,
-                    ),
-                    SubjectListScreen(
-                      isGradeStudentView: true,
-                      studentId: widget.student.id,
-                    ),
-                  ],
+                SubjectListScreen(
+                  isGradeStudentView: true,
+                  studentId: widget.student.id,
                 ),
                 GradeStudentListScreen(
                   studentId: widget.student.id,

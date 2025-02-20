@@ -31,13 +31,13 @@ class AuthService extends ProfileService {
   }
 
 
-  Future<void> _saveUserToPrefs(UserModel user) async {
+  Future<void> saveCurrentUser(UserModel user) async {
     final prefs = await SharedPreferences.getInstance();
     final profileJson = jsonEncode(user.toMap());
     await prefs.setString('user', profileJson);
   }
 
-  Future<UserModel?> getUserFromPrefs() async {
+  Future<UserModel?> getCurrentUser() async {
     final prefs = await SharedPreferences.getInstance();
     String? userJson = prefs.getString('user');
 
@@ -67,7 +67,7 @@ class AuthService extends ProfileService {
         await prefs.setBool('isLoggedIn', true);
 
         UserModel user = UserModel.fromMap(response.data['data']['user']);
-        await _saveUserToPrefs(user);
+        await saveCurrentUser(user);
         return user;
       } else {
         print('Đăng nhập thất bại: ${response.data}');
@@ -133,24 +133,24 @@ class AuthService extends ProfileService {
   Future<String?> forgotPassword(String email) async {
     try {
       print(email);
-      final response = await http.post(
-        Uri.parse('$_baseUrl/auth/forgot-password'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
+      final response = await _dio.post(
+        '$_baseUrl/auth/forgot-password',
+        options: Options(headers: {'Content-Type': 'application/json'}),
+        data: jsonEncode({
           'email': email,
         }),
       );
 
-      print(response.body);
+      print(response.data);
 
       if (response.statusCode == 200) {
         return null;
       } else {
-        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        final Map<String, dynamic> responseData = jsonDecode(response.data);
         return responseData['message'] ?? 'Unknown error occurred';
       }
-    } catch (e) {
-      print('Error during forgot password: $e');
+    } on DioException catch (e) {
+      print('Error during forgot password: ${e.response?.data}');
       return 'An unexpected error occurred';
     }
   }

@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
 import '../../../core/config/app_constants.dart';
+import '../../../core/utils/app_text_style.dart';
 import '../../../core/widgets/custom_avatar.dart';
+import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/custom_list_item.dart';
 import '../../../core/widgets/custom_page_transition.dart';
 import '../../profile/model/profile_model.dart';
@@ -60,7 +62,11 @@ class _ClassListScreenState extends State<ClassListScreen> {
         }
 
         if (classes.isEmpty) {
-          return _buildEmptyClassView();
+          if (widget.isClassSchoolView) {
+            return _buildEmptyClassSchoolView();
+          } else {
+            return _buildEmptyClassView();
+          }
         } else if (widget.isClassSchoolView) {
           return _buildListClassSchoolView();
         } else {
@@ -169,6 +175,42 @@ class _ClassListScreenState extends State<ClassListScreen> {
             page: const ClassCreateScreen(),
             transitionType: PageTransitionType.slideFromRight);
       },
+    );
+  }
+
+  Widget _buildEmptyClassSchoolView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset('assets/images/empty_class.jpg', height: 200),
+          const SizedBox(height: kMarginLg),
+          Text(
+            'Thêm lớp học mới nào!',
+            style: AppTextStyle.bold(kTextSizeLg),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: kMarginSm),
+          Text(
+            'Khiến học sinh thu hút với phản hồi tức thời và bắt đầu xây dựng cộng đồng lớp học của mình nào',
+            style: AppTextStyle.medium(kTextSizeXs),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: kMarginLg),
+          CustomButton(
+            text: 'Thêm lớp học',
+            onTap: () {
+              CustomPageTransition.navigateTo(
+                context: context,
+                page: const ClassCreateScreen(
+                  isClassSchoolCreateView: true,
+                ),
+                transitionType: PageTransitionType.slideFromBottom,
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }

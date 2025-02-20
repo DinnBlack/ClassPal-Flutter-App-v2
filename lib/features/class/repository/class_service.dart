@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:classpal_flutter_app/features/auth/repository/auth_service.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -158,7 +160,7 @@ class ClassService extends ProfileService {
   }
 
   // Insert personal class
-  Future<void> insertPersonalClass(String name, File? avatarUrl) async {
+  Future<ClassModel> insertPersonalClass(String name, File? avatarUrl) async {
     try {
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
       if (cookies.isEmpty) {
@@ -188,7 +190,11 @@ class ClassService extends ProfileService {
       );
 
       if (response.statusCode == 201) {
-        return response.data['data'];
+        final classData = (response.data['data'] as List)
+            .expand((data) => [ClassModel.fromMap(data)])
+            .first;
+
+        return classData;
       } else {
         throw Exception('Failed to insert personal class: ${response.data}');
       }
@@ -208,7 +214,7 @@ class ClassService extends ProfileService {
       }
 
       final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
       final finalAvatarUrl =
           avatarUrl ?? 'https://i.ibb.co/V9Znq7h/class-icon.png';
@@ -234,7 +240,8 @@ class ClassService extends ProfileService {
       if (response.statusCode == 201) {
         // Use expand to extract and return the first class model from the list
         final classData = (response.data['data'] as List)
-            .expand((data) => [ClassModel.fromMap(data)]).first;
+            .expand((data) => [ClassModel.fromMap(data)])
+            .first;
 
         return classData;
       } else {
@@ -245,9 +252,6 @@ class ClassService extends ProfileService {
       throw e;
     }
   }
-
-
-
 
   Future<void> updateClass(String newName) async {
     try {
@@ -349,7 +353,7 @@ class ClassService extends ProfileService {
       }
 
       final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
       final currentProfile = await getCurrentProfile();
 
@@ -358,9 +362,7 @@ class ClassService extends ProfileService {
       final response = await _dio.post(
         '$_baseUrl/classes/${currentClass?.id}/rels',
         data: jsonEncode(
-          {
-            'profiles': profileIds
-          },
+          {'profiles': profileIds},
         ),
         options: Options(
           headers: {

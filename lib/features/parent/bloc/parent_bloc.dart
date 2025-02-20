@@ -1,9 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:classpal_flutter_app/features/parent/models/parent_model.dart';
-import 'package:classpal_flutter_app/features/parent/models/parent_model.dart';
-import 'package:classpal_flutter_app/features/parent/models/parent_model.dart';
 import 'package:classpal_flutter_app/features/parent/repository/parent_service.dart';
-import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
 import 'package:meta/meta.dart';
 
 part 'parent_event.dart';
@@ -24,7 +21,7 @@ class ParentBloc extends Bloc<ParentEvent, ParentState> {
     try {
       emit(ParentInvitationFetchInProgress());
       // Fetch danh sách phụ huynh
-      final parents = await parentService.getParentsInvitation();
+      final parents = await parentService.getParents();
 
       // Phân loại danh sách
       final disconnectedParents =
@@ -35,7 +32,7 @@ class ParentBloc extends Bloc<ParentEvent, ParentState> {
           parents.where((parent) => parent.invitationStatus == 'connected').toList();
 
       emit(ParentInvitationFetchSuccess(
-        disconnectedParents: pendingParents,
+        disconnectedParents: disconnectedParents,
         pendingParents: pendingParents,
         connectedParents: connectedParents,
       ));

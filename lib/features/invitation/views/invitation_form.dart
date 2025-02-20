@@ -1,23 +1,29 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_loading_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_text_field.dart';
+import 'package:classpal_flutter_app/features/parent/models/parent_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import '../../../core/utils/app_text_style.dart';
+import '../../teacher/bloc/teacher_bloc.dart';
 import '../bloc/invitation_bloc.dart';
 
 class InvitationForm extends StatefulWidget {
   final String? subtitle;
-  final String name;
   final String role;
+  final ParentInvitationModel? parentInvitation;
 
   const InvitationForm({
     super.key,
     this.subtitle,
-    required this.role, required this.name,
+    required this.role,
+    this.parentInvitation,
   });
 
   @override
@@ -35,65 +41,100 @@ class _InvitationFormState extends State<InvitationForm> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      child: Center(
-        child: ScaleTransition(
-          scale: CurvedAnimation(
-            parent: ModalRoute.of(context)!.animation!,
-            curve: Curves.elasticOut,
-          ),
-          child: Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(kBorderRadiusXl),
+    return BlocListener<InvitationBloc, InvitationState>(
+      listener: (context, state) {
+        if (state is InvitationCreateForTeacherInProgress ||
+            state is InvitationCreateForParentInProgress) {
+          CustomLoadingDialog.show(context);
+        } else {
+          CustomLoadingDialog.dismiss(context);
+        }
+        if (state is InvitationCreateForParentSuccess ||
+            state is InvitationCreateForTeacherSuccess) {
+          if (state is InvitationCreateForTeacherSuccess) {
+            context.read<TeacherBloc>().add(TeacherFetchStarted());
+          }
+          Navigator.pop(context);
+          showTopSnackBar(
+              Overlay.of(context),
+              const CustomSnackBar.success(
+                  message: 'Đã gửi lời mời thành công'));
+        }
+        if (state is InvitationCreateForParentFailure ||
+            state is InvitationCreateForTeacherFailure) {
+          showTopSnackBar(Overlay.of(context),
+              const CustomSnackBar.error(message: 'Gửi lời mời thất bại'));
+        }
+      },
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        child: Center(
+          child: ScaleTransition(
+            scale: CurvedAnimation(
+              parent: ModalRoute.of(context)!.animation!,
+              curve: Curves.elasticOut,
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(kPaddingMd),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CustomAppBar(
-                    title: 'Gửi lời mời',
-                    isSafeArea: false,
-                    subtitle: widget.subtitle,
-                    leftWidget: InkWell(
-                      child: const Icon(
-                        FontAwesomeIcons.xmark,
+            child: Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(kBorderRadiusXl),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(kPaddingMd),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CustomAppBar(
+                      title: 'Gửi lời mời',
+                      isSafeArea: false,
+                      subtitle: widget.subtitle,
+                      leftWidget: InkWell(
+                        child: const Icon(
+                          FontAwesomeIcons.xmark,
+                        ),
+                        onTap: () {
+                          if (_emailController.text.isNotEmpty) {
+                            _showExitConfirmationDialog(context);
+                          } else {
+                            Navigator.pop(context);
+                          }
+                        },
                       ),
+                    ),
+                    const SizedBox(height: kMarginMd),
+                    CustomTextField(
+                      controller: _emailController,
+                      text: 'Email hoặc số điện thoại',
+                      autofocus: true,
+                    ),
+                    const SizedBox(height: kMarginLg),
+                    CustomButton(
+                      text: 'Mời',
                       onTap: () {
-                        if (_emailController.text.isNotEmpty) {
-                          _showExitConfirmationDialog(context);
-                        } else {
-                          Navigator.pop(context);
+                        final email = _emailController.text.trim();
+                        if (email.isNotEmpty) {
+                          if (widget.role == 'Teacher') {
+                            context.read<InvitationBloc>().add(
+                                  InvitationCreateForTeacherStarted(
+                                    name: email,
+                                    email: email,
+                                  ),
+                                );
+                          } else {
+                            context.read<InvitationBloc>().add(
+                                  InvitationCreateForParentStarted(
+                                    name: widget.parentInvitation!.studentName,
+                                    email: email,
+                                    studentId: widget.parentInvitation!.studentId,
+                                  ),
+                                );
+                          }
                         }
                       },
                     ),
-                  ),
-                  const SizedBox(height: kMarginMd),
-                  CustomTextField(
-                    controller: _emailController,
-                    text: 'Email hoặc số điện thoại',
-                    autofocus: true,
-                  ),
-                  const SizedBox(height: kMarginLg),
-                  CustomButton(
-                    text: 'Mời',
-                    onTap: () {
-                      final email = _emailController.text.trim();
-                      if (email.isNotEmpty) {
-                        context.read<InvitationBloc>().add(
-                              InvitationCreateStarted(
-                                role: widget.role,
-                                studentName: 'Đinh Hoàng Phúc',
-                                email: email,
-                              ),
-                            );
-                      }
-                    },
-                  ),
-                  const SizedBox(height: kMarginMd),
-                ],
+                    const SizedBox(height: kMarginMd),
+                  ],
+                ),
               ),
             ),
           ),
@@ -104,7 +145,7 @@ class _InvitationFormState extends State<InvitationForm> {
 }
 
 void showInvitationForm(
-    BuildContext context, String name, String role, String? subtitle) {
+    BuildContext context, ParentInvitationModel? parentInvitation, String role, String? subtitle) {
   showGeneralDialog(
     context: context,
     barrierDismissible: false,
@@ -121,7 +162,7 @@ void showInvitationForm(
             child: Material(
               color: Colors.transparent,
               child: InvitationForm(
-                name: name,
+                parentInvitation: parentInvitation,
                 role: role,
                 subtitle: subtitle,
               ),
@@ -150,13 +191,13 @@ void _showExitConfirmationDialog(BuildContext context) {
             const Text('Bạn có chắc chắn muốn thoát? Nội dung nhập sẽ bị mất.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context), // Đóng dialog xác nhận
+            onPressed: () => Navigator.pop(context),
             child: const Text('Hủy'),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context); // Đóng dialog xác nhận
-              Navigator.pop(context); // Đóng InvitationForm
+              Navigator.pop(context);
+              Navigator.pop(context);
             },
             child: const Text('Thoát'),
           ),

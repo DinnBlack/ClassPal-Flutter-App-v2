@@ -156,7 +156,6 @@ class ProfileService {
   Future<bool> insertBatchProfile(
       List<String> names, String role, int groupType) async {
     try {
-
       // Chạy các yêu cầu song song để cải thiện hiệu suất
       final results = await Future.wait(
         names.map((name) => insertProfile(name, role, groupType)),
@@ -227,11 +226,7 @@ class ProfileService {
       final currentProfile = await getCurrentProfile();
       final currentClass = await ClassService().getCurrentClass();
 
-      print('getProfilesByGroup: ${currentClass!.id}');
-
       var responseUrl = '$_baseUrl/profiles/1/${currentClass?.id}';
-
-      print('responseUrl: $responseUrl');
 
       if (groupType == 0) {
         responseUrl = '$_baseUrl/profiles/0/${currentClass?.id}';
@@ -248,8 +243,6 @@ class ProfileService {
         ),
       );
 
-      print('response: ${response.data}');
-
       if (response.statusCode == 200) {
         var profilesData = response.data['data'] as List;
         List<ProfileModel> profiles = profilesData
@@ -261,8 +254,8 @@ class ProfileService {
         print('Get profiles by group fail: ${response.data}');
         return null;
       }
-    } catch (e) {
-      print('Error fetching profiles by group: $e');
+    } on DioException catch (e) {
+      print('Error fetching profiles by group: ${e.response?.data}');
       return null;
     }
   }
@@ -357,9 +350,8 @@ class ProfileService {
             'Failed to fetch profile: ${response.statusCode} - ${response.statusMessage}');
         return [];
       }
-    } catch (e, stacktrace) {
-      print('Error fetching profile: $e');
-      print(stacktrace);
+    } on DioException catch (e) {
+      print('Error fetching profile: ${e.response?.data}');
       return [];
     }
   }
@@ -618,6 +610,8 @@ class ProfileService {
         data: jsonEncode(data),
         options: Options(headers: headers),
       );
+
+      print(response.data);
 
       if (response.statusCode != 200 && response.statusCode != 204) {
         throw Exception(

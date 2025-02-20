@@ -2,10 +2,11 @@ import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_avatar.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_list_item.dart';
 import 'package:classpal_flutter_app/features/parent/models/parent_model.dart';
-import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/utils/app_text_style.dart';
+import '../../invitation/bloc/invitation_bloc.dart';
+import '../../invitation/views/invitation_form.dart';
 import '../bloc/parent_bloc.dart';
 
 class ParentConnectListScreen extends StatefulWidget {
@@ -54,13 +55,13 @@ class _ParentConnectListScreenState extends State<ParentConnectListScreen> {
     );
   }
 
-  void _showInviteDialog(BuildContext context, String name, String parentId) {
-    ProfileService().getRelatedToProfile('67b1f0a43c698b9b19e5cb9d');
-    // showInvitationForm(context, '67a476001d0557e69365678d', 'Parent', 'Đinh Hoàng Phúc');
+  void _showInviteDialog(BuildContext context,
+      ParentInvitationModel parentInvitation, String name) {
+    showInvitationForm(context, parentInvitation, 'Parent', name);
   }
 
-  void _showDeleteDialog(BuildContext context, String name, String parentId) {
-    print(parentId);
+  void _showDeleteDialog(BuildContext context,
+      ParentInvitationModel parentInvitation, String name) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -77,7 +78,11 @@ class _ParentConnectListScreenState extends State<ParentConnectListScreen> {
             ),
             TextButton(
               onPressed: () {
-                context.read<ParentBloc>().add(ParentDeleteStarted(parentId));
+                context
+                    .read<ParentBloc>()
+                    .add(ParentDeleteStarted(parentInvitation.parentId!));
+                context.read<InvitationBloc>().add(
+                    InvitationRemoveStarted(email: parentInvitation.email!));
                 Navigator.of(dialogContext).pop();
               },
               child: const Text('Có', style: TextStyle(color: Colors.red)),
@@ -92,7 +97,7 @@ class _ParentConnectListScreenState extends State<ParentConnectListScreen> {
     String title,
     List<ParentInvitationModel> parents,
     String actionText,
-    Function(BuildContext, String, String)? onActionTap,
+    Function(BuildContext, ParentInvitationModel, String)? onActionTap,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,20 +116,19 @@ class _ParentConnectListScreenState extends State<ParentConnectListScreen> {
             return Column(
               children: [
                 CustomListItem(
-                  title: parent.parentName,
+                  title: 'p/h của ${parent.studentName}',
+                  subtitle: parent.email,
                   leading: const CustomAvatar(
                       imageAsset: 'assets/images/parent.jpg'),
                   onTap: () {
                     if (onActionTap != null) {
-                      onActionTap(
-                          context, parent.parentName!, parent.studentId);
+                      onActionTap(context, parent, parent.studentName);
                     }
                   },
                   trailing: InkWell(
                     onTap: () {
                       if (onActionTap != null) {
-                        onActionTap(
-                            context, parent.parentName!, parent.studentId);
+                        onActionTap(context, parent, parent.studentName);
                       }
                     },
                     child: Text(

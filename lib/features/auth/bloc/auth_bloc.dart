@@ -30,6 +30,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final user =
           await authService.login(event.emailOrPhoneNumber, event.password);
+      print(user);
       await authService.getRoles();
       if (user != null) {
         emit(AuthLoginSuccess(user));

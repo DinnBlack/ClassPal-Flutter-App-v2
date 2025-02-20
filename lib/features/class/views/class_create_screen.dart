@@ -122,11 +122,18 @@ class _ClassCreateScreenState extends State<ClassCreateScreen> {
         rightWidget: _currentStep != 0
             ? GestureDetector(
                 onTap: () {
+                  if (_currentStep == 1) {
+                    widget.isClassSchoolCreateView
+                        ? context.read<ClassBloc>().add(
+                            ClassSchoolCreateStarted(
+                                name: _classNameController.text))
+                        : context.read<ClassBloc>().add(
+                            ClassPersonalCreateStarted(
+                                name: _classNameController.text));
+                  }
                   if (_currentStep == 2) {
                     return Navigator.pop(context);
                   }
-                  _navigateStep(_currentStep + 1);
-
                 },
                 child: Text(
                   _currentStep == 1 ? 'Tiếp tục' : 'Hoàn tất',
@@ -143,25 +150,37 @@ class _ClassCreateScreenState extends State<ClassCreateScreen> {
   }
 
   Widget _buildClassPersonalCreationSteps() {
-    return SafeArea(
-      child: Column(
-        children: [
-          _buildProgressIndicator(),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
-              child: PageView(
-                controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  _buildStep1(),
-                  _buildClassPersonalStep2(),
-                  _buildStep3(),
-                ],
+    return BlocListener<ClassBloc, ClassState>(
+      listener: (context, state) {
+        if (state is ClassPersonalCreateInProgress) {
+          CustomLoadingDialog.show(context);
+        } else {
+          CustomLoadingDialog.dismiss(context);
+        }
+        if (state is ClassPersonalCreateSuccess) {
+          _navigateStep(_currentStep + 1);
+        }
+      },
+      child: SafeArea(
+        child: Column(
+          children: [
+            _buildProgressIndicator(),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+                child: PageView(
+                  controller: _pageController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _buildStep1(),
+                    _buildClassPersonalStep2(),
+                    _buildStep3(),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

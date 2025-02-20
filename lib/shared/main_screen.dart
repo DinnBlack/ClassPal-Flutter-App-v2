@@ -44,7 +44,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _loadUser() async {
-    UserModel? fetchedUser = await AuthService().getUserFromPrefs();
+    UserModel? fetchedUser = await AuthService().getCurrentUser();
     if (mounted) {
       setState(() {
         user = fetchedUser;
@@ -192,8 +192,9 @@ class _MainScreenState extends State<MainScreen> {
                   child: CustomListItem(
                     isAnimation: false,
                     title: user?.name ?? 'Người dùng',
+                    subtitle: _getRoleDisplayName(widget.role),
                     leading: CustomAvatar(
-                      profile: user,
+                      imageUrl: user?.avatarUrl,
                     ),
                   ),
                 ),
@@ -208,7 +209,10 @@ class _MainScreenState extends State<MainScreen> {
               ),
               const SizedBox(height: kMarginLg),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                },
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
                   child: Row(
@@ -220,7 +224,7 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                       const SizedBox(width: kMarginMd),
                       Text(
-                        'Đăng nhập vào tài khoản khác',
+                        'Đăng nhập với quyền khác',
                         style: AppTextStyle.regular(kTextSizeSm, kPrimaryColor),
                       ),
                     ],
@@ -233,5 +237,15 @@ class _MainScreenState extends State<MainScreen> {
         );
       },
     );
+  }
+
+  String _getRoleDisplayName(String role) {
+    const roleMap = {
+      'principal': 'Ban giám hiệu',
+      'teacher': 'Giáo viên',
+      'student': 'Học sinh',
+      'parent': 'Phụ huynh',
+    };
+    return roleMap[role] ?? 'Vai trò không xác định';
   }
 }

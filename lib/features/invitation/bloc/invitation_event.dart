@@ -3,11 +3,30 @@ part of 'invitation_bloc.dart';
 @immutable
 sealed class InvitationEvent {}
 
-class InvitationCreateStarted extends InvitationEvent {
-  final String role;
-  final String studentName;
+class InvitationCreateForParentStarted extends InvitationEvent {
+  final String name;
+  final String email;
+  final String studentId;
+
+  InvitationCreateForParentStarted({required this.name, required this.email, required this.studentId});
+}
+
+class InvitationCreateForTeacherStarted extends InvitationEvent {
+  final String name;
   final String email;
 
-  InvitationCreateStarted(
-      {required this.role, required this.studentName, required this.email});
+  InvitationCreateForTeacherStarted({required this.name, required this.email});
+}
+
+class InvitationAcceptStarted extends InvitationEvent {
+  final String invitationId;
+
+  InvitationAcceptStarted({required this.invitationId});
+}
+
+// Invitation remove
+class InvitationRemoveStarted extends InvitationEvent {
+  final String email;
+
+  InvitationRemoveStarted({required this.email});
 }

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
 import 'package:meta/meta.dart';
 import '../../profile/model/profile_model.dart';
 import '../models/class_model.dart';
@@ -62,6 +63,8 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
         event.avatarUrl,
       );
       emit(ClassPersonalCreateSuccess());
+      await ProfileService().getProfilesByRole(['Executive', 'Teacher']);
+      add(ClassPersonalFetchStarted());
     } on Exception catch (e) {
       emit(ClassPersonalCreateFailure(e.toString()));
     }
@@ -101,7 +104,8 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       emit(ClassDeleteInProgress());
       await classService.deleteClass(event.classId);
       emit(ClassDeleteSuccess());
-      add(ClassSchoolFetchStarted());
+      await ProfileService().getProfilesByRole(['Executive', 'Teacher']);
+      add(ClassPersonalFetchStarted());
     } on Exception catch (e) {
       emit(ClassDeleteFailure(e.toString()));
     }

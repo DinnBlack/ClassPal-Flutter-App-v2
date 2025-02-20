@@ -28,11 +28,40 @@ class _PostListScreenState extends State<PostListScreen> {
     return BlocBuilder<PostBloc, PostState>(
       builder: (context, state) {
         if (state is PostFetchInProgress) {
-          return SingleChildScrollView(child: _buildSkeletonLoading());
+          return SingleChildScrollView(
+              child: Column(
+            children: [
+              const SizedBox(
+                height: kMarginMd,
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
+                child: PostCreateButton(),
+              ),
+              const SizedBox(
+                height: kMarginLg,
+              ),
+              _buildSkeletonLoading(),
+            ],
+          ));
         }
         if (state is PostFetchSuccess) {
           if (state.posts.isEmpty) {
-            return Expanded(child: _buildEmptyPostView());
+            return Column(
+              children: [
+                const SizedBox(
+                  height: kMarginMd,
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
+                  child: PostCreateButton(),
+                ),
+                const SizedBox(
+                  height: kMarginLg,
+                ),
+                Expanded(child: _buildEmptyPostView()),
+              ],
+            );
           }
           return ListView.separated(
             shrinkWrap: true,
@@ -42,7 +71,7 @@ class _PostListScreenState extends State<PostListScreen> {
                 return const Column(
                   children: [
                     SizedBox(
-                      height: kMarginLg,
+                      height: kMarginMd,
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: kPaddingMd),

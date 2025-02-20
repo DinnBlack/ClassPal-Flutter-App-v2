@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import '../../profile/model/profile_model.dart';
+import '../../profile/repository/profile_service.dart';
 import '../models/school_model.dart';
 import '../repository/school_service.dart';
 
@@ -41,6 +42,7 @@ class SchoolBloc extends Bloc<SchoolEvent, SchoolState> {
         event.avatarUrl,
       );
       emit(SchoolCreateSuccess());
+      await ProfileService().getProfilesByRole(['Executive', 'Teacher']);
       add(SchoolFetchStarted());
     } on Exception catch (e) {
       emit(SchoolCreateFailure(e.toString()));

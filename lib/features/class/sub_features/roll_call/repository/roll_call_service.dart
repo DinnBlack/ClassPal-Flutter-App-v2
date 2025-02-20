@@ -25,6 +25,20 @@ class RollCallService extends ProfileService {
     await restoreCookies();
   }
 
+  /// **Lấy headers bao gồm cookies và thông tin xác thực**
+  Future<Map<String, String>> _getHeaders() async {
+    final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+    final cookieHeader =
+    cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+    final currentProfile = await getCurrentProfile();
+
+    return {
+      'Content-Type': 'application/json',
+      'Cookie': cookieHeader,
+      'x-profile-id': currentProfile?.id ?? '',
+    };
+  }
+
   /// **Tạo điểm danh cho lớp**
   Future<bool> createRollCall(String date,
       List<Map<String, int>> studentsRollCall) async {
@@ -80,7 +94,7 @@ class RollCallService extends ProfileService {
       final response = await _dio.post(
         requestUrl,
         data: jsonEncode({'date': date}),
-        options: Options(headers: headers),
+        options: Options(headers: await _getHeaders()),
       );
 
       if (response.statusCode == 200) {
@@ -321,6 +335,50 @@ class RollCallService extends ProfileService {
     }
   }
 
+  /// **Lấy danh sách phiên điểm danh theo từng học sinh**
+  Future<RollCallEntryModel?> getRollCallEntriesBySessionIdsByDate(
+      String date) async {
+    try {
+      print(date);
+      final rollCallSessions =
+      await getRollCallSessionsByDateRange('2025-02-17', '2025-02-19');
+
+      print(rollCallSessions);
+
+      final rollCallSessionIds =
+      rollCallSessions.map((session) => session.id).toList();
+
+      // Lấy cookies từ PersistCookieJar
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      // Lấy danh sách điểm danh từ các phiên điểm danh
+      final results = await Future.wait(
+        rollCallSessionIds.map((id) => getRollCallEntriesBySessionId(id)),
+      );
+
+      final allEntries = results.expand((entries) => entries).toList();
+
+      // Lấy tên học sinh và cập nhật vào danh sách
+      List<RollCallEntryModel> updatedEntries = await Future.wait(
+        allEntries.map((entry) async {
+          final studentProfile = await getProfileById(entry.profileId);
+          return entry.copyWith(studentName: studentProfile?.displayName);
+        }),
+      );
+
+      print(updatedEntries);
+
+      return updatedEntries.first;
+    } catch (e) {
+      print(
+          'Lỗi khi lấy dữ liệu điểm danh theo từng học sinh theo khoảng ngày: $e');
+      return null;
+    }
+  }
+
   Future<bool> deleteRollCallSession(String rollCallSessionId) async {
     try {
       await _initialize();
@@ -359,4 +417,50 @@ class RollCallService extends ProfileService {
       throw e;
     }
   }
+
+  /// **Xóa một phiên điểm danh**
+  Future<bool> removeRollCallSession(String sessionId) async {
+    try {
+      final response = await _dio.delete(
+        '$_baseUrl/rollcall/$sessionId',
+        options: Options(headers: await _getHeaders()),
+      );
+
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Error in removeRollCallSession: $e');
+      return false;
+    }
+  }
+
+  /// **Cập nhật một entry điểm danh**
+  Future<bool> updateRollCallEntry(String entryId, String status, String remarks) async {
+    try {
+      final response = await _dio.patch(
+        '$_baseUrl/rollcall/entry/$entryId',
+        data: jsonEncode({'status': status, 'remarks': remarks}),
+        options: Options(headers: await _getHeaders()),
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Error in updateRollCallEntry: $e');
+      return false;
+    }
+  }
+
+  /// **Xóa một entry điểm danh**
+  Future<bool> removeRollCallEntry(String entryId) async {
+    try {
+      final response = await _dio.delete(
+        '$_baseUrl/rollcall/entry/$entryId',
+        options: Options(headers: await _getHeaders()),
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Error in removeRollCallEntry: $e');
+      return false;
+    }
+  }
+
+
 }

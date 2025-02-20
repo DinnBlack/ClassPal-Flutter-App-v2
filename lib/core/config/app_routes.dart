@@ -9,6 +9,7 @@ import '../../features/auth/views/select_role_screen.dart';
 import '../../features/class/views/class_create_screen.dart';
 import '../../features/class/views/class_join_screen.dart';
 import '../../features/class/views/class_screen.dart';
+import '../../features/invitation/views/invitation_screen.dart';
 import '../../features/school/views/school_create_screen.dart';
 import '../../features/school/views/school_join_screen.dart';
 import '../../features/school/views/school_screen.dart';
@@ -17,6 +18,15 @@ import '../../features/student/views/student_list_screen.dart';
 import '../../shared/main_screen.dart';
 
 Route<dynamic> routes(RouteSettings settings) {
+  Uri uri = Uri.parse(settings.name ?? "");
+
+  if (uri.pathSegments.length == 2 && uri.pathSegments.first == 'invitation') {
+    String token = uri.pathSegments[1];
+    return MaterialPageRoute(
+      builder: (context) => InvitationScreen(token: token),
+    );
+  }
+
   switch (settings.name) {
     // Authentication
     case LoginScreen.route:

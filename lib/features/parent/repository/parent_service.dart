@@ -1,8 +1,5 @@
-import 'dart:convert';
-
 import 'package:classpal_flutter_app/features/parent/models/parent_model.dart';
 import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
-import 'package:classpal_flutter_app/features/student/repository/student_service.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -27,24 +24,32 @@ class ParentService extends ProfileService {
     await restoreCookies();
   }
 
-  Future<List<ParentInvitationModel>> getParentsInvitation() async {
+  Future<List<ParentInvitationModel>> getParents() async {
     try {
       // Lấy danh sách hồ sơ
       final profiles = await getProfilesByGroup(1);
+      print('Class Profiles: $profiles');
 
-      print(profiles);
-
-      // Lọc các phụ huynh
+      // id parent
       final parentRoleId = await getRoleIdByName('Parent');
-      print(parentRoleId);
+      print('ParentId: $parentRoleId');
 
+      // Lấy danh sách phụ huynh
       final parents = profiles
           ?.where((profile) => profile.roles.contains(parentRoleId))
           .toList();
-      print(parents);
+      print('Parent Profile: $parents');
 
-      // Lấy tất cả sinh viên
-      final students = await StudentService().getStudents();
+      // id student
+      final studentRoleId = await getRoleIdByName('Student');
+      print('StudentId: $studentRoleId');
+
+      // Lấy danh sách students
+      final students = profiles
+          ?.where((profile) => profile.roles.contains(studentRoleId))
+          .toList();
+      print('Student Profile: $students');
+
 
       // Tạo danh sách mời phụ huynh
       List<ParentInvitationModel> parentsInvitation = [];
@@ -53,13 +58,18 @@ class ParentService extends ProfileService {
       for (var parent in parents!) {
         final relatedProfile = await getRelatedToProfile(parent.id);
 
+        print(relatedProfile);
+
         if (relatedProfile.isNotEmpty) {
           // Lấy thông tin học sinh có phụ huynh
           final student = relatedProfile.singleWhere(
-            (profile) => profile.roles.contains(parentRoleId),
+            (profile) => profile.roles.contains(studentRoleId),
           );
 
+          print(student);
+
           parentsInvitation.add(ParentInvitationModel(
+            email: parent.displayName,
             studentName: student.displayName,
             studentId: student.id,
             parentName: parent.displayName,
@@ -68,6 +78,8 @@ class ParentService extends ProfileService {
           ));
         }
       }
+
+      print('Step 1: $parentsInvitation');
 
       // Kiểm tra các học sinh không có phụ huynh
       for (var student in students!) {
@@ -78,6 +90,7 @@ class ParentService extends ProfileService {
         if (!hasParent) {
           // Thêm học sinh vào danh sách với trạng thái 'disconnected'
           parentsInvitation.add(ParentInvitationModel(
+            email: null,
             studentName: student.displayName,
             studentId: student.id,
             parentName: null,
@@ -86,6 +99,8 @@ class ParentService extends ProfileService {
           ));
         }
       }
+
+      print('Step 2: $parentsInvitation');
 
       return parentsInvitation;
     } catch (e) {

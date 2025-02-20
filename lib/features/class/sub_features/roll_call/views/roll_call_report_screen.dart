@@ -304,7 +304,7 @@ class _RollCallReportScreenState extends State<RollCallReportScreen> {
       backgroundColor: kWhiteColor,
       title: 'Dữ liệu điểm danh',
       leftWidget: InkWell(
-        child: const Icon(FontAwesomeIcons.arrowLeft),
+        child: const Icon(FontAwesomeIcons.xmark),
         onTap: () async {
           Navigator.pop(context);
         },

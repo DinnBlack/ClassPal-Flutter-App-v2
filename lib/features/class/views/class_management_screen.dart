@@ -1,22 +1,27 @@
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/class/sub_features/subject/views/subject_screen.dart';
+import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
 import 'package:classpal_flutter_app/features/student/views/student_create_screen.dart';
 import 'package:flutter/material.dart';
 import '../../../core/utils/app_text_style.dart';
 import '../../../core/config/app_constants.dart';
+import '../../toolkit/views/countdown_timer_screen.dart';
+import '../../toolkit/views/random_student_picker_screen.dart';
 import '../sub_features/roll_call/views/roll_call_screen.dart';
 
 class ClassManagementScreen extends StatelessWidget {
   final bool? isHorizontal;
+  final List<ProfileModel>? students;
 
-  ClassManagementScreen({super.key, this.isHorizontal = false});
+  ClassManagementScreen({super.key, this.isHorizontal = false, this.students});
 
   // Define a list of features
   final List<String> features = [
     "Điểm danh",
     "Quản lý điểm số",
     "Quản lý học sinh",
-    "Gửi thông báo",
+    "Bộ đếm thời gian",
+    "Chọn ngẫu nhiên",
   ];
 
   void onFeatureTapped(BuildContext context, String feature) {
@@ -39,8 +44,19 @@ class ClassManagementScreen extends StatelessWidget {
             page: const StudentCreateScreen(),
             transitionType: PageTransitionType.slideFromBottom);
         break;
-      case "Gửi thông báo":
-        Navigator.pushNamed(context, '/send-notification');
+      case "Bộ đếm thời gian":
+        CustomPageTransition.navigateTo(
+            context: context,
+            page: CountdownTimerScreen(),
+            transitionType: PageTransitionType.slideFromBottom);
+        break;
+      case "Chọn ngẫu nhiên":
+        CustomPageTransition.navigateTo(
+            context: context,
+            page: RandomStudentPickerScreen(
+              students: students!,
+            ),
+            transitionType: PageTransitionType.slideFromBottom);
         break;
       default:
         print("No route for feature: $feature");

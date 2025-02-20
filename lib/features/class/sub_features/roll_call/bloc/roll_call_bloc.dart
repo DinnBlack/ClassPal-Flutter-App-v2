@@ -14,6 +14,8 @@ class RollCallBloc extends Bloc<RollCallEvent, RollCallState> {
   RollCallBloc() : super(RollCallInitial()) {
     on<RollCallCreateStarted>(_onRollCallCreateStarted);
     on<RollCallFetchByDateRangeStarted>(_onRollCallFetchByDateRangeStarted);
+    on<RollCallFetchByDateStarted>(_onRollCallFetchByDateStarted);
+
   }
 
   // RollCall Create
@@ -50,6 +52,20 @@ class RollCallBloc extends Bloc<RollCallEvent, RollCallState> {
     } catch (e) {
       emit(RollCallFetchByDateRangeFailure(
           error: "Failed to fetch roll call by date range: ${e.toString()}"));
+    }
+  }
+
+  // RollCall Fetch by Date
+  Future<void> _onRollCallFetchByDateStarted(
+      RollCallFetchByDateStarted event, Emitter<RollCallState> emit) async {
+    emit(RollCallFetchByDateInProgress());
+    try {
+      final RollCallEntryModel? rollCallEntries =
+          await rollCallService.getRollCallEntriesBySessionIdsByDate(event.date);
+      emit(RollCallFetchByDateSuccess(rollCallEntries: rollCallEntries!));
+    } catch (e) {
+      emit(RollCallFetchByDateFailure(
+          error: "Failed to fetch roll call by date: ${e.toString()}"));
     }
   }
 }
