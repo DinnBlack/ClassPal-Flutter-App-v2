@@ -9,8 +9,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
-
-import '../../../core/utils/app_text_style.dart';
 import '../../teacher/bloc/teacher_bloc.dart';
 import '../bloc/invitation_bloc.dart';
 
@@ -114,6 +112,7 @@ class _InvitationFormState extends State<InvitationForm> {
                         final email = _emailController.text.trim();
                         if (email.isNotEmpty) {
                           if (widget.role == 'Teacher') {
+                            print('sent teacher');
                             context.read<InvitationBloc>().add(
                                   InvitationCreateForTeacherStarted(
                                     name: email,
@@ -121,11 +120,13 @@ class _InvitationFormState extends State<InvitationForm> {
                                   ),
                                 );
                           } else {
+                            print('sent parent');
                             context.read<InvitationBloc>().add(
                                   InvitationCreateForParentStarted(
                                     name: widget.parentInvitation!.studentName,
                                     email: email,
-                                    studentId: widget.parentInvitation!.studentId,
+                                    studentId:
+                                        widget.parentInvitation!.studentId,
                                   ),
                                 );
                           }
@@ -144,8 +145,8 @@ class _InvitationFormState extends State<InvitationForm> {
   }
 }
 
-void showInvitationForm(
-    BuildContext context, ParentInvitationModel? parentInvitation, String role, String? subtitle) {
+void showInvitationForm(BuildContext context,
+    ParentInvitationModel? parentInvitation, String role, String? subtitle) {
   showGeneralDialog(
     context: context,
     barrierDismissible: false,

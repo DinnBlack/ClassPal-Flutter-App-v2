@@ -3,7 +3,10 @@ import 'package:classpal_flutter_app/features/profile/repository/profile_service
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../../profile/model/profile_model.dart';
 
 class ParentService extends ProfileService {
   final String _baseUrl =
@@ -17,11 +20,16 @@ class ParentService extends ProfileService {
 
   // Khởi tạo PersistCookieJar để lưu trữ cookie
   Future<void> _initialize() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final cookieStorage = FileStorage('${directory.path}/cookies');
-    _cookieJar = PersistCookieJar(storage: cookieStorage);
-    _dio.interceptors.add(CookieManager(_cookieJar));
-    await restoreCookies();
+    if (kIsWeb) {
+      // Xử lý cho nền tảng web
+    } else {
+      final directory = await getApplicationDocumentsDirectory();
+      final cookieStorage = FileStorage('${directory.path}/cookies');
+      _cookieJar = PersistCookieJar(storage: cookieStorage);
+      _dio.interceptors.add(CookieManager(_cookieJar));
+      // Khôi phục cookies khi khởi tạo
+      await restoreCookies();
+    }
   }
 
   Future<List<ParentInvitationModel>> getParents() async {
@@ -49,7 +57,6 @@ class ParentService extends ProfileService {
           ?.where((profile) => profile.roles.contains(studentRoleId))
           .toList();
       print('Student Profile: $students');
-
 
       // Tạo danh sách mời phụ huynh
       List<ParentInvitationModel> parentsInvitation = [];
@@ -105,6 +112,67 @@ class ParentService extends ProfileService {
       return parentsInvitation;
     } catch (e) {
       print("Lỗi khi lấy danh sách phụ huynh: $e");
+      return [];
+    }
+  }
+
+  Future<List<ProfileModel>> getChildren() async {
+    try {
+      final parents = await getUserProfiles();
+      print(parents);
+      for (var parent in parents) {
+        print(parent);
+        try {
+          await _initialize();
+          final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+          if (cookies.isEmpty) {
+            throw Exception('No cookies available for authentication');
+          }
+
+          print(parent.id);
+
+          // Tạo headers với cookies
+          final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+          final response = await _dio.get(
+            '$_baseUrl/profiles/${parent.id}/related',
+            options: Options(
+              headers: {
+                'Content-Type': 'application/json',
+                'Cookie': cookieHeader,
+                'x-profile-id': parent.id
+              },
+            ),
+          );
+
+          if (response.statusCode == 200) {
+            var profileData = response.data['data'];
+
+            final studentRoleId = await getRoleIdByName('Student');
+
+            // Chuyển profileData thành danh sách các ProfileModel
+            List<ProfileModel> profiles = profileData
+                .map<ProfileModel>((data) => ProfileModel.fromMap(data))
+                .toList();
+
+            // Lọc danh sách các ProfileModel có chứa studentRoleId trong roles
+            List<ProfileModel> filteredProfiles = profiles
+                .where(
+                  (profile) => profile.roles.contains(studentRoleId),
+            )
+                .toList();
+            return filteredProfiles;
+          } else {
+            throw Exception('Failed to fetch profile related: ${response.data}');
+          }
+        } on DioException catch (e) {
+          print('Error fetching profile related: ${e.response?.data}');
+          return [];
+        }
+      }
+      return [];
+    } catch (e) {
       return [];
     }
   }

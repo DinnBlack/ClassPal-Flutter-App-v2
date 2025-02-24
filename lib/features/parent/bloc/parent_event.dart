@@ -10,3 +10,6 @@ class ParentDeleteStarted extends ParentEvent {
 
   ParentDeleteStarted(this.parentId);
 }
+
+// parent fetch children
+class ParentFetchChildrenStarted extends ParentEvent {}

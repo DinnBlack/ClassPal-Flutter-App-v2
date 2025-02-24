@@ -1,7 +1,5 @@
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:awesome_bottom_bar/tab_item.dart';
-import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
-import 'package:classpal_flutter_app/features/post/views/post_create_screen.dart';
 import 'package:classpal_flutter_app/features/school/models/school_model.dart';
 import 'package:classpal_flutter_app/features/school/views/school_page/school_directory_page.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +14,10 @@ import 'school_page/school_post_page.dart';
 class SchoolScreen extends StatefulWidget {
   static const route = 'SchoolScreen';
   final SchoolModel school;
+  final bool isTeacherView;
 
-  const SchoolScreen({super.key, required this.school});
+  const SchoolScreen(
+      {super.key, required this.school, this.isTeacherView = false});
 
   @override
   State<SchoolScreen> createState() => _SchoolScreenState();
@@ -37,9 +37,11 @@ class _SchoolScreenState extends State<SchoolScreen> {
     _pages = [
       SchoolPostPage(
         school: widget.school,
+        isTeacherView: widget.isTeacherView,
       ),
       SchoolDirectoryPage(
         school: widget.school,
+        isTeacherView: widget.isTeacherView,
       ),
     ];
   }
@@ -51,14 +53,6 @@ class _SchoolScreenState extends State<SchoolScreen> {
   }
 
   void _onTabTapped(int index) {
-    if (index == 1) {
-      CustomPageTransition.navigateTo(
-          context: context,
-          page: const PostCreateScreen(),
-          transitionType: PageTransitionType.slideFromBottom);
-      return;
-    }
-
     setState(() {
       _currentIndex = index;
     });
@@ -72,11 +66,7 @@ class _SchoolScreenState extends State<SchoolScreen> {
   static const List<TabItem> items = [
     TabItem(
       icon: FontAwesomeIcons.school,
-      title: 'Trường học',
-    ),
-    TabItem(
-      icon: FontAwesomeIcons.star,
-      title: '',
+      title: 'Bảng tin',
     ),
     TabItem(
       icon: FontAwesomeIcons.newspaper,
@@ -98,7 +88,7 @@ class _SchoolScreenState extends State<SchoolScreen> {
           physics: const NeverScrollableScrollPhysics(),
           children: _pages,
         ),
-        bottomNavigationBar: BottomBarCreative(
+        bottomNavigationBar: BottomBarDefault(
           items: items,
           backgroundColor: kWhiteColor,
           color: kGreyColor,

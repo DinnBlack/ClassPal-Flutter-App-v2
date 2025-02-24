@@ -136,7 +136,6 @@ class _StudentListScreenState extends State<StudentListScreen> {
       return _buildEmptyStudentView();
     }
     return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
       shrinkWrap: true,
       itemCount: students.length + 2,
       itemBuilder: (context, index) {

@@ -1,19 +1,13 @@
 import 'dart:async';
-import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
-import 'package:classpal_flutter_app/features/auth/views/register_screen.dart';
 import 'package:classpal_flutter_app/features/school/bloc/school_bloc.dart';
 import 'package:device_preview/device_preview.dart';
-import 'package:easy_date_timeline/easy_date_timeline.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uni_links/uni_links.dart';
 import 'core/config/app_routes.dart';
 import 'core/config/app_themes.dart';
-import 'features/auth/views/login_screen.dart';
 import 'features/auth/bloc/auth_bloc.dart';
-import 'features/auth/views/select_role_screen.dart';
 import 'features/class/bloc/class_bloc.dart';
 import 'features/class/sub_features/grade/bloc/grade_bloc.dart';
 import 'features/class/sub_features/roll_call/bloc/roll_call_bloc.dart';
@@ -27,19 +21,25 @@ import 'features/profile/bloc/profile_bloc.dart';
 import 'features/student/bloc/student_bloc.dart';
 import 'features/student/sub_features/group/bloc/group_bloc.dart';
 import 'package:timeago/timeago.dart' as timeago;
-import 'package:timeago/src/messages/vi_messages.dart';
 import 'features/teacher/bloc/teacher_bloc.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
+// Import phù hợp với nền tảng
+import 'core/config/mobile_config.dart'
+    if (dart.library.html) 'core/config/web_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('vi', null);
   SharedPreferences prefs = await SharedPreferences.getInstance();
   bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
-  timeago.setLocaleMessages('vi', ViMessages());
+  timeago.setLocaleMessages('vi', timeago.ViMessages());
 
-  runApp(
-      MyApp(isLoggedIn: isLoggedIn),
-  );
+  // Cấu hình URL Strategy cho Web
+  configureApp();
+
+  runApp(MyApp(isLoggedIn: isLoggedIn));
 }
 
 class MyApp extends StatefulWidget {
@@ -95,13 +95,19 @@ class _MyAppState extends State<MyApp> {
 
   void _handleDeepLink(String link) {
     print("Deep link nhận được: $link");
+
     Uri uri = Uri.parse(link);
 
-    if (uri.host == "cpserver.amrakk.rest" && uri.pathSegments.length == 2 && uri.pathSegments.first == "invitation") {
-      String token = uri.pathSegments[1];
+    // Kiểm tra host và port đúng
+    if (uri.host == "localhost" && uri.port == 5018) {
+      // Kiểm tra path
+      if (uri.pathSegments.isNotEmpty &&
+          uri.pathSegments.first == "invitation" &&
+          uri.pathSegments.length >= 2) {
+        String token = uri.pathSegments[1];
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Future.microtask(() {
+        // Chờ xử lý UI
+        Future.delayed(Duration.zero, () {
           if (navigatorKey.currentState != null) {
             navigatorKey.currentState!.push(
               MaterialPageRoute(
@@ -110,13 +116,13 @@ class _MyAppState extends State<MyApp> {
             );
           }
         });
-      });
+      } else {
+        print("Đường dẫn không hợp lệ!");
+      }
     } else {
-      print("Không tìm thấy đường dẫn hợp lệ!");
+      print("Host hoặc port không đúng!");
     }
   }
-
-
 
   @override
   void dispose() {
@@ -149,21 +155,14 @@ class _MyAppState extends State<MyApp> {
         BlocProvider<CommentBloc>(create: (context) => CommentBloc()),
         BlocProvider<ParentBloc>(create: (context) => ParentBloc()),
       ],
-      child: MaterialApp(
-        navigatorKey: navigatorKey,
+      child: MaterialApp.router(
         title: 'ClassPal',
         debugShowCheckedModeBanner: false,
         locale: DevicePreview.locale(context),
         builder: DevicePreview.appBuilder,
         theme: lightTheme,
-        localizationsDelegates: const [
-          EasyDateTimelineLocalizations.delegate,
-        ],
-        darkTheme: darkTheme,
         themeMode: ThemeMode.system,
-        onGenerateRoute: routes,
-        initialRoute:
-            widget.isLoggedIn ? SelectRoleScreen.route : LoginScreen.route,
+        routerConfig: createRouter(widget.isLoggedIn), // Sử dụng GoRouter
       ),
     );
   }

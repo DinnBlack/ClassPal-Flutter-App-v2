@@ -31,20 +31,52 @@ class _ParentConnectListScreenState extends State<ParentConnectListScreen> {
         if (state is ParentInvitationFetchInProgress) {
           return const Center(child: CircularProgressIndicator());
         } else if (state is ParentInvitationFetchSuccess) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildParentList('Chưa kết nối', state.disconnectedParents,
-                    'Mời', _showInviteDialog),
-                const SizedBox(height: kMarginLg),
-                _buildParentList(
-                    'Đang chờ', state.pendingParents, 'Xóa', _showDeleteDialog),
-                const SizedBox(height: kMarginLg),
-                _buildParentList('Đã kết nối', state.connectedParents, 'Xóa',
-                    _showDeleteDialog),
-              ],
+          int totalStudents = state.disconnectedParents.length +
+              state.pendingParents.length +
+              state.connectedParents.length;
+          int connectedCount = state.connectedParents.length;
+          double percentage = totalStudents > 0
+              ? (connectedCount / totalStudents) * 100
+              : 0;
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    height: kMarginXl,
+                  ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      '${percentage.toStringAsFixed(0)}%',
+                      style: AppTextStyle.semibold(40, kPrimaryColor),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: kMarginSm,
+                  ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Phụ huynh học sinh đã được kết nối',
+                      style: AppTextStyle.semibold(kTextSizeSm),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: kMarginXl,
+                  ),
+                  _buildParentList('Chưa kết nối', state.disconnectedParents,
+                      'Mời', _showInviteDialog),
+                  const SizedBox(height: kMarginLg),
+                  _buildParentList(
+                      'Đang chờ', state.pendingParents, 'Xóa', _showDeleteDialog),
+                  const SizedBox(height: kMarginLg),
+                  _buildParentList('Đã kết nối', state.connectedParents, 'Xóa',
+                      _showDeleteDialog),
+                ],
+              ),
             ),
           );
         } else if (state is ParentInvitationFetchFailure) {

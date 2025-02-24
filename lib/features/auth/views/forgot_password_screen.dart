@@ -7,6 +7,8 @@ import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/widgets/custom_app_bar.dart';
 import '../../../core/widgets/custom_button.dart';
@@ -63,94 +65,102 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           },
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                'Quên mật khẩu',
-                style: AppTextStyle.bold(kTextSizeXl),
-              ),
-              const SizedBox(height: kMarginSm),
-              Text(
-                'nhập email để khôi phục tài khoản',
-                style: AppTextStyle.medium(kTextSizeXs),
-              ),
-              const SizedBox(height: kMarginLg),
-              CustomTextField(
-                text: 'Email',
-                controller: _emailController,
-                validator: Validators.validateEmail,
-              ),
-              const SizedBox(height: kMarginLg),
-              BlocConsumer<AuthBloc, AuthState>(
-                listener: (context, state) {
-                  if (state is AuthForgotPasswordInProgress) {
-                    CustomLoadingDialog.show(context);
-                  } else {
-                    CustomLoadingDialog.dismiss(context);
-                  }
-
-                  if (state is AuthForgotPasswordSuccess) {
-                    CustomPageTransition.navigateTo(
-                      context: context,
-                      page: OtpScreen(email: _emailController.text),
-                      transitionType: PageTransitionType.slideFromRight,
-                    );
-                  } else if (state is AuthForgotPasswordFailure) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Khôi phục tài khoản thất bại'),
-                      ),
-                    );
-                  }
-                },
-                builder: (context, state) {
-                  return CustomButton(
-                    text: 'Khôi phục lại mật khẩu',
-                    isValid: _isValid,
-                    onTap: _isValid
-                        ? () {
-                            if (_formKey.currentState!.validate()) {
-                              final email = _emailController.text;
-                              context.read<AuthBloc>().add(
-                                    AuthForgotPasswordStarted(email: email),
-                                  );
-                            }
-                          }
-                        : null,
-                  );
-                },
-              ),
-              const SizedBox(height: kMarginLg),
-              Align(
-                alignment: Alignment.center,
-                child: RichText(
-                  text: TextSpan(
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: 'Bạn nhớ mật khẩu? ',
-                        style: AppTextStyle.medium(kTextSizeXs),
-                      ),
-                      TextSpan(
-                        text: 'Đăng nhập',
-                        style: AppTextStyle.medium(kTextSizeXs, kPrimaryColor),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            Navigator.pop(context);
-                          },
-                      ),
-                    ],
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    'Quên mật khẩu',
+                    style: AppTextStyle.bold(kTextSizeXl),
                   ),
-                ),
+                  const SizedBox(height: kMarginSm),
+                  Text(
+                    'Nhập email để khôi phục tài khoản',
+                    style: AppTextStyle.medium(kTextSizeXs),
+                  ),
+                  const SizedBox(height: kMarginLg),
+                  CustomTextField(
+                    text: 'Email',
+                    controller: _emailController,
+                    validator: Validators.validateEmail,
+                  ),
+                  const SizedBox(height: kMarginLg),
+                  BlocConsumer<AuthBloc, AuthState>(
+                    listener: (context, state) {
+                      if (state is AuthForgotPasswordInProgress) {
+                        CustomLoadingDialog.show(context);
+                      } else {
+                        CustomLoadingDialog.dismiss(context);
+                      }
+
+                      if (state is AuthForgotPasswordSuccess) {
+                        CustomPageTransition.navigateTo(
+                          context: context,
+                          page: OtpScreen(email: _emailController.text),
+                          transitionType: PageTransitionType.slideFromRight,
+                        );
+                      } else if (state is AuthForgotPasswordFailure) {
+                        showTopSnackBar(
+                          Overlay.of(context),
+                          const CustomSnackBar.error(
+                            message:
+                            'Khôi phục tài khoản thất bại!',
+                          ),
+                        );
+                      }
+                    },
+                    builder: (context, state) {
+                      return CustomButton(
+                        text: 'Khôi phục lại mật khẩu',
+                        isValid: _isValid,
+                        onTap: _isValid
+                            ? () {
+                          if (_formKey.currentState!.validate()) {
+                            final email = _emailController.text;
+                            context.read<AuthBloc>().add(
+                              AuthForgotPasswordStarted(email: email),
+                            );
+                          }
+                        }
+                            : null,
+                      );
+                    },
+                  ),
+                  const SizedBox(height: kMarginLg),
+                  Align(
+                    alignment: Alignment.center,
+                    child: RichText(
+                      text: TextSpan(
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: 'Bạn nhớ mật khẩu? ',
+                            style: AppTextStyle.medium(kTextSizeXs),
+                          ),
+                          TextSpan(
+                            text: 'Đăng nhập',
+                            style: AppTextStyle.medium(kTextSizeXs, kPrimaryColor),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.pop(context);
+                              },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
+
     );
   }
 }

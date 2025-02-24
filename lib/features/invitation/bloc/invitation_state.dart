@@ -48,3 +48,14 @@ class InvitationRemoveFailure extends InvitationState {
 
   InvitationRemoveFailure({required this.error});
 }
+
+// submit group code
+class InvitationSubmitGroupCodeInProgress extends InvitationState {}
+
+class InvitationSubmitGroupCodeSuccess extends InvitationState {}
+
+class InvitationSubmitGroupCodeFailure extends InvitationState {
+  final String error;
+
+  InvitationSubmitGroupCodeFailure({required this.error});
+}

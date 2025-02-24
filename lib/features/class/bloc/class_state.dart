@@ -105,3 +105,14 @@ class ClassSchoolUnBindRelFailure extends ClassState {
 
   ClassSchoolUnBindRelFailure(this.error);
 }
+
+// Class Create batch
+class ClassCreateBatchInProgress extends ClassState {}
+
+class ClassCreateBatchSuccess extends ClassState {}
+
+class ClassCreateBatchFailure extends ClassState {
+  final String error;
+
+  ClassCreateBatchFailure(this.error);
+}

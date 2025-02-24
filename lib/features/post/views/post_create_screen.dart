@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import '../../../../../core/config/app_constants.dart';
 import '../../../../../core/utils/app_text_style.dart';
@@ -77,13 +79,22 @@ class _PostCreateScreenState extends State<PostCreateScreen> {
 
         if (state is PostCreateSuccess) {
           CustomLoadingDialog.dismiss(context);
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.success(
+              message: 'Tạo bài đăng thành công!',
+            ),
+          );
           Navigator.pop(context);
         }
 
         if (state is PostCreateFailure) {
           CustomLoadingDialog.dismiss(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.error)),
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.error(
+              message: 'Tạo bài đăng thất bại!',
+            ),
           );
         }
       },

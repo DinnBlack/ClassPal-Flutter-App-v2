@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:classpal_flutter_app/features/auth/repository/auth_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:meta/meta.dart';
 
 import '../models/post_model.dart';
@@ -38,7 +40,13 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       PostFetchStarted event, Emitter<PostState> emit) async {
     emit(PostFetchInProgress());
     try {
-      List<PostModel> posts = await postService.getGroupNews();
+      List<PostModel> posts;
+      final currentRoles = await AuthService().getCurrentRoles();
+      if (currentRoles.contains('Parent') || currentRoles.contains('Student')) {
+        posts = await postService.getMultiGroupNews();
+      } else {
+        posts = await postService.getGroupNews();
+      }
       emit(PostFetchSuccess(posts));
     } catch (e) {
       emit(PostFetchFailure("Failed to fetch posts: ${e.toString()}"));

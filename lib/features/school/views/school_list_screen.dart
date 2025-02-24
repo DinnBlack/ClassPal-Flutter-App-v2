@@ -1,16 +1,17 @@
+import 'package:classpal_flutter_app/features/auth/repository/auth_service.dart';
 import 'package:classpal_flutter_app/features/school/models/school_model.dart';
 import 'package:classpal_flutter_app/features/school/views/school_create_screen.dart';
 import 'package:classpal_flutter_app/features/school/views/school_join_screen.dart';
 import 'package:classpal_flutter_app/features/school/views/school_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
 import '../../../core/config/app_constants.dart';
 import '../../../core/widgets/custom_avatar.dart';
 import '../../../core/widgets/custom_list_item.dart';
 import '../../../core/widgets/custom_list_item_skeleton.dart';
 import '../../../core/widgets/custom_page_transition.dart';
+import '../../auth/models/role_model.dart';
 import '../../profile/model/profile_model.dart';
 import '../../profile/repository/profile_service.dart';
 import '../bloc/school_bloc.dart';
@@ -93,8 +94,6 @@ class _SchoolListScreenState extends State<SchoolListScreen> {
               },
             );
           }
-        } else if (widget.isTeacherView) {
-          return _buildListSchoolTeacherView();
         } else {
           return _buildListSchoolView();
         }
@@ -129,66 +128,66 @@ class _SchoolListScreenState extends State<SchoolListScreen> {
   }
 
   Widget _buildListSchoolView() {
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: schools.length,
-      itemBuilder: (context, index) {
-        final school = schools[index];
-        final profile = profiles[index];
-        String classesText = school.name;
+    return FutureBuilder<List<RoleModel>>(
+      future: AuthService().getRoles(),
+      builder: (context, snapshot) {
+        final userRoles = snapshot.data ?? [];
 
-        return CustomListItem(
-          leading: const CustomAvatar(
-            imageAsset: 'assets/images/school.jpg',
-          ),
-          title: school.name,
-          subtitle: classesText,
-          onTap: () async {
-            await ProfileService().saveCurrentProfile(profile);
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: schools.length,
+          itemBuilder: (context, index) {
+            final school = schools[index];
+            final profile = profiles[index];
 
-            CustomPageTransition.navigateTo(
-                context: context,
-                page: SchoolScreen(
-                  school: school,
-                ),
-                transitionType: PageTransitionType.slideFromRight);
+            // Tìm danh sách tên của roles từ userRoles trùng với profile.roles
+            final matchingRoles = userRoles
+                .where((role) => profile.roles.contains(role.id))
+                .map((role) => role.name)
+                .toList();
+
+            // Ghép tên role thành một chuỗi, nếu không có thì hiển thị 'Không có vai trò'
+            final classesText = matchingRoles.isNotEmpty
+                ? matchingRoles.join(', ')
+                : 'Không có vai trò';
+
+            return CustomListItem(
+              leading:
+                  const CustomAvatar(imageAsset: 'assets/images/school.jpg'),
+              title: school.name,
+              subtitle: _getRoleDisplayName(classesText),
+              onTap: () async {
+                await ProfileService().saveCurrentProfile(profile);
+                CustomPageTransition.navigateTo(
+                  context: context,
+                  page: SchoolScreen(school: school, isTeacherView: classesText == 'Executive' ? false : true,),
+                  transitionType: PageTransitionType.slideFromRight,
+                );
+              },
+            );
           },
+          separatorBuilder: (context, index) =>
+              const SizedBox(height: kMarginMd),
         );
       },
-      separatorBuilder: (context, index) => const SizedBox(height: kMarginMd),
     );
   }
 
-  Widget _buildListSchoolTeacherView() {
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: schools.length,
-      itemBuilder: (context, index) {
-        final school = schools[index];
-        final profile = profiles[index];
-        String classesText = school.name;
-
-        return CustomListItem(
-          leading: const CustomAvatar(
-            imageAsset: 'assets/images/school.jpg',
-          ),
-          title: school.name,
-          subtitle: classesText,
-          onTap: () async {
-            await ProfileService().saveCurrentProfile(profile);
-
-            CustomPageTransition.navigateTo(
-                context: context,
-                page: SchoolScreen(
-                  school: school,
-                ),
-                transitionType: PageTransitionType.slideFromRight);
-          },
-        );
-      },
-      separatorBuilder: (context, index) => const SizedBox(height: kMarginMd),
-    );
+  /// Hàm chuyển đổi tên vai trò sang dạng hiển thị tùy chỉnh
+  String _getRoleDisplayName(String roleName) {
+    switch (roleName) {
+      case 'Executive':
+        return 'Ban Giám Hiệu';
+      case 'Student':
+        return 'Học Sinh';
+      case 'Teacher':
+        return 'Giáo Viên';
+      case 'Parent':
+        return 'Phụ Huynh';
+      default:
+        return roleName; // Giữ nguyên nếu không nằm trong danh sách
+    }
   }
+
 }

@@ -132,6 +132,12 @@ class _ClassCreateScreenState extends State<ClassCreateScreen> {
                                 name: _classNameController.text));
                   }
                   if (_currentStep == 2) {
+                    showTopSnackBar(
+                      Overlay.of(context),
+                      const CustomSnackBar.success(
+                        message: 'Tạo lớp thành công!',
+                      ),
+                    );
                     return Navigator.pop(context);
                   }
                 },

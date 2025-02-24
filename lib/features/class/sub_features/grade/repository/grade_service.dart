@@ -6,6 +6,7 @@ import 'package:classpal_flutter_app/features/profile/repository/profile_service
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/grade_type_model.dart';
 
@@ -21,11 +22,16 @@ class GradeService extends ProfileService {
 
   // Khởi tạo PersistCookieJar để lưu trữ cookie
   Future<void> _initialize() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final cookieStorage = FileStorage('${directory.path}/cookies');
-    _cookieJar = PersistCookieJar(storage: cookieStorage);
-    _dio.interceptors.add(CookieManager(_cookieJar));
-    await restoreCookies();
+    if (kIsWeb) {
+      // Xử lý cho nền tảng web
+    } else {
+      final directory = await getApplicationDocumentsDirectory();
+      final cookieStorage = FileStorage('${directory.path}/cookies');
+      _cookieJar = PersistCookieJar(storage: cookieStorage);
+      _dio.interceptors.add(CookieManager(_cookieJar));
+      // Khôi phục cookies khi khởi tạo
+      await restoreCookies();
+    }
   }
 
   Future<bool> insertGrade(String subjectId, String gradeTypeId,
@@ -89,7 +95,12 @@ class GradeService extends ProfileService {
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
-      final requestUrl = '$_baseUrl/grades/student/$studentId';
+      var requestUrl = '$_baseUrl/grades/student/$studentId';
+
+      if (studentId == '') {
+        requestUrl = '$_baseUrl/grades/student/${currentProfile?.id}';
+      }
+
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
@@ -137,8 +148,8 @@ class GradeService extends ProfileService {
             'Lỗi khi lấy dữ liệu: Mã lỗi ${response.statusCode}, Thông báo: ${response.data}');
         return [];
       }
-    } catch (e) {
-      print('Error fetching subject: $e');
+    } on DioException catch (e) {
+      print('Error fetching subject: ${e.response!.data}');
       return [];
     }
   }
@@ -174,8 +185,7 @@ class GradeService extends ProfileService {
       if (response.statusCode == 200) {
         final data = response.data['data'] as List;
 
-        List<GradeModel> grades =
-            await Future.wait(data.map((grade) async {
+        List<GradeModel> grades = await Future.wait(data.map((grade) async {
           String subjectName = '';
           String gradeTypeName = '';
           String studentName = '';
@@ -217,6 +227,84 @@ class GradeService extends ProfileService {
     } catch (e) {
       print('Error fetching grade subject: $e');
       return [];
+    }
+  }
+
+  Future<bool> updateGrade(String subjectId, String gradeId, double value, String comment) async {
+    try {
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      final currentProfile = await getCurrentProfile();
+
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final requestUrl = '$_baseUrl/grades/subject/$subjectId/$gradeId';
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Cookie': cookieHeader,
+        'x-profile-id': currentProfile?.id,
+      };
+
+      final response = await _dio.patch(
+        requestUrl,
+        data: jsonEncode(
+          {
+            'value': value,
+            'comment': comment,
+          },
+        ),
+        options: Options(headers: headers),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        throw Exception('Failed to update grade: ${response.data}');
+      }
+    } on DioException catch (e) {
+      print('Error updating grade: ${e.response}');
+      throw e;
+    }
+  }
+
+  Future<bool> deleteGrade(String subjectId, String gradeId) async {
+    try {
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      final currentProfile = await getCurrentProfile();
+
+      final cookieHeader =
+      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final requestUrl = '$_baseUrl/grades/subject/$subjectId/$gradeId';
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Cookie': cookieHeader,
+        'x-profile-id': currentProfile?.id,
+      };
+
+      final response = await _dio.delete(
+        requestUrl,
+        options: Options(headers: headers),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        throw Exception('Failed to delete grade: ${response.data}');
+      }
+    } on DioException catch (e) {
+      print('Error delete grade: ${e.response}');
+      throw e;
     }
   }
 }

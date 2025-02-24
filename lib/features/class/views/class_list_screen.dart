@@ -11,6 +11,7 @@ import '../../../core/widgets/custom_list_item.dart';
 import '../../../core/widgets/custom_page_transition.dart';
 import '../../profile/model/profile_model.dart';
 import '../../profile/repository/profile_service.dart';
+import '../../student/views/student_report_screen.dart';
 import '../bloc/class_bloc.dart';
 import '../models/class_model.dart';
 import 'class_create_screen.dart';
@@ -18,10 +19,14 @@ import 'class_screen.dart';
 
 class ClassListScreen extends StatefulWidget {
   final bool isClassSchoolView;
+  final bool isParentView;
+  final bool isStudentView;
 
   const ClassListScreen({
     super.key,
     this.isClassSchoolView = false,
+    this.isParentView = false,
+    this.isStudentView = false,
   });
 
   @override
@@ -37,6 +42,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
     // TODO: implement initState
     super.initState();
     if (widget.isClassSchoolView) {
+      print(1);
       context.read<ClassBloc>().add(ClassSchoolFetchStarted());
     } else {
       context.read<ClassBloc>().add(ClassPersonalFetchStarted());
@@ -67,6 +73,8 @@ class _ClassListScreenState extends State<ClassListScreen> {
           } else {
             return _buildEmptyClassView();
           }
+        } else if (widget.isStudentView) {
+          return _buildListClassStudentView();
         } else if (widget.isClassSchoolView) {
           return _buildListClassSchoolView();
         } else {
@@ -129,6 +137,87 @@ class _ClassListScreenState extends State<ClassListScreen> {
             imageAsset: 'assets/images/class.jpg',
           ),
           hasTrailingArrow: true,
+        );
+      },
+      separatorBuilder: (context, index) => const SizedBox(height: kMarginMd),
+    );
+  }
+
+  Widget _buildListClassParentView() {
+    return ListView.separated(
+      shrinkWrap: true,
+      itemCount: classes.length,
+      itemBuilder: (context, index) {
+        final currentClass = classes[index];
+        return CustomListItem(
+          onTap: () async {
+            await ClassService().saveCurrentClass(currentClass);
+            CustomPageTransition.navigateTo(
+                context: context,
+                page: ClassScreen(
+                  currentClass: currentClass,
+                ),
+                transitionType: PageTransitionType.slideFromRight);
+          },
+          title: currentClass.name,
+          leading: const CustomAvatar(
+            imageAsset: 'assets/images/class.jpg',
+          ),
+          hasTrailingArrow: true,
+        );
+      },
+      separatorBuilder: (context, index) => const SizedBox(height: kMarginMd),
+    );
+  }
+
+  Widget _buildListClassStudentView() {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: classes.length,
+      itemBuilder: (context, index) {
+        final currentClass = classes[index];
+        final profile = profiles[index];
+        return Container(
+          padding: const EdgeInsets.only(bottom: 5),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(kBorderRadiusMd),
+              color: kGreyLightColor),
+          child: Container(
+            padding: const EdgeInsets.all(kPaddingMd),
+            decoration: BoxDecoration(
+                color: kWhiteColor,
+                borderRadius: BorderRadius.circular(kBorderRadiusMd),
+                border: Border.all(width: 2, color: kGreyLightColor)),
+            child: Column(
+              children: [
+                CustomListItem(
+                  onTap: () async {},
+                  title: currentClass.name,
+                  leading: const CustomAvatar(
+                    imageAsset: 'assets/images/class.jpg',
+                  ),
+                  hasTrailingArrow: true,
+                ),
+                const SizedBox(
+                  height: kMarginMd,
+                ),
+                CustomButton(
+                  text: 'Xem báo cáo',
+                  onTap: () async {
+                    await ProfileService().saveCurrentProfile(profile);
+                    await ClassService().saveCurrentClass(currentClass);
+                    CustomPageTransition.navigateTo(
+                        context: context,
+                        page: StudentReportScreen(
+                          studentId: profile.id,
+                        ),
+                        transitionType: PageTransitionType.slideFromBottom);
+                  },
+                ),
+              ],
+            ),
+          ),
         );
       },
       separatorBuilder: (context, index) => const SizedBox(height: kMarginMd),

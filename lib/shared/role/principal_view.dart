@@ -2,10 +2,9 @@ import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/features/auth/models/user_model.dart';
 import 'package:classpal_flutter_app/features/class/repository/class_service.dart';
 import 'package:classpal_flutter_app/features/class/views/class_list_screen.dart';
-import 'package:classpal_flutter_app/features/school/views/school_create_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/utils/app_text_style.dart';
-import '../../features/class/views/class_create_screen.dart';
 import '../../features/school/views/school_list_screen.dart';
 
 class PrincipalView extends StatefulWidget {
@@ -49,10 +48,7 @@ class _PrincipalViewState extends State<PrincipalView> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      SchoolCreateScreen.route,
-                    );
+                    context.push('/school/create');
                   },
                   child: Text(
                     '+ Thêm trường học',
@@ -77,10 +73,7 @@ class _PrincipalViewState extends State<PrincipalView> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      ClassCreateScreen.route,
-                    );
+                    context.push('/class/create');
                   },
                   child: Text(
                     '+ Thêm lớp học',

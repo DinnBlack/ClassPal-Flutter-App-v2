@@ -13,7 +13,10 @@ class ParentInvitationFetchSuccess extends ParentState {
   final List<ParentInvitationModel> pendingParents;
   final List<ParentInvitationModel> connectedParents;
 
-  ParentInvitationFetchSuccess( {required this.disconnectedParents, required this.pendingParents, required this.connectedParents});
+  ParentInvitationFetchSuccess(
+      {required this.disconnectedParents,
+      required this.pendingParents,
+      required this.connectedParents});
 }
 
 class ParentInvitationFetchFailure extends ParentState {
@@ -31,4 +34,19 @@ class ParentDeleteFailure extends ParentState {
   final String error;
 
   ParentDeleteFailure({required this.error});
+}
+
+// parent fetch children
+class ParentFetchChildrenInProgress extends ParentState {}
+
+class ParentFetchChildrenSuccess extends ParentState {
+  final List<ProfileModel> children;
+
+  ParentFetchChildrenSuccess({required this.children});
+}
+
+class ParentFetchChildrenFailure extends ParentState {
+  final String error;
+
+  ParentFetchChildrenFailure({required this.error});
 }

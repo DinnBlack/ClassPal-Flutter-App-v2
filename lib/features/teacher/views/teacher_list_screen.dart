@@ -84,6 +84,7 @@ class _TeacherListScreenState extends State<TeacherListScreen> {
         final teacher = teachers[index];
         return CustomListItem(
           title: teacher.displayName,
+          subtitle: teacher.userId == null ? 'Giáo viên chưa tham gia': null,
           leading: CustomAvatar(profile: teacher),
           onTap: widget.isTeacherConnectView == true
               ? null

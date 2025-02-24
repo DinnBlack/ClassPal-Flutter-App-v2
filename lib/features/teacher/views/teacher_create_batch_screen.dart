@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:random_color/random_color.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import '../../../core/config/app_constants.dart';
 import '../../../core/utils/app_text_style.dart';
@@ -101,14 +103,20 @@ class _TeacherCreateBatchScreenState extends State<TeacherCreateBatchScreen> {
           CustomLoadingDialog.show(context);
         } else if (state is TeacherCreateBatchSuccess) {
           CustomLoadingDialog.dismiss(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Tạo giáo viên thành công')),
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.success(
+              message: 'Tạo giáo viên đồng loạt thành công!',
+            ),
           );
           Navigator.pop(context);
         } else if (state is TeacherCreateBatchFailure) {
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Tạo giáo viên thất bại')),
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.success(
+              message: 'Tạo giáo viên đồng loạt thất bại!. Vui lòng thử lại!',
+            ),
           );
         }
       },
@@ -121,7 +129,6 @@ class _TeacherCreateBatchScreenState extends State<TeacherCreateBatchScreen> {
       },
     );
   }
-
 
   Widget _buildBody() {
     return SingleChildScrollView(
@@ -206,25 +213,27 @@ class _TeacherCreateBatchScreenState extends State<TeacherCreateBatchScreen> {
         child: const Icon(FontAwesomeIcons.xmark),
         onTap: () => Navigator.pop(context),
       ),
-      rightWidget: GestureDetector(
-        onTap: () {
-          if (_teachers.isNotEmpty) {
-            final List<String> names =
-                _teachers.map((teacher) => teacher['name']!).toList();
-            context
-                .read<TeacherBloc>()
-                .add(TeacherCreateBatchStarted(names: names));
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Không có giáo viên để lưu')),
-            );
-          }
-        },
-        child: Text(
-          'Lưu',
-          style: AppTextStyle.semibold(kTextSizeSm, kPrimaryColor),
-        ),
-      ),
+      rightWidget: _teachers.isNotEmpty
+          ? GestureDetector(
+              onTap: () {
+                final List<String> names =
+                    _teachers.map((teacher) => teacher['name']!).toList();
+                final List<String> emails =
+                    _teachers.map((teacher) => teacher['name']!).toList();
+                context.read<TeacherBloc>().add(
+                      TeacherCreateBatchStarted(
+                          teachers: List<Map<String, String>>.from(_teachers)),
+                    );
+              },
+              child: Text(
+                'Lưu',
+                style: AppTextStyle.semibold(kTextSizeSm, kPrimaryColor),
+              ),
+            )
+          : Text(
+              'Lưu',
+              style: AppTextStyle.semibold(kTextSizeSm, Colors.grey),
+            ),
     );
   }
 }

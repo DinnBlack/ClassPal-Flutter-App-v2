@@ -46,3 +46,24 @@ class GradeFetchBySubjectIdFailure extends GradeState {
   GradeFetchBySubjectIdFailure(this.error);
 }
 
+// Fetch grade by subject id
+class GradeUpdateInProgress extends GradeState {}
+
+class GradeUpdateSuccess extends GradeState {}
+
+class GradeUpdateFailure extends GradeState {
+  final String error;
+
+  GradeUpdateFailure(this.error);
+}
+
+// Delete grade by id
+class GradeDeleteInProgress extends GradeState {}
+
+class GradeDeleteSuccess extends GradeState {}
+
+class GradeDeleteFailure extends GradeState {
+  final String error;
+
+  GradeDeleteFailure(this.error);
+}

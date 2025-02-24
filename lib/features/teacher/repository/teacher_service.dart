@@ -1,8 +1,10 @@
 import 'dart:convert';
 
+import 'package:classpal_flutter_app/features/invitation/repository/invitation_service.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,14 +24,19 @@ class TeacherService extends ProfileService {
 
   // Khởi tạo PersistCookieJar để lưu trữ cookie
   Future<void> _initialize() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final cookieStorage = FileStorage('${directory.path}/cookies');
-    _cookieJar = PersistCookieJar(storage: cookieStorage);
-    _dio.interceptors.add(CookieManager(_cookieJar));
-    await restoreCookies();
+    if (kIsWeb) {
+      // Xử lý cho nền tảng web
+    } else {
+      final directory = await getApplicationDocumentsDirectory();
+      final cookieStorage = FileStorage('${directory.path}/cookies');
+      _cookieJar = PersistCookieJar(storage: cookieStorage);
+      _dio.interceptors.add(CookieManager(_cookieJar));
+      // Khôi phục cookies khi khởi tạo
+      await restoreCookies();
+    }
   }
 
-  Future<bool> insertTeacher(String displayName) async {
+  Future<bool> insertTeacher(String displayName, String email) async {
     try {
       await _initialize();
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
@@ -65,7 +72,12 @@ class TeacherService extends ProfileService {
       );
 
       if (response.statusCode == 201) {
-        print('Success inserting teacher: ${response.data}');
+        final teacherProfile = ProfileModel.fromMap(response.data['data'][0]);
+        print(teacherProfile);
+
+        await InvitationService()
+            .sendInvitationMailForTeacherSchool(email, teacherProfile.id);
+
         return true;
       } else {
         throw Exception('Failed to insert teacher: ${response.data}');
@@ -76,10 +88,10 @@ class TeacherService extends ProfileService {
     }
   }
 
-  Future<bool> insertBatchTeacher(List<String> names) async {
+  Future<bool> insertBatchTeacher(List<Map<String, String>> teachers) async {
     try {
       final results = await Future.wait(
-        names.map((name) => insertTeacher(name)),
+        teachers.map((teacher) => insertTeacher(teacher["name"]!, teacher["email"]!)),
       );
       return results.every((result) => result == true);
     } catch (e) {

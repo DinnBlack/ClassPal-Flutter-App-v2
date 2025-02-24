@@ -7,6 +7,8 @@ import 'package:classpal_flutter_app/features/class/models/class_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import '../../../core/widgets/custom_button_camera.dart';
 import '../../../core/widgets/custom_loading_dialog.dart';
 import '../../../core/widgets/custom_text_field.dart';
@@ -32,7 +34,6 @@ class _ClassInformationScreenState extends State<ClassInformationScreen> {
     super.initState();
     _classNameController.addListener(_validateForm);
     _classNameController.text = widget.currentClass.name;
-    print(widget.currentClass.avatarUrl);
     _validateForm();
   }
 
@@ -116,13 +117,19 @@ class _ClassInformationScreenState extends State<ClassInformationScreen> {
                 CustomLoadingDialog.dismiss(context);
               }
               if (state is ClassUpdateSuccess) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Cập nhật thành công')),
+                showTopSnackBar(
+                  Overlay.of(context),
+                  const CustomSnackBar.success(
+                    message: 'Cập nhật thành công!',
+                  ),
                 );
                 Navigator.pop(context);
               } else if (state is ClassUpdateFailure) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Cập nhật thất bại')),
+                showTopSnackBar(
+                  Overlay.of(context),
+                  const CustomSnackBar.error(
+                    message: 'Cập nhật thất bại!',
+                  ),
                 );
               }
             },

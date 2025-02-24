@@ -9,7 +9,16 @@ import 'package:skeleton_loader/skeleton_loader.dart';
 import 'widgets/custom_post_list_item.dart';
 
 class PostListScreen extends StatefulWidget {
-  const PostListScreen({super.key});
+  final bool isParentView;
+  final bool isStudentView;
+  final bool isTeacherView;
+
+  const PostListScreen({
+    super.key,
+    this.isParentView = false,
+    this.isStudentView = false,
+    this.isTeacherView = false,
+  });
 
   @override
   State<PostListScreen> createState() => _PostListScreenState();
@@ -29,67 +38,102 @@ class _PostListScreenState extends State<PostListScreen> {
       builder: (context, state) {
         if (state is PostFetchInProgress) {
           return SingleChildScrollView(
-              child: Column(
-            children: [
-              const SizedBox(
-                height: kMarginMd,
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
-                child: PostCreateButton(),
-              ),
-              const SizedBox(
-                height: kMarginLg,
-              ),
-              _buildSkeletonLoading(),
-            ],
-          ));
+            child: Column(
+              children: [
+                if (!widget.isParentView &&
+                    !widget.isStudentView &&
+                    !widget.isTeacherView) ...[
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
+                    child: PostCreateButton(),
+                  ),
+                  const SizedBox(
+                    height: kMarginLg,
+                  ),
+                ],
+                _buildSkeletonLoading(),
+              ],
+            ),
+          );
         }
         if (state is PostFetchSuccess) {
           if (state.posts.isEmpty) {
             return Column(
               children: [
-                const SizedBox(
-                  height: kMarginMd,
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
-                  child: PostCreateButton(),
-                ),
-                const SizedBox(
-                  height: kMarginLg,
-                ),
-                Expanded(child: _buildEmptyPostView()),
-              ],
-            );
-          }
-          return ListView.separated(
-            shrinkWrap: true,
-            itemCount: state.posts.length + 1,
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                return const Column(
-                  children: [
-                    SizedBox(
-                      height: kMarginMd,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
-                      child: PostCreateButton(),
-                    ),
-                    SizedBox(
-                      height: kMarginLg,
-                    ),
-                  ],
-                );
-              }
-              return Column(
-                children: [
-                  CustomPostListItem(post: state.posts[index - 1]),
+                if (!widget.isParentView &&
+                    !widget.isStudentView &&
+                    !widget.isTeacherView) ...[
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
+                    child: PostCreateButton(),
+                  ),
                   const SizedBox(
                     height: kMarginLg,
                   ),
                 ],
+                const SizedBox(
+                  height: kMarginMd,
+                ),
+                if (widget.isStudentView) ...[
+                  _buildEmptyPostView(),
+                ],
+                if (!widget.isStudentView) ...[
+                  Flexible(child: _buildEmptyPostView()),
+                ],
+              ],
+            );
+          }
+          if (widget.isStudentView) {
+            return ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: state.posts.length,
+              itemBuilder: (context, index) {
+                return CustomPostListItem(
+
+                  post: state.posts[index],
+                  isParentView: true,
+                );
+              },
+              separatorBuilder: (context, index) => Container(
+                height: 10,
+                color: kGreyLightColor,
+              ),
+            );
+          }
+
+          return ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: !widget.isParentView &&
+                    !widget.isTeacherView
+                ? state.posts.length + 1
+                : state.posts.length,
+            itemBuilder: (context, index) {
+              if (!widget.isParentView && index == 0) {
+                return Column(
+                  children: [
+                    if (!widget.isParentView &&
+                        !widget.isTeacherView ) ...const [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
+                        child: PostCreateButton(),
+                      ),
+                      SizedBox(
+                        height: kMarginLg,
+                      ),
+                    ],
+                  ],
+                );
+              }
+
+              final postIndex = !widget.isParentView && !widget.isStudentView
+                  ? index - 1
+                  : index;
+
+              return CustomPostListItem(
+                post: state.posts[postIndex],
+                isParentView: widget.isParentView,
               );
             },
             separatorBuilder: (context, index) {

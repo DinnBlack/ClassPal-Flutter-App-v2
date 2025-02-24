@@ -42,7 +42,7 @@ class _ParentViewState extends State<ParentView> {
   static List<TabItem> items = [
     const TabItem(
       icon: FontAwesomeIcons.school,
-      title: 'Trường học',
+      title: 'Trang chủ',
     ),
     const TabItem(
       icon: FontAwesomeIcons.newspaper,

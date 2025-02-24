@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:flutter/material.dart';
-
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../core/widgets/custom_app_bar.dart';
 import '../../profile/model/profile_model.dart';
 
 class RandomStudentPickerScreen extends StatefulWidget {
@@ -33,7 +33,7 @@ class _RandomStudentPickerScreenState extends State<RandomStudentPickerScreen>
 
   void _startRandomizingOnOpen() {
     isRandomizing = true;
-    _timer = Timer.periodic(Duration(milliseconds: 100), (timer) {
+    _timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
       setState(() {
         selectedStudent =
             widget.students[_random.nextInt(widget.students.length)];
@@ -50,7 +50,7 @@ class _RandomStudentPickerScreenState extends State<RandomStudentPickerScreen>
     if (isRandomizing) return;
     setState(() => isRandomizing = true);
 
-    _timer = Timer.periodic(Duration(milliseconds: 80), (timer) {
+    _timer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
       setState(() {
         selectedStudent =
             widget.students[_random.nextInt(widget.students.length)];
@@ -72,16 +72,13 @@ class _RandomStudentPickerScreenState extends State<RandomStudentPickerScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("🎲 Chọn Học Sinh Ngẫu Nhiên"),
-        backgroundColor: Colors.blueAccent,
-      ),
+      appBar: _buildAppBar(context),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             AnimatedSwitcher(
-              duration: Duration(milliseconds: 500),
+              duration: const Duration(milliseconds: 500),
               transitionBuilder: (Widget child, Animation<double> animation) {
                 return FadeTransition(
                   opacity: animation,
@@ -103,14 +100,15 @@ class _RandomStudentPickerScreenState extends State<RandomStudentPickerScreen>
                       ],
                     ),
                     child: CircleAvatar(
+                      backgroundColor: kPrimaryColor,
                       radius: 70,
                       backgroundImage: NetworkImage(selectedStudent.avatarUrl),
                     ),
                   ),
-                  SizedBox(height: 15),
+                  const SizedBox(height: 15),
                   Text(
                     selectedStudent.displayName,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
@@ -119,23 +117,39 @@ class _RandomStudentPickerScreenState extends State<RandomStudentPickerScreen>
                 ],
               ),
             ),
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
             ElevatedButton.icon(
               onPressed: startRandomizing,
-              icon: Icon(Icons.shuffle, color: kWhiteColor,),
+              icon: const Icon(
+                Icons.shuffle,
+                color: kWhiteColor,
+              ),
               label: Text(
                 isRandomizing ? "Đang chọn..." : "Chọn lại",
                 style: AppTextStyle.semibold(kTextSizeMd, kWhiteColor),
               ),
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 textStyle: AppTextStyle.semibold(kTextSizeMd, kWhiteColor),
                 backgroundColor:
-                    isRandomizing ? Colors.grey : Colors.blueAccent,
+                    isRandomizing ? Colors.grey : kPrimaryColor,
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  CustomAppBar _buildAppBar(BuildContext context) {
+    return CustomAppBar(
+      title: 'Ngẫu nhiên',
+      leftWidget: InkWell(
+        child: const Icon(
+          FontAwesomeIcons.xmark,
+        ),
+        onTap: () => Navigator.pop(context),
       ),
     );
   }

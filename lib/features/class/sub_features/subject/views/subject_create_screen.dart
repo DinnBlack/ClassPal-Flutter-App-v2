@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import '../../../../../core/config/app_constants.dart';
 import '../../../../../core/utils/app_text_style.dart';
@@ -119,13 +121,19 @@ class _SubjectCreateScreenState extends State<SubjectCreateScreen> {
         }
 
         if (state is SubjectCreateSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Tạo môn học Thành công')),
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.success(
+              message: 'Tạo môn học Thành công!',
+            ),
           );
           Navigator.pop(context);
         } else if (state is SubjectCreateFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Tạo môn học thất bại')),
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.error(
+              message: 'Tạo môn học thất bại!',
+            ),
           );
         }
       },

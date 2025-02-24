@@ -35,7 +35,7 @@ class TeacherBloc extends Bloc<TeacherEvent, TeacherState> {
       TeacherCreateStarted event, Emitter<TeacherState> emit) async {
     emit(TeacherCreateInProgress());
     try {
-      await teacherService.insertTeacher(event.name);
+      await teacherService.insertTeacher(event.name, event.email);
       print("Teacher created successfully");
       emit(TeacherCreateSuccess());
       add(TeacherFetchStarted());
@@ -51,7 +51,7 @@ class TeacherBloc extends Bloc<TeacherEvent, TeacherState> {
       TeacherCreateBatchStarted event, Emitter<TeacherState> emit) async {
     emit(TeacherCreateBatchInProgress());
     try {
-      await teacherService.insertBatchTeacher(event.names);
+      await teacherService.insertBatchTeacher(event.teachers);
       print("Teachers created successfully");
       emit(TeacherCreateBatchSuccess());
       add(TeacherFetchStarted());

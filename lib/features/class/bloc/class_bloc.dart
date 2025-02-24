@@ -23,6 +23,7 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
     on<ClassDeleteStarted>(_onClassDeleteStarted);
     on<ClassSchoolBindRelStarted>(_onClassSchoolBindRelStarted);
     on<ClassSchoolUnBindRelStarted>(_onClassSchoolUnBindRelStarted);
+    on<ClassCreateBatchStarted>(_onClassCreateBatchStarted);
   }
 
   // Fetch the list of classes personal
@@ -132,6 +133,20 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       emit(ClassSchoolUnBindRelSuccess());
     } on Exception catch (e) {
       emit(ClassSchoolUnBindRelFailure(e.toString()));
+    }
+  }
+
+  // Create multiple classes
+  Future<void> _onClassCreateBatchStarted(
+      ClassCreateBatchStarted event, Emitter<ClassState> emit) async {
+    try {
+      emit(ClassCreateBatchInProgress());
+      await classService.insertBatchClass(event.classes);
+      emit(ClassCreateBatchSuccess());
+      await ProfileService().getProfilesByRole(['Executive', 'Teacher']);
+      add(ClassPersonalFetchStarted());
+    } on Exception catch (e) {
+      emit(ClassCreateBatchFailure(e.toString()));
     }
   }
 }

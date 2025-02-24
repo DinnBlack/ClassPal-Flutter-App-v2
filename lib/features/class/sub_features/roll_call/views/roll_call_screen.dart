@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import '../../../../../core/utils/app_text_style.dart';
 import '../../../../../core/widgets/custom_loading_dialog.dart';
@@ -98,13 +100,19 @@ class _RollCallScreenState extends State<RollCallScreen> {
           }
 
           if (state is RollCallCreateSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Tạo điểm danh thành công')),
+            showTopSnackBar(
+              Overlay.of(context),
+              const CustomSnackBar.success(
+                message: 'Tạo điểm danh thành công!',
+              ),
             );
             Navigator.pop(context);
           } else if (state is RollCallCreateFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Bạn đã điểm danh ngày hôm nay')),
+            showTopSnackBar(
+              Overlay.of(context),
+              const CustomSnackBar.error(
+                message: 'Bạn đã điểm danh ngày hôm nay!',
+              ),
             );
           }
         },

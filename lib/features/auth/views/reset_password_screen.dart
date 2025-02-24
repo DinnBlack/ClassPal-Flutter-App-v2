@@ -1,9 +1,11 @@
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/widgets/custom_app_bar.dart';
 import '../../../core/widgets/custom_button.dart';
@@ -62,7 +64,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      appBar: CustomAppBar(
+      appBar: kIsWeb
+          ? null
+          : CustomAppBar(
         leftWidget: InkWell(
           child: const Icon(FontAwesomeIcons.arrowLeft),
           onTap: () {
@@ -70,77 +74,89 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           },
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              'Đặt lại mật khẩu',
-              style: AppTextStyle.bold(kTextSizeXl),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'Đặt lại mật khẩu',
+                  style: AppTextStyle.bold(kTextSizeXl),
+                ),
+                const SizedBox(height: kMarginSm),
+                Text(
+                  'Thiết lập mật khẩu mới của bạn',
+                  style: AppTextStyle.medium(kTextSizeXs),
+                ),
+                const SizedBox(height: kMarginLg),
+                CustomTextField(
+                  text: 'Mật khẩu',
+                  isPassword: true,
+                  controller: _passwordController,
+                  validator: Validators.validatePassword,
+                ),
+                const SizedBox(height: kMarginLg),
+                CustomTextField(
+                  text: 'Nhập lại mật khẩu',
+                  isPassword: true,
+                  controller: _confirmPasswordController,
+                  validator: (value) => Validators.validateConfirmPassword(
+                      value, _passwordController.text),
+                ),
+                const SizedBox(height: kMarginLg),
+                BlocConsumer<AuthBloc, AuthState>(
+                  listener: (context, state) {
+                    if (state is AuthResetPasswordInProgress) {
+                      CustomLoadingDialog.show(context);
+                    } else {
+                      CustomLoadingDialog.dismiss(context);
+                    }
+                    if (state is AuthResetPasswordSuccess) {
+                      showTopSnackBar(
+                        Overlay.of(context),
+                        const CustomSnackBar.success(
+                          message: 'Khôi phục tài khoản thành công!',
+                        ),
+                      );
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        LoginScreen.route,
+                        (route) => false,
+                      );
+                    } else if (state is AuthResetPasswordFailure) {
+                      showTopSnackBar(
+                        Overlay.of(context),
+                        const CustomSnackBar.error(
+                          message: 'Khôi phục tài khoản thất bại!',
+                        ),
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    return CustomButton(
+                      text: 'Khôi phục lại mật khẩu',
+                      isValid: _isValid,
+                      onTap: _isValid
+                          ? () {
+                              final password = _passwordController.text;
+                              context.read<AuthBloc>().add(
+                                    AuthResetPasswordStarted(
+                                      email: widget.email,
+                                      otp: widget.otp,
+                                      password: password,
+                                    ),
+                                  );
+                            }
+                          : null,
+                    );
+                  },
+                ),
+              ],
             ),
-            const SizedBox(height: kMarginSm),
-            Text(
-              'thiết lập mật khẩu mới của bạn',
-              style: AppTextStyle.medium(kTextSizeXs),
-            ),
-            const SizedBox(height: kMarginLg),
-            CustomTextField(
-              text: 'Mật khẩu',
-              isPassword: true,
-              controller: _passwordController,
-              validator: Validators.validatePassword,
-            ),
-            const SizedBox(height: kMarginLg),
-            CustomTextField(
-              text: 'Nhập lại mật khẩu',
-              isPassword: true,
-              controller: _confirmPasswordController,
-              validator: (value) => Validators.validateConfirmPassword(
-                  value, _passwordController.text),
-            ),
-            const SizedBox(height: kMarginLg),
-            BlocConsumer<AuthBloc, AuthState>(
-              listener: (context, state) {
-                if (state is AuthResetPasswordInProgress) {
-                  CustomLoadingDialog.show(context);
-                } else {
-                  CustomLoadingDialog.dismiss(context);
-                }
-                if (state is AuthResetPasswordSuccess) {
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    LoginScreen.route,
-                    (route) => false,
-                  );
-                } else if (state is AuthResetPasswordFailure) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Khôi phục tài khoản thất bại')),
-                  );
-                }
-              },
-              builder: (context, state) {
-                return CustomButton(
-                  text: 'Khôi phục lại mật khẩu',
-                  isValid: _isValid,
-                  onTap: _isValid
-                      ? () {
-                          final password = _passwordController.text;
-
-                          context.read<AuthBloc>().add(
-                                AuthResetPasswordStarted(
-                                  email: widget.email,
-                                  otp: widget.otp,
-                                  password: password,
-                                ),
-                              );
-                        }
-                      : null,
-                );
-              },
-            ),
-          ],
+          ),
         ),
       ),
     );

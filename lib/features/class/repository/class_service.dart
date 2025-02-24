@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:classpal_flutter_app/features/auth/repository/auth_service.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:get/get.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,11 +23,16 @@ class ClassService extends ProfileService {
 
   // Khởi tạo PersistCookieJar để lưu trữ cookie
   Future<void> _initialize() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final cookieStorage = FileStorage('${directory.path}/cookies');
-    _cookieJar = PersistCookieJar(storage: cookieStorage);
-    _dio.interceptors.add(CookieManager(_cookieJar));
-    await restoreCookies();
+    if (kIsWeb) {
+      // Xử lý cho nền tảng web
+    } else {
+      final directory = await getApplicationDocumentsDirectory();
+      final cookieStorage = FileStorage('${directory.path}/cookies');
+      _cookieJar = PersistCookieJar(storage: cookieStorage);
+      _dio.interceptors.add(CookieManager(_cookieJar));
+      // Khôi phục cookies khi khởi tạo
+      await restoreCookies();
+    }
   }
 
   // Lưu profile vào Shared Preferences
@@ -139,8 +142,6 @@ class ClassService extends ProfileService {
           },
         ),
       );
-
-      print(response.data);
 
       if (response.statusCode == 200) {
         classes = (response.data['data'] as List<dynamic>)
@@ -299,6 +300,47 @@ class ClassService extends ProfileService {
     }
   }
 
+  Future<ClassModel> getClassById(String classId) async {
+    try {
+      await _initialize();
+
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      final cookieHeader =
+      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final currentProfile = await getCurrentProfile();
+
+      final requestUrl = '$_baseUrl/classes/$classId';
+      print('Request URL: $requestUrl');
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Cookie': cookieHeader,
+        'x-profile-id': currentProfile?.id,
+      };
+
+      print('Request Headers: $headers');
+
+      final response = await _dio.get(
+        requestUrl,
+        options: Options(headers: headers),
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['data'];
+      } else {
+        throw Exception('Failed to get class: ${response.data}');
+      }
+    } catch (e) {
+      print('Error get class: $e');
+      throw e;
+    }
+  }
+
   Future<bool> deleteClass(String classId) async {
     try {
       await _initialize();
@@ -342,6 +384,19 @@ class ClassService extends ProfileService {
     }
   }
 
+  Future<bool> insertBatchClass(List<String> classes) async {
+    try {
+      final results = await Future.wait(
+        classes.map((className) => insertSchoolClass(className, null)),
+      );
+
+      return results.every((result) => result == true);
+    } catch (e) {
+      print("Error inserting classes: $e");
+      return false;
+    }
+  }
+
   // Insert personal class
   Future<void> bindRelationship(List<String> profileIds) async {
     try {
@@ -358,6 +413,8 @@ class ClassService extends ProfileService {
       final currentProfile = await getCurrentProfile();
 
       final currentClass = await getCurrentClass();
+
+      print(currentClass);
 
       final response = await _dio.post(
         '$_baseUrl/classes/${currentClass?.id}/rels',

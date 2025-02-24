@@ -1,6 +1,8 @@
+import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/config/app_constants.dart';
 import '../../../core/utils/app_text_style.dart';
@@ -34,16 +36,16 @@ class _CountdownTimerScreenState extends State<CountdownTimerScreen> {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: Text("⏰ Hết thời gian!",
+              title: const Text("⏰ Hết thời gian!",
                   style: TextStyle(fontWeight: FontWeight.bold)),
-              content: Text("Bạn đã hoàn thành bộ đếm ngược."),
+              content: const Text("Bạn đã hoàn thành bộ đếm ngược."),
               actions: [
                 TextButton(
                   onPressed: () {
                     FlutterRingtonePlayer().stop();
                     Navigator.pop(context);
                   },
-                  child: Text("OK"),
+                  child: const Text("OK"),
                 )
               ],
             ),
@@ -83,24 +85,19 @@ class _CountdownTimerScreenState extends State<CountdownTimerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("⏳ Bộ Đếm Ngược"),
-        backgroundColor: Colors.blueAccent,
-      ),
+      appBar: _buildAppBar(context),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding:  const EdgeInsets.symmetric(horizontal: kPaddingMd),
         child: Column(
           children: [
-            Text("Chọn thời gian:",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 10),
+             const SizedBox(height: kMarginLg),
             Wrap(
               spacing: 12,
               children: presetTimes.map((time) {
                 return ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: selectedTime == time
-                        ? Colors.blue
+                        ? kPrimaryColor
                         : Colors.grey.shade300,
                     foregroundColor:
                         selectedTime == time ? Colors.white : Colors.black,
@@ -110,18 +107,15 @@ class _CountdownTimerScreenState extends State<CountdownTimerScreen> {
                 );
               }).toList(),
             ),
-            SizedBox(height: 30),
-            Text("Thời gian còn lại:",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
-            SizedBox(height: 10),
+            const SizedBox(height: kMarginLg),
             Text(
               "${_remainingTime}s",
-              style: TextStyle(
+              style: const TextStyle(
                   fontSize: 48,
                   fontWeight: FontWeight.bold,
                   color: Colors.redAccent),
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: kMarginLg),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -139,9 +133,9 @@ class _CountdownTimerScreenState extends State<CountdownTimerScreen> {
                     style: AppTextStyle.semibold(kTextSizeSm, kWhiteColor),
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 ElevatedButton.icon(
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.replay,
                     color: kWhiteColor,
                   ),
@@ -153,11 +147,11 @@ class _CountdownTimerScreenState extends State<CountdownTimerScreen> {
                     style: AppTextStyle.semibold(kTextSizeSm, kWhiteColor),
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 ElevatedButton.icon(
-                  icon: Icon(Icons.add, color: kWhiteColor,),
+                  icon: const Icon(Icons.add, color: kWhiteColor,),
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent),
+                      backgroundColor: kPrimaryColor),
                   onPressed: () => addTime(10),
                   label: Text(
                     "+10s",
@@ -168,6 +162,18 @@ class _CountdownTimerScreenState extends State<CountdownTimerScreen> {
             )
           ],
         ),
+      ),
+    );
+  }
+
+  CustomAppBar _buildAppBar(BuildContext context) {
+    return CustomAppBar(
+      title: 'Đếm thời gian',
+      leftWidget: InkWell(
+        child: const Icon(
+          FontAwesomeIcons.xmark,
+        ),
+        onTap: () => Navigator.pop(context),
       ),
     );
   }

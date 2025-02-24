@@ -1,6 +1,17 @@
+import 'package:classpal_flutter_app/core/config/app_constants.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_loading_dialog.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
+import 'package:classpal_flutter_app/features/auth/repository/auth_service.dart';
+import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../auth/views/select_role_screen.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
+import '../../../core/utils/app_text_style.dart';
+import '../../../core/widgets/custom_app_bar.dart';
 import '../bloc/invitation_bloc.dart';
 
 class InvitationScreen extends StatelessWidget {
@@ -11,23 +22,34 @@ class InvitationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Lời mời")),
+      backgroundColor: kBackgroundColor,
+      appBar: _buildAppBar(context),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: BlocListener<InvitationBloc, InvitationState>(
-          listener: (context, state) {
+          listener: (context, state) async {
+            if (state is InvitationAcceptInProgress) {
+              CustomLoadingDialog.show(context);
+            } else {
+              CustomLoadingDialog.dismiss(context);
+            }
+
             if (state is InvitationAcceptSuccess) {
-              // Điều hướng về màn hình SelectRoleScreen khi thành công
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const SelectRoleScreen()),
+              // Hiển thị thông báo thành công
+              showTopSnackBar(
+                Overlay.of(context),
+                const CustomSnackBar.success(
+                  message: 'Tham gia lớp học thành công!',
+                ),
               );
+
+
             } else if (state is InvitationAcceptFailure) {
               // Hiển thị thông báo lỗi nếu thất bại
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("Lỗi: ${state.error}"),
-                  backgroundColor: Colors.red,
+              showTopSnackBar(
+                Overlay.of(context),
+                const CustomSnackBar.error(
+                  message: 'Tham gia lớp học thất bại!',
                 ),
               );
             }
@@ -44,17 +66,10 @@ class InvitationScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  "Token: $token",
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                  textAlign: TextAlign.center,
-                ),
+              Text(
+                "Mã lời mời: $token",
+                style: AppTextStyle.medium(kTextSizeSm),
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
 
@@ -63,31 +78,33 @@ class InvitationScreen extends StatelessWidget {
                 builder: (context, state) {
                   bool isLoading = state is InvitationAcceptInProgress;
 
-                  return ElevatedButton(
-                    onPressed: isLoading
+                  return CustomButton(
+                    onTap: isLoading
                         ? null
                         : () {
-                      // Gửi sự kiện Accept Invitation
-                      context.read<InvitationBloc>().add(InvitationAcceptStarted(invitationId: token));
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                      "Chấp nhận lời mời",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
+                            context.read<InvitationBloc>().add(
+                                InvitationAcceptStarted(invitationId: token));
+                          },
+                    text: isLoading ? 'Đang tham gia...' : "Chấp nhận lời mời",
                   );
                 },
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  CustomAppBar _buildAppBar(BuildContext context) {
+    return CustomAppBar(
+      title: 'Tham gia lớp học',
+      leftWidget: InkWell(
+        onTap: () {
+          Navigator.pop(context);
+        },
+        child: const Icon(
+          FontAwesomeIcons.xmark,
         ),
       ),
     );

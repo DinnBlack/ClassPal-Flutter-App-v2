@@ -1,5 +1,7 @@
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:awesome_bottom_bar/tab_item.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
+import 'package:classpal_flutter_app/features/post/views/post_create_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -34,12 +36,12 @@ class _ClassScreenState extends State<ClassScreen> {
 
     _pages = [
       ClassDashboardPage(currentClass: widget.currentClass),
-      ClassNewsPage(currentClass: widget.currentClass),
       const SizedBox.shrink(),
-      ClassSchedulePage(
-        currentClass: widget.currentClass,
-      ),
-      ClassNotificationPage(currentClass: widget.currentClass),
+      ClassNewsPage(currentClass: widget.currentClass),
+      // ClassSchedulePage(
+      //   currentClass: widget.currentClass,
+      // ),
+      // ClassNotificationPage(currentClass: widget.currentClass),
     ];
   }
 
@@ -50,8 +52,8 @@ class _ClassScreenState extends State<ClassScreen> {
   }
 
   void _onTabTapped(int index) {
-    if (index == 2) {
-      _showFavoriteBottomSheet();
+    if (index == 1) {
+      CustomPageTransition.navigateTo(context: context, page: const PostCreateScreen(), transitionType: PageTransitionType.slideFromBottom);
       return;
     }
 
@@ -71,20 +73,12 @@ class _ClassScreenState extends State<ClassScreen> {
       title: 'Lớp Học',
     ),
     TabItem(
-      icon: FontAwesomeIcons.newspaper,
-      title: 'Bảng Tin',
-    ),
-    TabItem(
       icon: FontAwesomeIcons.star,
       title: '',
     ),
     TabItem(
-      icon: FontAwesomeIcons.calendar,
-      title: 'Lịch Học',
-    ),
-    TabItem(
-      icon: FontAwesomeIcons.message,
-      title: 'Tin Nhắn',
+      icon: FontAwesomeIcons.newspaper,
+      title: 'Bảng Tin',
     ),
   ];
 

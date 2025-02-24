@@ -9,6 +9,8 @@ import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_loading_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_text_field.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import '../../profile/model/profile_model.dart';
 import '../bloc/student_bloc.dart';
 
@@ -73,13 +75,19 @@ class _StudentEditScreenState extends State<StudentEditScreen> {
             CustomLoadingDialog.dismiss(context);
           }
           if (state is StudentUpdateSuccess || state is StudentDeleteSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state is StudentUpdateSuccess ? 'Cập nhật thành công' : 'Xóa học sinh thành công')),
+            showTopSnackBar(
+              Overlay.of(context),
+               CustomSnackBar.success(
+                message: state is StudentUpdateSuccess ? 'Cập nhật thành công' : 'Xóa học sinh thành công',
+              ),
             );
             Navigator.pop(context);
           } else if (state is StudentUpdateFailure || state is StudentDeleteFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Lỗi: ')),
+            showTopSnackBar(
+              Overlay.of(context),
+              CustomSnackBar.error(
+                message: state is StudentUpdateFailure ? 'Cập nhật thất bại' : 'Xóa học sinh thất bại',
+              ),
             );
           }
         },

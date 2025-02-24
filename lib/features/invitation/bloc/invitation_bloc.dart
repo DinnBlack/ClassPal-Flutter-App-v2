@@ -3,6 +3,10 @@ import 'package:classpal_flutter_app/features/invitation/repository/invitation_s
 import 'package:classpal_flutter_app/features/teacher/bloc/teacher_bloc.dart';
 import 'package:meta/meta.dart';
 
+import '../../auth/repository/auth_service.dart';
+import '../../profile/model/profile_model.dart';
+import '../../profile/repository/profile_service.dart';
+
 part 'invitation_event.dart';
 
 part 'invitation_state.dart';
@@ -15,6 +19,7 @@ class InvitationBloc extends Bloc<InvitationEvent, InvitationState> {
     on<InvitationCreateForTeacherStarted>(_onInvitationCreateForTeacherStarted);
     on<InvitationAcceptStarted>(_onInvitationAcceptStarted);
     on<InvitationRemoveStarted>(_onInvitationRemoveStarted);
+    on<InvitationSubmitGroupCodeStarted>(_onInvitationSubmitGroupCodeStarted);
   }
 
   // invitation send mail
@@ -37,7 +42,7 @@ class InvitationBloc extends Bloc<InvitationEvent, InvitationState> {
       Emitter<InvitationState> emit) async {
     try {
       emit(InvitationCreateForTeacherInProgress());
-      await invitationService.sendInvitationMailForTeacher(
+      await invitationService.sendInvitationMailForTeacherPersonalClass(
         event.name,
         event.email,
       );
@@ -52,7 +57,21 @@ class InvitationBloc extends Bloc<InvitationEvent, InvitationState> {
       InvitationAcceptStarted event, Emitter<InvitationState> emit) async {
     try {
       emit(InvitationAcceptInProgress());
-      await invitationService.acceptMailInvitation(event.invitationId);
+      final profile =
+          await invitationService.acceptMailInvitation(event.invitationId);
+      // Lưu hồ sơ hiện tại
+      print(profile);
+      await ProfileService().saveCurrentProfile(profile!);
+
+      // Lấy thông tin người dùng hiện tại
+      final user = await AuthService().getCurrentUser();
+      print(user);
+
+      // Cập nhật hồ sơ với tên của người dùng
+      await ProfileService().updateProfile(
+        profileId: profile.id,
+        name: user!.name,
+      );
       emit(InvitationAcceptSuccess());
     } on Exception catch (e) {
       emit(InvitationAcceptFailure(error: e.toString()));
@@ -68,6 +87,19 @@ class InvitationBloc extends Bloc<InvitationEvent, InvitationState> {
       emit(InvitationRemoveSuccess());
     } on Exception catch (e) {
       emit(InvitationRemoveFailure(error: e.toString()));
+    }
+  }
+
+  // submit group code
+  Future<void> _onInvitationSubmitGroupCodeStarted(
+      InvitationSubmitGroupCodeStarted event,
+      Emitter<InvitationState> emit) async {
+    try {
+      emit(InvitationSubmitGroupCodeInProgress());
+      await invitationService.submitGroupCode(event.groupCode);
+      emit(InvitationSubmitGroupCodeSuccess());
+    } on Exception catch (e) {
+      emit(InvitationSubmitGroupCodeFailure(error: e.toString()));
     }
   }
 }

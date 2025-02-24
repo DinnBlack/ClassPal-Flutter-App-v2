@@ -25,3 +25,13 @@ class RollCallFetchByDateStarted extends RollCallEvent {
 
   RollCallFetchByDateStarted({required this.date});
 }
+
+// Update roll call entry
+class RollCallEntryUpdateStarted extends RollCallEvent {
+  final String entryId;
+  final String status;
+  final String remarks;
+
+  RollCallEntryUpdateStarted(
+      {required this.entryId, required this.status, required this.remarks});
+}

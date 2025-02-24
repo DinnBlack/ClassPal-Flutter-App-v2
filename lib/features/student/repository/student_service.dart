@@ -1,9 +1,9 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:classpal_flutter_app/features/class/repository/class_service.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../profile/model/profile_model.dart';
 import '../../profile/repository/profile_service.dart';
@@ -20,16 +20,33 @@ class StudentService extends ProfileService {
 
   // Khởi tạo PersistCookieJar để lưu trữ cookie
   Future<void> _initialize() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final cookieStorage = FileStorage('${directory.path}/cookies');
-    _cookieJar = PersistCookieJar(storage: cookieStorage);
-    _dio.interceptors.add(CookieManager(_cookieJar));
-    await restoreCookies();
+    if (kIsWeb) {
+      // Xử lý cho nền tảng web
+    } else {
+      final directory = await getApplicationDocumentsDirectory();
+      final cookieStorage = FileStorage('${directory.path}/cookies');
+      _cookieJar = PersistCookieJar(storage: cookieStorage);
+      _dio.interceptors.add(CookieManager(_cookieJar));
+      // Khôi phục cookies khi khởi tạo
+      await restoreCookies();
+    }
   }
 
   Future<bool> insertStudent(String displayName) async {
     try {
-      final result = await insertProfile(displayName, 'Student', 1);
+      final currentProfile = await getCurrentProfile();
+
+      var result;
+
+      if (currentProfile!.groupType == 0) {
+        result = await insertProfile(displayName, 'Student', 0);
+        await ClassService().bindRelationship(result.id);
+      } else {
+        result = await insertProfile(displayName, 'Student', 1);
+      }
+
+      print(result);
+
       if (result != null) {
         return true;
       } else {
@@ -52,7 +69,6 @@ class StudentService extends ProfileService {
 
   Future<List<ProfileModel>?> getStudents() async {
     try {
-
       final profiles = await getProfilesByGroup(1);
 
       print(profiles);

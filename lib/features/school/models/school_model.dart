@@ -1,6 +1,6 @@
 
 class SchoolModel {
-  final String _id;
+  final String id;
   final String name;
   final String? address;
   final String? phoneNumber;
@@ -11,6 +11,7 @@ class SchoolModel {
 
 //<editor-fold desc="Data Methods">
   const SchoolModel({
+    required this.id,
     required this.name,
     this.address,
     this.phoneNumber,
@@ -18,15 +19,14 @@ class SchoolModel {
     required this.creatorId,
     required this.updatedAt,
     required this.createdAt,
-    required String id,
-  }) : _id = id;
+  });
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is SchoolModel &&
           runtimeType == other.runtimeType &&
-          _id == other._id &&
+          id == other.id &&
           name == other.name &&
           address == other.address &&
           phoneNumber == other.phoneNumber &&
@@ -37,7 +37,7 @@ class SchoolModel {
 
   @override
   int get hashCode =>
-      _id.hashCode ^
+      id.hashCode ^
       name.hashCode ^
       address.hashCode ^
       phoneNumber.hashCode ^
@@ -49,7 +49,7 @@ class SchoolModel {
   @override
   String toString() {
     return 'SchoolModel{' +
-        ' _id: $_id,' +
+        ' id: $id,' +
         ' name: $name,' +
         ' address: $address,' +
         ' phoneNumber: $phoneNumber,' +
@@ -71,7 +71,7 @@ class SchoolModel {
     DateTime? createdAt,
   }) {
     return SchoolModel(
-      id: id ?? this._id,
+      id: id ?? this.id,
       name: name ?? this.name,
       address: address ?? this.address,
       phoneNumber: phoneNumber ?? this.phoneNumber,
@@ -84,7 +84,7 @@ class SchoolModel {
 
   Map<String, dynamic> toMap() {
     return {
-      '_id': this._id,
+      'id': this.id,
       'name': this.name,
       'address': this.address,
       'phoneNumber': this.phoneNumber,
@@ -107,6 +107,7 @@ class SchoolModel {
       createdAt: DateTime.parse(map['createdAt'] as String),
     );
   }
+
 
 //</editor-fold>
 }

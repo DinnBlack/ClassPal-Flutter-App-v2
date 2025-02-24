@@ -44,3 +44,9 @@ class ClassSchoolUnBindRelStarted extends ClassEvent {
 
   ClassSchoolUnBindRelStarted({required this.profileIds});
 }
+
+class ClassCreateBatchStarted extends ClassEvent {
+  final List<String> classes;
+
+  ClassCreateBatchStarted({required this.classes});
+}

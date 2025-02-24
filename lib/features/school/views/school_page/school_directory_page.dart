@@ -1,4 +1,4 @@
-import 'package:classpal_flutter_app/features/class/repository/class_service.dart';
+
 import 'package:classpal_flutter_app/features/class/views/class_create_screen.dart';
 import 'package:classpal_flutter_app/features/teacher/views/teacher_create_batch_screen.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +11,7 @@ import '../../../../core/widgets/custom_feature_dialog.dart';
 import '../../../../core/widgets/custom_page_transition.dart';
 import '../../../../core/widgets/custom_tab_bar.dart';
 import '../../../class/bloc/class_bloc.dart';
+import '../../../class/views/class_create_batch_screen.dart';
 import '../../../class/views/class_list_screen.dart';
 import '../../../teacher/bloc/teacher_bloc.dart';
 import '../../../teacher/views/teacher_create_screen.dart';
@@ -19,8 +20,10 @@ import '../../models/school_model.dart';
 
 class SchoolDirectoryPage extends StatefulWidget {
   final SchoolModel school;
+  final bool isTeacherView;
 
-  const SchoolDirectoryPage({super.key, required this.school});
+  const SchoolDirectoryPage(
+      {super.key, required this.school, this.isTeacherView = false});
 
   @override
   State<SchoolDirectoryPage> createState() => _SchoolDirectoryPageState();
@@ -28,14 +31,15 @@ class SchoolDirectoryPage extends StatefulWidget {
 
 class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
   final PageController _pageController = PageController();
-  late int _currentIndex;
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    context.read<TeacherBloc>().add(TeacherFetchStarted());
-    ClassService().getAllClassSchool();
-    _currentIndex = 0;
+    if (!widget.isTeacherView) {
+      print(widget.isTeacherView);
+      context.read<TeacherBloc>().add(TeacherFetchStarted());
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _pageController.jumpToPage(_currentIndex);
     });
@@ -74,9 +78,7 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
         () {
           CustomPageTransition.navigateTo(
             context: context,
-            page: const ClassCreateScreen(
-              isClassSchoolCreateView: true,
-            ),
+            page: const ClassCreateBatchScreen(),
             transitionType: PageTransitionType.slideFromBottom,
           );
         },
@@ -102,40 +104,39 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: Column(
-        children: [
-          CustomTabBar(
-            currentIndex: _currentIndex,
-            onTabTapped: _onTabTapped,
-            tabTitles: const ['Lớp học', 'Giáo viên'],
-            tabBarWidthRatio: 0.9,
-            lineHeight: 4,
-            linePadding: 0,
-            tabBarHeight: 40,
-          ),
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
+      body: !widget.isTeacherView
+          ? Column(
               children: [
-                _buildClassesTab(),
-                _buildTeachersTab(),
+                CustomTabBar(
+                  currentIndex: _currentIndex,
+                  onTabTapped: _onTabTapped,
+                  tabTitles: const ['Lớp học', 'Giáo viên'],
+                  tabBarWidthRatio: 0.9,
+                  lineHeight: 4,
+                  linePadding: 0,
+                  tabBarHeight: 40,
+                ),
+                Expanded(
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentIndex = index;
+                      });
+                    },
+                    children: [_buildClassesTab(), _buildTeachersTab()],
+                  ),
+                ),
               ],
-            ),
-          ),
-        ],
-      ),
+            )
+          : _buildClassesTab(),
     );
   }
 
   CustomAppBar _buildAppBar(BuildContext context) {
     return CustomAppBar(
       backgroundColor: kWhiteColor,
-      title: 'Quản lý',
+      title: widget.isTeacherView ? 'Lớp học của bạn' : 'Quản lý',
       leftWidget: InkWell(
         child: const Icon(FontAwesomeIcons.arrowLeft),
         onTap: () {
@@ -143,12 +144,14 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
           Navigator.pop(context);
         },
       ),
-      rightWidget: InkWell(
-        child: const Icon(FontAwesomeIcons.ellipsis),
-        onTap: () {
-          _showFeatureDialog(context);
-        },
-      ),
+      rightWidget: !widget.isTeacherView
+          ? InkWell(
+              child: const Icon(FontAwesomeIcons.ellipsis),
+              onTap: () {
+                _showFeatureDialog(context);
+              },
+            )
+          : null,
     );
   }
 

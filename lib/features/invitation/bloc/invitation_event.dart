@@ -30,3 +30,10 @@ class InvitationRemoveStarted extends InvitationEvent {
 
   InvitationRemoveStarted({required this.email});
 }
+
+// submit group code
+class InvitationSubmitGroupCodeStarted extends InvitationEvent {
+  final String groupCode;
+
+  InvitationSubmitGroupCodeStarted({required this.groupCode});
+}

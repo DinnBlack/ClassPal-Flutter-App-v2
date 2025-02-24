@@ -45,3 +45,14 @@ class RollCallFetchByDateFailure extends RollCallState {
 
   RollCallFetchByDateFailure({required this.error});
 }
+
+// Update roll call entry
+class RollCallEntryUpdateInProgress extends RollCallState {}
+
+class RollCallEntryUpdateSuccess extends RollCallState {}
+
+class RollCallEntryUpdateFailure extends RollCallState {
+  final String error;
+
+  RollCallEntryUpdateFailure({required this.error});
+}

@@ -17,3 +17,9 @@ class SchoolCreateStarted extends SchoolEvent {
       required this.phoneNumber,
       this.avatarUrl});
 }
+
+class SchoolDeleteStarted extends SchoolEvent {
+  final String schoolId;
+
+  SchoolDeleteStarted({required this.schoolId});
+}

@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../profile/model/profile_model.dart';
 import '../../profile/repository/profile_service.dart';
 
 class InvitationService extends ProfileService {
@@ -19,11 +21,16 @@ class InvitationService extends ProfileService {
 
   // Khởi tạo PersistCookieJar để lưu trữ cookie
   Future<void> _initialize() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final cookieStorage = FileStorage('${directory.path}/cookies');
-    _cookieJar = PersistCookieJar(storage: cookieStorage);
-    _dio.interceptors.add(CookieManager(_cookieJar));
-    await restoreCookies();
+    if (kIsWeb) {
+      // Xử lý cho nền tảng web
+    } else {
+      final directory = await getApplicationDocumentsDirectory();
+      final cookieStorage = FileStorage('${directory.path}/cookies');
+      _cookieJar = PersistCookieJar(storage: cookieStorage);
+      _dio.interceptors.add(CookieManager(_cookieJar));
+      // Khôi phục cookies khi khởi tạo
+      await restoreCookies();
+    }
   }
 
   // Thêm trường mới
@@ -70,20 +77,21 @@ class InvitationService extends ProfileService {
       );
 
       if (response.statusCode == 200) {
-        print('Success ${response.data['data']}');
+        print('Success send mail for parent: ${response.data['data']}');
         return true;
       } else {
-        print('Failed to send mail: ${response.data}');
+        print('Failed to send mail for parent: ${response.data}');
         return false;
       }
     } on DioException catch (e) {
-      print('Error send mail: ${e.response?.data}');
+      print('Error send mail for parent: ${e.response?.data}');
       return false;
     }
   }
 
   // Thêm trường mới
-  Future<bool> sendInvitationMailForTeacher(String name, String email) async {
+  Future<bool> sendInvitationMailForTeacherPersonalClass(
+      String name, String email) async {
     try {
       await _initialize();
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
@@ -122,6 +130,58 @@ class InvitationService extends ProfileService {
         ),
       );
 
+
+      if (response.statusCode == 200) {
+        print('Success Success send mail for teacher: ${response.data['data']}');
+        return true;
+      } else {
+        print('Failed to send mail for teacher: ${response.data}');
+        return false;
+      }
+    } on DioException catch (e) {
+      print('Error send mail for teacher: ${e.response?.data}');
+      return false;
+    }
+  }
+
+  // Thêm trường mới
+  Future<bool> sendInvitationMailForTeacherSchool(
+      String email, String teacherId) async {
+    try {
+      await _initialize();
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
+      final currentProfile = await getCurrentProfile();
+
+      print(email);
+
+      final response = await _dio.post(
+        '$_baseUrl/invitations/mail',
+        data: jsonEncode(
+          {
+            'groupId': currentProfile?.groupId,
+            'groupType': currentProfile?.groupType,
+            'role': 'Teacher',
+            'profileId': teacherId,
+            'emails': [email],
+            'expireMinutes': 1440
+          },
+        ),
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'Cookie': cookieHeader,
+            'x-profile-id': currentProfile?.id
+          },
+        ),
+      );
+
       print(response.statusCode);
 
       if (response.statusCode == 200) {
@@ -137,7 +197,7 @@ class InvitationService extends ProfileService {
     }
   }
 
-  Future<bool> acceptMailInvitation(String invitationId) async {
+  Future<ProfileModel?> acceptMailInvitation(String invitationId) async {
     try {
       await _initialize();
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
@@ -153,22 +213,27 @@ class InvitationService extends ProfileService {
           headers: {
             'Content-Type': 'application/json',
             'Cookie': cookieHeader,
-            'x-profile-id': currentProfile?.id,
+            // 'x-profile-id': currentProfile?.id,
           },
         ),
       );
 
-      print(response.data);
+      if (response.statusCode == 200) {
+        var profileData = response.data['data'];
 
-      return response.statusCode == 200;
-    } catch (e) {
-      print('Error submitting group code: $e');
-      return false;
+        ProfileModel profile = ProfileModel.fromMap(profileData);
+
+        return profile;
+      } else {
+        throw Exception('Failed to accept invitation: ${response.data}');
+      }
+    } on DioException catch (e) {
+      print('Error accept invitation: ${e.response?.data}');
+      return null;
     }
   }
 
-  Future<String?> generateGroupCode(String groupId, int groupType,
-      String newProfileRole, int expireMinutes) async {
+  Future<String?> generateGroupCode() async {
     try {
       await _initialize();
       final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
@@ -184,10 +249,10 @@ class InvitationService extends ProfileService {
         '$_baseUrl/invitations/code',
         data: jsonEncode(
           {
-            'groupId': groupId,
-            'groupType': groupType,
-            'newProfileRole': newProfileRole,
-            'expireMinutes': expireMinutes,
+            'groupId': currentProfile?.groupId,
+            'groupType': currentProfile?.groupType,
+            'newProfileRole': 'Student',
+            'expireMinutes': 10,
           },
         ),
         options: Options(
@@ -199,8 +264,8 @@ class InvitationService extends ProfileService {
         ),
       );
 
-      if (response.statusCode == 201) {
-        return response.data['data'];
+      if (response.statusCode == 200) {
+        return response.data['data']['code'];
       } else {
         print('Failed to generate group code: ${response.data}');
         return null;
@@ -214,11 +279,19 @@ class InvitationService extends ProfileService {
   Future<bool> submitGroupCode(String code) async {
     try {
       await _initialize();
+      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
+      if (cookies.isEmpty) {
+        throw Exception('No cookies available for authentication');
+      }
+
+      final cookieHeader =
+          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
       final response = await _dio.post(
         '$_baseUrl/invitations/code/$code',
         options: Options(
           headers: {
             'Content-Type': 'application/json',
+            'Cookie': cookieHeader,
           },
         ),
       );

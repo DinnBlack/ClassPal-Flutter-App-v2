@@ -10,7 +10,9 @@ import '../bloc/roll_call_bloc.dart';
 import '../models/roll_call_entry_model.dart';
 
 class RollCallReportScreen extends StatefulWidget {
-  const RollCallReportScreen({super.key});
+  final bool isStudentView;
+
+  const RollCallReportScreen({super.key, this.isStudentView = false});
 
   @override
   _RollCallReportScreenState createState() => _RollCallReportScreenState();
@@ -77,13 +79,12 @@ class _RollCallReportScreenState extends State<RollCallReportScreen> {
   Widget build(BuildContext context) {
     List<DateTime> weekDays =
         List.generate(7, (index) => _startOfWeek.add(Duration(days: index)));
-
     return Scaffold(
-      appBar: _buildAppBar(context),
+      appBar: widget.isStudentView ? null : _buildAppBar(context),
       body: Column(
         children: [
           _buildWeekHeader(),
-          _buildWeekSelector(weekDays),
+          if (!widget.isStudentView) _buildWeekSelector(weekDays),
           Expanded(
             child: BlocBuilder<RollCallBloc, RollCallState>(
               builder: (context, state) {
@@ -91,18 +92,23 @@ class _RollCallReportScreenState extends State<RollCallReportScreen> {
                   return const Center(child: CircularProgressIndicator());
                 } else if (state is RollCallFetchByDateRangeSuccess) {
                   _allEntries = state.rollCallEntries;
-                  List<RollCallEntryModel> entriesForDay =
-                      _getEntriesForSelectedDate();
 
-                  return entriesForDay.isEmpty
+                  // Nếu là chế độ sinh viên, hiển thị tất cả mục mà không cần lọc
+                  List<RollCallEntryModel> entriesToShow = widget.isStudentView
+                      ? _allEntries
+                      : _getEntriesForSelectedDate();
+
+                  return entriesToShow.isEmpty
                       ? const Center(child: Text("Không có dữ liệu điểm danh."))
                       : ListView.separated(
-                          itemCount: entriesForDay.length,
-                          padding: const EdgeInsets.symmetric(vertical: kPaddingMd),
+                          itemCount: entriesToShow.length,
+                          padding:
+                              const EdgeInsets.symmetric(vertical: kPaddingMd),
                           itemBuilder: (context, index) {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
-                              child: _buildRollCallItem(entriesForDay[index]),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: kPaddingMd),
+                              child: _buildRollCallItem(entriesToShow[index]),
                             );
                           },
                           separatorBuilder: (context, index) => Container(
@@ -148,12 +154,9 @@ class _RollCallReportScreenState extends State<RollCallReportScreen> {
 
   Widget _buildWeekSelector(List<DateTime> weekDays) {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(kPaddingMd),
       decoration: const BoxDecoration(
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 5, offset: Offset(0, 3))
-        ],
       ),
       child: GridView.builder(
         shrinkWrap: true,
@@ -239,22 +242,186 @@ class _RollCallReportScreenState extends State<RollCallReportScreen> {
             ),
             backgroundColor: _getStatusColor(entry.status),
           ),
-          const SizedBox(width: kMarginMd,),
-          GestureDetector(
-            child: const Icon(Icons.more_vert),
-            onTap: () {
-              _showOptions(entry);
-            },
-          ),
+          if (!widget.isStudentView) ...[
+            const SizedBox(
+              width: kMarginMd,
+            ),
+            GestureDetector(
+              child: const Icon(Icons.more_vert),
+              onTap: () {
+                _showOptions(entry);
+              },
+            ),
+          ]
         ],
       ),
     );
   }
 
-// Hàm để hiển thị các lựa chọn khi nhấn nút "..."
   void _showOptions(RollCallEntryModel entry) {
-    // Ví dụ: Hiển thị dialog, menu, hoặc thực hiện các hành động khác
-    print("Options for student: ${entry.studentName}");
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text("Cập nhật"),
+              onTap: () {
+                Navigator.pop(context);
+                _showUpdateDialog(entry);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: const Text("Xóa", style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                _confirmDelete(entry);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showUpdateDialog(RollCallEntryModel entry) {
+    final List<Map<String, String>> statusOptions = [
+      {'vi': 'Có mặt', 'en': 'present'},
+      {'vi': 'Vắng mặt', 'en': 'absent'},
+      {'vi': 'Đi trễ', 'en': 'late'},
+    ];
+
+    Map<String, String> selectedStatus = statusOptions.firstWhere(
+      (status) => status['en'] == entry.status,
+      orElse: () => statusOptions[0],
+    );
+
+    TextEditingController remarksController =
+        TextEditingController(text: entry.remarks);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          // 🔥 Cần StatefulBuilder để cập nhật UI
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Cập nhật điểm danh"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: "Trạng thái",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 4),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<Map<String, String>>(
+                        value: selectedStatus,
+                        isExpanded: true,
+                        onChanged: (newValue) {
+                          if (newValue != null) {
+                            setState(() {
+                              // 🔥 Cập nhật UI khi chọn trạng thái mới
+                              selectedStatus = newValue;
+                            });
+                          }
+                        },
+                        items: statusOptions.map((status) {
+                          return DropdownMenuItem(
+                            value: status,
+                            child: Text(status['vi']!), // Hiển thị tiếng Việt
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: remarksController,
+                    decoration: InputDecoration(
+                      labelText: "Ghi chú",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Hủy"),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  onPressed: () {
+                    context.read<RollCallBloc>().add(
+                          RollCallEntryUpdateStarted(
+                            entryId: entry.id,
+                            status: selectedStatus['en']!,
+                            // Gửi giá trị tiếng Anh vào Bloc
+                            remarks: remarksController.text,
+                          ),
+                        );
+                    DateTime endOfWeek =
+                        _startOfWeek.add(const Duration(days: 6));
+                    context.read<RollCallBloc>().add(
+                          RollCallFetchByDateRangeStarted(
+                            startDate:
+                                DateFormat('yyyy-MM-dd').format(_startOfWeek),
+                            endDate: DateFormat('yyyy-MM-dd').format(endOfWeek),
+                          ),
+                        );
+                    Navigator.pop(context);
+                  },
+                  child: const Text("Lưu"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _confirmDelete(RollCallEntryModel entry) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Xác nhận xóa"),
+          content: Text(
+              "Bạn có chắc chắn muốn xóa mục điểm danh của ${entry.studentName}?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Hủy"),
+            ),
+            TextButton(
+              onPressed: () {
+                // context.read<RollCallBloc>().add(RollCallEntryDeleteStarted(entryId: entry.id));
+                Navigator.pop(context);
+              },
+              child: const Text("Xóa", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // Hàm lấy biểu tượng theo trạng thái
@@ -313,9 +480,16 @@ class _RollCallReportScreenState extends State<RollCallReportScreen> {
   }
 
   Widget _buildArrowButton(IconData icon, VoidCallback onPressed) {
-    return IconButton(
-      icon: Icon(icon, color: kPrimaryColor, size: 30),
-      onPressed: onPressed,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(
+        icon: Icon(icon, color: kPrimaryColor, size: 26),
+        onPressed: onPressed,
+        splashRadius: 24,
+      ),
     );
   }
 }

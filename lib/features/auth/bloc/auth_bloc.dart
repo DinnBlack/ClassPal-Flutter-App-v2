@@ -1,10 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:meta/meta.dart';
 import '../models/user_model.dart';
 import '../repository/auth_service.dart';
 import '../../profile/repository/profile_service.dart';
-import '../views/login_screen.dart';
 
 part 'auth_event.dart';
 
@@ -73,11 +73,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       // Delay navigation to prevent assertion error
       Future.microtask(() {
         if (event.context.mounted) {
-          Navigator.pushNamedAndRemoveUntil(
-            event.context,
-            LoginScreen.route,
-                (route) => false,
-          );
+          event.context.go('/auth/login'); // Điều hướng về Login
         }
       });
     } catch (error) {
@@ -102,7 +98,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       AuthResetPasswordStarted event, Emitter<AuthState> emit) async {
     emit(AuthResetPasswordInProgress());
     try {
-      print('${event.email}, ${event.password}, ${event.otp}');
       await authService.resetPassword(
         event.email,
         event.password,

@@ -4,6 +4,8 @@ import 'package:classpal_flutter_app/core/widgets/custom_loading_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import '../../../core/config/app_constants.dart';
 import '../../../core/utils/validators.dart';
@@ -58,15 +60,21 @@ class _TeacherCreateScreenState extends State<TeacherCreateScreen> {
         }
 
         if (state is TeacherCreateSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Tạo giáo viên thành công')),
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.success(
+              message: 'Tạo giáo viên thành công!',
+            ),
           );
           Navigator.pop(context);
         }
 
         if (state is TeacherCreateFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Tạo giáo viên thất bại')),
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.success(
+              message: 'Tạo giáo viên thất bại! Vui lòng thử lại.',
+            ),
           );
         }
       },
@@ -105,9 +113,8 @@ class _TeacherCreateScreenState extends State<TeacherCreateScreen> {
             CustomButton(
               text: 'Thêm giáo viên',
               onTap: () {
-                context
-                    .read<TeacherBloc>()
-                    .add(TeacherCreateStarted(name: _nameController.text));
+                context.read<TeacherBloc>().add(TeacherCreateStarted(
+                    name: _nameController.text, email: _emailController.text));
               },
               isValid: _isValid,
             ),

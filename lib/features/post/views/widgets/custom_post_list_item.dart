@@ -15,6 +15,7 @@ import 'package:timeago/timeago.dart' as timeago;
 import '../post_detail_screen.dart';
 
 class CustomPostListItem extends StatefulWidget {
+  final bool isParentView;
   final PostModel post;
   final bool disableOnTap;
 
@@ -22,6 +23,7 @@ class CustomPostListItem extends StatefulWidget {
     super.key,
     required this.post,
     this.disableOnTap = false,
+    this.isParentView = false,
   });
 
   @override
@@ -128,12 +130,13 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
                     ],
                   ),
                   const Spacer(),
-                  GestureDetector(
-                    onTap: () {
-                      _showFeatureDialog(context);
-                    },
-                    child: const Icon(FontAwesomeIcons.ellipsis),
-                  ),
+                  if (!widget.isParentView)
+                    GestureDetector(
+                      onTap: () {
+                        _showFeatureDialog(context);
+                      },
+                      child: const Icon(FontAwesomeIcons.ellipsis),
+                    ),
                 ],
               ),
             ),
@@ -162,7 +165,7 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
                   ),
                 ),
               ),
-            widget.disableOnTap
+            widget.disableOnTap || widget.isParentView
                 ? const SizedBox.shrink()
                 : Padding(
                     padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),

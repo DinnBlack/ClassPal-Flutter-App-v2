@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:classpal_flutter_app/features/auth/models/role_model.dart';
 import 'package:classpal_flutter_app/features/auth/repository/google_service.dart';
 import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,12 +26,17 @@ class AuthService extends ProfileService {
 
   // Khởi tạo PersistCookieJar để lưu trữ cookie
   Future<void> _initialize() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final cookieStorage = FileStorage('${directory.path}/cookies');
-    _cookieJar = PersistCookieJar(storage: cookieStorage);
-    _dio.interceptors.add(CookieManager(_cookieJar));
+    if (kIsWeb) {
+      // Xử lý cho nền tảng web
+    } else {
+      final directory = await getApplicationDocumentsDirectory();
+      final cookieStorage = FileStorage('${directory.path}/cookies');
+      _cookieJar = PersistCookieJar(storage: cookieStorage);
+      _dio.interceptors.add(CookieManager(_cookieJar));
+      // Khôi phục cookies khi khởi tạo
+      await restoreCookies();
+    }
   }
-
 
   Future<void> saveCurrentUser(UserModel user) async {
     final prefs = await SharedPreferences.getInstance();
@@ -46,6 +53,23 @@ class AuthService extends ProfileService {
     }
     return null;
   }
+
+  Future<void> saveCurrentRoles(List<String> currentRoles) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (prefs.containsKey('currentRoles')) {
+      await prefs.remove('currentRoles');
+    }
+
+    await prefs.setStringList('currentRoles', currentRoles);
+  }
+
+
+  Future<List<String>> getCurrentRoles() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList('currentRoles') ?? [];
+  }
+
 
   // Đăng nhập và lưu cookie
   Future<UserModel?> login(String emailOrPhone, String password) async {

@@ -10,6 +10,7 @@ class CustomButton extends StatefulWidget {
   final bool isValid;
   final Color? backgroundColor;
   final bool isBackground;
+  final IconData? icon; // Thêm trường icon
 
   const CustomButton({
     super.key,
@@ -19,6 +20,7 @@ class CustomButton extends StatefulWidget {
     this.isValid = true,
     this.backgroundColor,
     this.isBackground = false,
+    this.icon, // Nhận icon từ tham số
   });
 
   @override
@@ -72,6 +74,7 @@ class _CustomButtonState extends State<CustomButton>
               ),
             Container(
               height: widget.height,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: widget.isValid
@@ -79,9 +82,18 @@ class _CustomButtonState extends State<CustomButton>
                     : buttonColor.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(kBorderRadiusXl),
               ),
-              child: Text(
-                widget.text!,
-                style: AppTextStyle.semibold(kTextSizeSm, kWhiteColor),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (widget.icon != null) ...[
+                    Icon(widget.icon, color: kWhiteColor, size: 18),
+                    const SizedBox(width: 8),
+                  ],
+                  Text(
+                    widget.text!,
+                    style: AppTextStyle.semibold(kTextSizeSm, kWhiteColor),
+                  ),
+                ],
               ),
             ),
           ],

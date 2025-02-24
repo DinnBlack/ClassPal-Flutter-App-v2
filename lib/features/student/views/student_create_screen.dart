@@ -44,6 +44,9 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
           }
 
           if (state is StudentCreateSuccess) {
+            _controller.clear();
+            _updateHasText('');
+
             showTopSnackBar(
               Overlay.of(context),
               const CustomSnackBar.success(
@@ -51,9 +54,6 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
               ),
             );
           } else if (state is StudentCreateFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Tạo học sinh thất bại')),
-            );
             showTopSnackBar(
               Overlay.of(context),
               const CustomSnackBar.error(

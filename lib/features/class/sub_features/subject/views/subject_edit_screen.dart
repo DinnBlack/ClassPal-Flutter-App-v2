@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:collection/collection.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import '../../../../../core/config/app_constants.dart';
 import '../../../../../core/utils/app_text_style.dart';
 import '../../../../../core/utils/validators.dart';
@@ -182,13 +184,19 @@ class _SubjectEditScreenState extends State<SubjectEditScreen> {
         }
 
         if (state is SubjectUpdateSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Cập nhật môn học Thành công')),
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.success(
+              message: 'Cập nhật môn học Thành công!',
+            ),
           );
           Navigator.pop(context);
         } else if (state is SubjectUpdateFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Cập nhật môn học thất bại')),
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.error(
+              message: 'Cập nhật môn học thất bại!',
+            ),
           );
         }
       },

@@ -126,7 +126,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   CustomAppBar _buildAppBar(BuildContext context) {
     return CustomAppBar(
       backgroundColor: kWhiteColor,
-      title: 'Bài đăng của ${widget.post.creator.displayName}',
+      title: 'Bài đăng',
       leftWidget: InkWell(
         child: const Icon(FontAwesomeIcons.arrowLeft),
         onTap: () {

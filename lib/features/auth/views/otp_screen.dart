@@ -75,62 +75,69 @@ class _OtpScreenState extends State<OtpScreen> {
           },
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              'Xác thực',
-              style: AppTextStyle.bold(kTextSizeXl),
-            ),
-            const SizedBox(height: kMarginSm),
-            Text(
-              'Nhập mã otp đã gửi vào email của bạn',
-              style: AppTextStyle.medium(kTextSizeXs),
-            ),
-            const SizedBox(height: kMarginLg),
-            Pinput(
-              length: 6,
-              controller: _otpController,
-              focusNode: _focusNode,
-              defaultPinTheme: defaultPinTheme,
-              focusedPinTheme: defaultPinTheme.copyWith(
-                decoration: defaultPinTheme.decoration!.copyWith(
-                  border: Border.all(color: focusedBorderColor),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'Xác thực',
+                  style: AppTextStyle.bold(kTextSizeXl),
                 ),
-              ),
-              submittedPinTheme: defaultPinTheme.copyWith(
-                decoration: defaultPinTheme.decoration!.copyWith(
-                  color: fillColor,
-                  border: Border.all(color: focusedBorderColor),
+                const SizedBox(height: kMarginSm),
+                Text(
+                  'Nhập mã otp đã gửi vào email của bạn',
+                  style: AppTextStyle.medium(kTextSizeXs),
                 ),
-              ),
-              errorPinTheme: defaultPinTheme.copyWith(
-                decoration: defaultPinTheme.decoration!.copyWith(
-                  border: Border.all(color: Colors.red),
+                const SizedBox(height: kMarginLg),
+                Pinput(
+                  length: 6,
+                  controller: _otpController,
+                  focusNode: _focusNode,
+                  defaultPinTheme: defaultPinTheme,
+                  focusedPinTheme: defaultPinTheme.copyWith(
+                    decoration: defaultPinTheme.decoration!.copyWith(
+                      border: Border.all(color: focusedBorderColor),
+                    ),
+                  ),
+                  submittedPinTheme: defaultPinTheme.copyWith(
+                    decoration: defaultPinTheme.decoration!.copyWith(
+                      color: fillColor,
+                      border: Border.all(color: focusedBorderColor),
+                    ),
+                  ),
+                  errorPinTheme: defaultPinTheme.copyWith(
+                    decoration: defaultPinTheme.decoration!.copyWith(
+                      border: Border.all(color: Colors.red),
+                    ),
+                  ),
+                  onCompleted: (pin) {
+                    print('OTP Entered: $pin');
+                  },
                 ),
-              ),
-              onCompleted: (pin) {
-                print('OTP Entered: $pin');
-              },
+                const SizedBox(height: kMarginLg),
+                CustomButton(
+                  text: 'Tiếp theo',
+                  isValid: _isValid,
+                  onTap: _isValid
+                      ? () {
+                    CustomPageTransition.navigateTo(
+                        context: context,
+                        page: ResetPasswordScreen(
+                          email: widget.email, otp: _otpController.text,),
+                        transitionType: PageTransitionType.slideFromRight);
+                  }
+                      : null,
+                )
+              ],
             ),
-            const SizedBox(height: kMarginLg),
-            CustomButton(
-              text: 'Tiếp theo',
-              isValid: _isValid,
-              onTap: _isValid
-                  ? () {
-                CustomPageTransition.navigateTo(context: context,
-                    page: ResetPasswordScreen(
-                      email: widget.email, otp: _otpController.text,),
-                    transitionType: PageTransitionType.slideFromRight);
-              }
-                  : null,
-            )
-          ],
+          ),
         ),
       ),
+
     );
   }
 }

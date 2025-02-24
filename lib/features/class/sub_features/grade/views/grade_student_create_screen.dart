@@ -5,6 +5,8 @@ import 'package:classpal_flutter_app/features/class/sub_features/subject/models/
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import '../../../../../core/widgets/custom_app_bar.dart';
 import '../../../../../core/widgets/custom_loading_dialog.dart';
@@ -96,13 +98,19 @@ class _GradeStudentCreateScreenState extends State<GradeStudentCreateScreen> {
           }
 
           if (state is GradeCreateSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Thêm điểm thành công')),
+            showTopSnackBar(
+              Overlay.of(context),
+              const CustomSnackBar.success(
+                message: 'Thêm điểm thành công!',
+              ),
             );
             Navigator.pop(context);
           } else if (state is GradeCreateFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Thêm điểm thất bại')),
+            showTopSnackBar(
+              Overlay.of(context),
+              const CustomSnackBar.success(
+                message: 'Thêm điểm thất bại!',
+              ),
             );
           }
         },
@@ -176,7 +184,7 @@ class _GradeStudentCreateScreenState extends State<GradeStudentCreateScreen> {
                         }
 
                         context.read<GradeBloc>().add(
-                          GradeCreateInStarted(
+                          GradeCreateStarted(
                             subjectId: widget.subject.id,
                             studentId: widget.studentId!,
                             gradeTypeId: selectedGradeType!.id,

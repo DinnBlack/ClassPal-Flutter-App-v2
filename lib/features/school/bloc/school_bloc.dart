@@ -15,8 +15,10 @@ class SchoolBloc extends Bloc<SchoolEvent, SchoolState> {
   SchoolBloc() : super(SchoolInitial()) {
     on<SchoolFetchStarted>(_onSchoolFetchStarted);
     on<SchoolCreateStarted>(_onSchoolCreateStarted);
+    on<SchoolDeleteStarted>(_onSchoolDeleteStarted);
   }
 
+  // Fetch schools
   Future<void> _onSchoolFetchStarted(
       SchoolFetchStarted event, Emitter<SchoolState> emit) async {
     try {
@@ -31,6 +33,7 @@ class SchoolBloc extends Bloc<SchoolEvent, SchoolState> {
     }
   }
 
+  // Create a school
   Future<void> _onSchoolCreateStarted(
       SchoolCreateStarted event, Emitter<SchoolState> emit) async {
     try {
@@ -46,6 +49,20 @@ class SchoolBloc extends Bloc<SchoolEvent, SchoolState> {
       add(SchoolFetchStarted());
     } on Exception catch (e) {
       emit(SchoolCreateFailure(e.toString()));
+    }
+  }
+
+  // Delete school
+  Future<void> _onSchoolDeleteStarted(
+      SchoolDeleteStarted event, Emitter<SchoolState> emit) async {
+    try {
+      emit(SchoolDeleteInProgress());
+      await schoolService.deleteSchool(event.schoolId);
+      emit(SchoolDeleteSuccess());
+      await ProfileService().getProfilesByRole(['Executive', 'Teacher']);
+      add(SchoolFetchStarted());
+    } on Exception catch (e) {
+      emit(SchoolDeleteFailure(e.toString()));
     }
   }
 }
