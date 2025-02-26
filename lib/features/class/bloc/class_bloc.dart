@@ -76,7 +76,8 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
       ClassSchoolCreateStarted event, Emitter<ClassState> emit) async {
     try {
       emit(ClassSchoolCreateInProgress());
-      final result = await classService.insertSchoolClass(event.name, event.avatarUrl);
+      final result =
+          await classService.insertSchoolClass(event.name, event.avatarUrl);
       emit(ClassSchoolCreateSuccess(result));
       add(ClassSchoolFetchStarted());
     } on Exception catch (e) {
@@ -93,6 +94,7 @@ class ClassBloc extends Bloc<ClassEvent, ClassState> {
         event.newName,
       );
       emit(ClassUpdateSuccess());
+      add(ClassSchoolFetchStarted());
     } on Exception catch (e) {
       emit(ClassUpdateFailure(e.toString()));
     }

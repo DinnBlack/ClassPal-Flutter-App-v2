@@ -1,6 +1,8 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/auth/models/user_model.dart';
 import 'package:classpal_flutter_app/features/class/repository/class_service.dart';
+import 'package:classpal_flutter_app/features/class/views/class_create_screen.dart';
 import 'package:classpal_flutter_app/features/class/views/class_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -73,7 +75,7 @@ class _PrincipalViewState extends State<PrincipalView> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    context.push('/class/create');
+                    CustomPageTransition.navigateTo(context: context, page: const ClassCreateScreen(), transitionType: PageTransitionType.slideFromBottom);
                   },
                   child: Text(
                     '+ Thêm lớp học',

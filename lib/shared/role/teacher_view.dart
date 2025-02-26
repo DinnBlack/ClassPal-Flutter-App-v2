@@ -4,6 +4,7 @@ import 'package:classpal_flutter_app/features/class/repository/class_service.dar
 import 'package:classpal_flutter_app/features/class/views/class_list_screen.dart';
 import 'package:flutter/material.dart';
 import '../../core/utils/app_text_style.dart';
+import '../../core/widgets/custom_page_transition.dart';
 import '../../features/class/views/class_create_screen.dart';
 import '../../features/school/views/school_list_screen.dart';
 
@@ -59,10 +60,7 @@ class _TeacherViewState extends State<TeacherView> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      ClassCreateScreen.route,
-                    );
+                    CustomPageTransition.navigateTo(context: context, page: const ClassCreateScreen(), transitionType: PageTransitionType.slideFromBottom);
                   },
                   child: Text(
                     '+ Thêm lớp học',

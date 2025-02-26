@@ -120,6 +120,9 @@ class ParentService extends ProfileService {
     try {
       final parents = await getUserProfiles();
       print(parents);
+
+      List<ProfileModel> allProfiles = [];
+
       for (var parent in parents) {
         print(parent);
         try {
@@ -148,7 +151,6 @@ class ParentService extends ProfileService {
 
           if (response.statusCode == 200) {
             var profileData = response.data['data'];
-
             final studentRoleId = await getRoleIdByName('Student');
 
             // Chuyển profileData thành danh sách các ProfileModel
@@ -158,24 +160,25 @@ class ParentService extends ProfileService {
 
             // Lọc danh sách các ProfileModel có chứa studentRoleId trong roles
             List<ProfileModel> filteredProfiles = profiles
-                .where(
-                  (profile) => profile.roles.contains(studentRoleId),
-            )
+                .where((profile) => profile.roles.contains(studentRoleId))
+                .map((profile) => profile.copyWith(id: parent.id))
                 .toList();
-            return filteredProfiles;
+
+            allProfiles.addAll(filteredProfiles);
           } else {
-            throw Exception('Failed to fetch profile related: ${response.data}');
+            print('Failed to fetch profile related: ${response.data}');
           }
         } on DioException catch (e) {
           print('Error fetching profile related: ${e.response?.data}');
-          return [];
         }
       }
-      return [];
+
+      return allProfiles;
     } catch (e) {
       return [];
     }
   }
+
 
   Future<bool> deleteParent(String parentId) async {
     try {

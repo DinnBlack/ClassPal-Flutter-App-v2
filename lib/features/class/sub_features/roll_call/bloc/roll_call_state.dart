@@ -56,3 +56,5 @@ class RollCallEntryUpdateFailure extends RollCallState {
 
   RollCallEntryUpdateFailure({required this.error});
 }
+
+//
