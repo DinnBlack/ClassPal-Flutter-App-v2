@@ -2,12 +2,10 @@ import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_loading_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
-import 'package:classpal_flutter_app/features/auth/repository/auth_service.dart';
-import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
+import 'package:classpal_flutter_app/features/auth/views/select_role_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:go_router/go_router.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import '../../../core/utils/app_text_style.dart';
@@ -42,8 +40,10 @@ class InvitationScreen extends StatelessWidget {
                   message: 'Tham gia lớp học thành công!',
                 ),
               );
-
-
+              CustomPageTransition.navigateTo(
+                  context: context,
+                  page: const SelectRoleScreen(),
+                  transitionType: PageTransitionType.slideFromRight);
             } else if (state is InvitationAcceptFailure) {
               // Hiển thị thông báo lỗi nếu thất bại
               showTopSnackBar(

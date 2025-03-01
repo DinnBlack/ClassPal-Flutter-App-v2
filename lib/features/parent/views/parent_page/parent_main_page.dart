@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../post/bloc/post_bloc.dart';
 import '../../../post/views/post_list_screen.dart';
 
 class ParentMainPage extends StatefulWidget {
@@ -11,6 +13,15 @@ class ParentMainPage extends StatefulWidget {
 class _ParentMainPageState extends State<ParentMainPage> {
   @override
   Widget build(BuildContext context) {
-    return const PostListScreen(isParentView: true);
+    return Scaffold(
+      body: RefreshIndicator(
+        onRefresh: () => _reFetchPosts(context),
+        child: const PostListScreen(isParentView: true),
+      ),
+    );
+  }
+
+  Future<void> _reFetchPosts(BuildContext context) async {
+    context.read<PostBloc>().add(PostFetchStarted());
   }
 }

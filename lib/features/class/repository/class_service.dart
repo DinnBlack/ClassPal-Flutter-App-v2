@@ -414,6 +414,7 @@ class ClassService extends ProfileService {
 
       final currentClass = await getCurrentClass();
 
+      print(profileIds);
       print(currentClass);
 
       final response = await _dio.post(

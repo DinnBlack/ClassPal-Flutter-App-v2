@@ -188,7 +188,7 @@ class RollCallService extends ProfileService {
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
+        'x-profile-id': currentProfile?.tempId ?? currentProfile?.id,
       };
 
       final response = await _dio.get(
@@ -230,7 +230,7 @@ class RollCallService extends ProfileService {
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
+        'x-profile-id': currentProfile?.tempId ?? currentProfile?.id,
       };
 
       final response = await _dio.get(
@@ -274,7 +274,7 @@ class RollCallService extends ProfileService {
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
+        'x-profile-id': currentProfile?.tempId ?? currentProfile?.id,
       };
 
       final response = await _dio.get(
@@ -327,8 +327,6 @@ class RollCallService extends ProfileService {
           return entry.copyWith(studentName: studentProfile?.displayName);
         }),
       );
-
-      print(updatedEntries);
 
       return updatedEntries;
     } catch (e) {

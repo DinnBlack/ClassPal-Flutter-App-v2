@@ -175,7 +175,9 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
   Widget _buildTeachersTab() {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
-      child: TeacherListScreen(),
+      child: TeacherListScreen(
+
+      ),
     );
   }
 }

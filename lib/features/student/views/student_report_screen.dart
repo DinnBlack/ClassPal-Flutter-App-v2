@@ -62,11 +62,11 @@ class _StudentReportScreenState extends State<StudentReportScreen> {
                   _currentIndex = index;
                 });
               },
-              children: const [
+              children:  [
                 GradeStudentListScreen(
-                  studentId: '',
+                  studentId: widget.studentId,
                 ),
-                RollCallReportScreen(isStudentView: true,),
+                const RollCallReportScreen(isStudentView: true,),
               ],
             ),
           ),

@@ -8,6 +8,7 @@ class ProfileModel {
   final List<String> roles;
   final DateTime updatedAt;
   final DateTime createdAt;
+  final String? tempId;
 
 //<editor-fold desc="Data Methods">
   const ProfileModel({
@@ -20,22 +21,24 @@ class ProfileModel {
     required this.roles,
     required this.updatedAt,
     required this.createdAt,
+    this.tempId, // Thêm tempId với mặc định là null
   });
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is ProfileModel &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          displayName == other.displayName &&
-          avatarUrl == other.avatarUrl &&
-          userId == other.userId &&
-          groupId == other.groupId &&
-          groupType == other.groupType &&
-          roles == other.roles &&
-          updatedAt == other.updatedAt &&
-          createdAt == other.createdAt);
+          (other is ProfileModel &&
+              runtimeType == other.runtimeType &&
+              id == other.id &&
+              displayName == other.displayName &&
+              avatarUrl == other.avatarUrl &&
+              userId == other.userId &&
+              groupId == other.groupId &&
+              groupType == other.groupType &&
+              roles == other.roles &&
+              updatedAt == other.updatedAt &&
+              createdAt == other.createdAt &&
+              tempId == other.tempId);
 
   @override
   int get hashCode =>
@@ -47,7 +50,8 @@ class ProfileModel {
       groupType.hashCode ^
       roles.hashCode ^
       updatedAt.hashCode ^
-      createdAt.hashCode;
+      createdAt.hashCode ^
+      tempId.hashCode;
 
   @override
   String toString() {
@@ -61,6 +65,7 @@ class ProfileModel {
         ' roles: $roles,' +
         ' updatedAt: $updatedAt,' +
         ' createdAt: $createdAt,' +
+        ' tempId: $tempId,' +
         '}';
   }
 
@@ -74,6 +79,7 @@ class ProfileModel {
     List<String>? roles,
     DateTime? updatedAt,
     DateTime? createdAt,
+    String? tempId,
   }) {
     return ProfileModel(
       id: id ?? this.id,
@@ -85,6 +91,7 @@ class ProfileModel {
       roles: roles ?? this.roles,
       updatedAt: updatedAt ?? this.updatedAt,
       createdAt: createdAt ?? this.createdAt,
+      tempId: tempId ?? this.tempId, // Thêm tempId vào copyWith
     );
   }
 
@@ -97,8 +104,9 @@ class ProfileModel {
       'groupId': this.groupId,
       'groupType': this.groupType,
       'roles': this.roles,
-      'updatedAt': this.updatedAt.toIso8601String(),  // Convert DateTime to string
-      'createdAt': this.createdAt.toIso8601String(),  // Convert DateTime to string
+      'updatedAt': this.updatedAt.toIso8601String(),
+      'createdAt': this.createdAt.toIso8601String(),
+      'tempId': this.tempId, // Thêm tempId vào toMap
     };
   }
 
@@ -110,9 +118,10 @@ class ProfileModel {
       userId: map['userId'] as String?, // Không ép kiểu nếu null
       groupId: map['groupId'] ?? '', // Tránh null cho groupId
       groupType: map['groupType'] ?? 0, // Nếu null, mặc định là 0
-      roles: (map['roles'] as List?)?.map((e) => e.toString()).toList() ?? [], // Xử lý roles
-      updatedAt: DateTime.tryParse(map['updatedAt'] ?? '') ?? DateTime.now(), // Tránh lỗi DateTime null
-      createdAt: DateTime.tryParse(map['createdAt'] ?? '') ?? DateTime.now(), // Tránh lỗi DateTime null
+      roles: (map['roles'] as List?)?.map((e) => e.toString()).toList() ?? [],
+      updatedAt: DateTime.tryParse(map['updatedAt'] ?? '') ?? DateTime.now(),
+      createdAt: DateTime.tryParse(map['createdAt'] ?? '') ?? DateTime.now(),
+      tempId: map['tempId'] as String?, // Thêm tempId vào fromMap, mặc định là null
     );
   }
 

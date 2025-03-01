@@ -12,6 +12,7 @@ import '../../../../core/config/app_constants.dart';
 import '../../../../core/widgets/custom_feature_dialog.dart';
 import '../../../auth/repository/auth_service.dart';
 import '../../../class/bloc/class_bloc.dart';
+import '../../../post/bloc/post_bloc.dart';
 import '../../bloc/school_bloc.dart';
 
 class SchoolPostPage extends StatefulWidget {
@@ -25,21 +26,12 @@ class SchoolPostPage extends StatefulWidget {
 }
 
 class _SchoolPostPageState extends State<SchoolPostPage> {
-  bool _isTeacherView = false;
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchUserRoles();
-  }
-
-  Future<void> _fetchUserRoles() async {
-    final currentRoles = await AuthService().getCurrentRoles();
-    setState(() {
-      _isTeacherView =
-          currentRoles.contains('Teacher') && currentRoles.length == 1;
-    });
+    print(widget.isTeacherView);
   }
 
   void _showFeatureDialog(BuildContext context) {
@@ -151,15 +143,21 @@ class _SchoolPostPageState extends State<SchoolPostPage> {
       },
       child: Scaffold(
         appBar: _buildAppBar(context),
-        body: SingleChildScrollView(
-          child: PostListScreen(
-            isTeacherView: _isTeacherView,
+        body: RefreshIndicator(
+          onRefresh: () => _reFetchPosts(context),
+          child: SizedBox.expand(
+            child: PostListScreen(
+              isTeacherView: widget.isTeacherView,
+            ),
           ),
         ),
       ),
     );
   }
 
+  Future<void> _reFetchPosts(BuildContext context) async {
+    context.read<PostBloc>().add(PostFetchStarted());
+  }
   CustomAppBar _buildAppBar(BuildContext context) {
     return CustomAppBar(
       backgroundColor: kWhiteColor,

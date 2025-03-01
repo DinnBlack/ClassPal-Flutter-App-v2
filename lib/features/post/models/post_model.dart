@@ -44,6 +44,11 @@ class PostModel {
       'createdAt': createdAt.toIso8601String(),
     };
   }
+
+  @override
+  String toString() {
+    return 'PostModel(id: $id, content: $content, imageUrl: $imageUrl, targetRoles: $targetRoles, creator: $creator, groupId: $groupId, updatedAt: $updatedAt, createdAt: $createdAt)';
+  }
 }
 
 class Creator {
@@ -71,5 +76,10 @@ class Creator {
       'displayName': displayName,
       'avatarUrl': avatarUrl,
     };
+  }
+
+  @override
+  String toString() {
+    return 'Creator(id: $id, displayName: $displayName, avatarUrl: $avatarUrl)';
   }
 }

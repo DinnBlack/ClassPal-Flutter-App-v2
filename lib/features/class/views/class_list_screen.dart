@@ -42,7 +42,6 @@ class _ClassListScreenState extends State<ClassListScreen> {
     // TODO: implement initState
     super.initState();
     if (widget.isClassSchoolView) {
-      print(1);
       context.read<ClassBloc>().add(ClassSchoolFetchStarted());
     } else {
       context.read<ClassBloc>().add(ClassPersonalFetchStarted());
@@ -124,7 +123,8 @@ class _ClassListScreenState extends State<ClassListScreen> {
         final currentClass = classes[index];
         return CustomListItem(
           onTap: () async {
-            await ClassService().saveCurrentClass(currentClass);
+            // await ClassService().saveCurrentClass(currentClass);
+            print(await ClassService().getCurrentProfile());
             CustomPageTransition.navigateTo(
                 context: context,
                 page: ClassScreen(

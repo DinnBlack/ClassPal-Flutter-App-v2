@@ -39,9 +39,11 @@ class StudentService extends ProfileService {
       var result;
 
       if (currentProfile!.groupType == 0) {
+        print(1);
         result = await insertProfile(displayName, 'Student', 0);
         await ClassService().bindRelationship(result.id);
       } else {
+        print(2);
         result = await insertProfile(displayName, 'Student', 1);
       }
 

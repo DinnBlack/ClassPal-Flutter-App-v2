@@ -494,6 +494,7 @@ class _ClassSchoolStep2State extends State<ClassSchoolStep2> {
         if (state is ClassSchoolCreateSuccess) {
           final currentClass = state.currentClass;
           ClassService().saveCurrentClass(currentClass);
+          print(_selectedTeacherIds);
           context
               .read<ClassBloc>()
               .add(ClassSchoolBindRelStarted(profileIds: _selectedTeacherIds));

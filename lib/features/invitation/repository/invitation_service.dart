@@ -206,14 +206,12 @@ class InvitationService extends ProfileService {
       }
       final cookieHeader =
           cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-      final currentProfile = await getCurrentProfile();
       final response = await _dio.post(
         '$_baseUrl/invitations/mail/accept/$invitationId',
         options: Options(
           headers: {
             'Content-Type': 'application/json',
             'Cookie': cookieHeader,
-            // 'x-profile-id': currentProfile?.id,
           },
         ),
       );

@@ -44,7 +44,8 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       final currentRoles = await AuthService().getCurrentRoles();
       if (currentRoles.contains('Parent') || currentRoles.contains('Student')) {
         posts = await postService.getMultiGroupNews();
-      } else {
+      } else  {
+        print(2);
         posts = await postService.getGroupNews();
       }
       emit(PostFetchSuccess(posts));

@@ -90,7 +90,6 @@ class _PostListScreenState extends State<PostListScreen> {
               itemCount: state.posts.length,
               itemBuilder: (context, index) {
                 return CustomPostListItem(
-
                   post: state.posts[index],
                   isParentView: true,
                 );
@@ -101,20 +100,17 @@ class _PostListScreenState extends State<PostListScreen> {
               ),
             );
           }
-
           return ListView.separated(
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: !widget.isParentView &&
-                    !widget.isTeacherView
+            itemCount: (!widget.isParentView || !widget.isTeacherView)
                 ? state.posts.length + 1
                 : state.posts.length,
             itemBuilder: (context, index) {
-              if (!widget.isParentView && index == 0) {
+              if ((!widget.isParentView || !widget.isTeacherView) && index == 0) {
                 return Column(
                   children: [
                     if (!widget.isParentView &&
-                        !widget.isTeacherView ) ...const [
+                        !widget.isTeacherView) ...const [
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
                         child: PostCreateButton(),
@@ -127,7 +123,7 @@ class _PostListScreenState extends State<PostListScreen> {
                 );
               }
 
-              final postIndex = !widget.isParentView && !widget.isStudentView
+              final postIndex = !widget.isParentView || !widget.isStudentView
                   ? index - 1
                   : index;
 

@@ -97,14 +97,10 @@ class GradeService extends ProfileService {
 
       var requestUrl = '$_baseUrl/grades/student/$studentId';
 
-      if (studentId == '') {
-        requestUrl = '$_baseUrl/grades/student/${currentProfile?.id}';
-      }
-
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
+        'x-profile-id': currentProfile?.tempId ?? currentProfile?.id,
       };
 
       final response = await _dio.get(

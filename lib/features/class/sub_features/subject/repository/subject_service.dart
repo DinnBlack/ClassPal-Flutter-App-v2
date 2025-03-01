@@ -110,7 +110,7 @@ class SubjectService extends ProfileService {
       final headers = {
         'Content-Type': 'application/json',
         'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
+        'x-profile-id': currentProfile?.tempId ?? currentProfile?.id,
       };
 
       final response = await _dio.get(

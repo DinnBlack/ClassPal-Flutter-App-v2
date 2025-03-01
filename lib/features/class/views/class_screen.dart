@@ -9,9 +9,7 @@ import '../../../core/config/app_constants.dart';
 import '../../../core/utils/app_text_style.dart';
 import '../models/class_model.dart';
 import 'class_page/class_news_page.dart';
-import 'class_page/class_schedule_page.dart';
 import 'class_page/class_dashboard_page.dart';
-import 'class_page/class_notification_page.dart';
 
 class ClassScreen extends StatefulWidget {
   static const route = 'ClassScreen';

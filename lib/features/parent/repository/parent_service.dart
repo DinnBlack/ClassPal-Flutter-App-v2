@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../profile/model/profile_model.dart';
 
@@ -116,6 +117,18 @@ class ParentService extends ProfileService {
     }
   }
 
+// Lưu parentId vào SharedPreferences
+  Future<void> saveParentId(String parentId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('parentId', parentId);
+  }
+
+// Lấy parentId từ SharedPreferences
+  Future<String?> getParentId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('parentId'); // Trả về chuỗi trực tiếp
+  }
+
   Future<List<ProfileModel>> getChildren() async {
     try {
       final parents = await getUserProfiles();
@@ -135,8 +148,9 @@ class ParentService extends ProfileService {
           print(parent.id);
 
           // Tạo headers với cookies
-          final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+          final cookieHeader = cookies
+              .map((cookie) => '${cookie.name}=${cookie.value}')
+              .join('; ');
 
           final response = await _dio.get(
             '$_baseUrl/profiles/${parent.id}/related',
@@ -161,7 +175,8 @@ class ParentService extends ProfileService {
             // Lọc danh sách các ProfileModel có chứa studentRoleId trong roles
             List<ProfileModel> filteredProfiles = profiles
                 .where((profile) => profile.roles.contains(studentRoleId))
-                .map((profile) => profile.copyWith(id: parent.id))
+                .map((profile) =>
+                    profile.copyWith(tempId: parent.id)) // Chỉ thay đổi tempId
                 .toList();
 
             allProfiles.addAll(filteredProfiles);
@@ -178,7 +193,6 @@ class ParentService extends ProfileService {
       return [];
     }
   }
-
 
   Future<bool> deleteParent(String parentId) async {
     try {

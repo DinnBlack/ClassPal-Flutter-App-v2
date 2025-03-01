@@ -120,8 +120,10 @@ class ProfileService {
 
       // Xác định URL dựa trên `groupType`
       final responseUrl = groupType == 0
-          ? '$_baseUrl/profiles/0/${currentProfile?.id}'
+          ? '$_baseUrl/profiles/0/${currentProfile?.groupId}'
           : '$_baseUrl/profiles/1/${currentClass?.id}';
+
+      print(responseUrl);
 
       final response = await _dio.post(
         responseUrl,
@@ -137,6 +139,8 @@ class ProfileService {
           },
         ),
       );
+
+      print(response.data);
 
       if (response.statusCode == 201) {
         print('Create profile successfully: ${response.data}');
@@ -370,7 +374,7 @@ class ProfileService {
           headers: {
             'Content-Type': 'application/json',
             if (!kIsWeb) 'Cookie': cookieHeader,
-            'x-profile-id': currentProfile?.id
+            'x-profile-id': currentProfile?.tempId ?? currentProfile?.id,
           },
         ),
       );
