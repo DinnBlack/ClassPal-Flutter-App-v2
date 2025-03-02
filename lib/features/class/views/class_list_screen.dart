@@ -91,14 +91,12 @@ class _ClassListScreenState extends State<ClassListScreen> {
       itemBuilder: (context, index) {
         final currentClass = classes[index];
         final profile = profiles[index];
-        String classesText = currentClass.name;
 
         return CustomListItem(
           leading: const CustomAvatar(
             imageAsset: 'assets/images/class.jpg',
           ),
           title: currentClass.name,
-          subtitle: classesText,
           onTap: () async {
             await ProfileService().saveCurrentProfile(profile);
             await ClassService().saveCurrentClass(currentClass);
@@ -123,35 +121,9 @@ class _ClassListScreenState extends State<ClassListScreen> {
         final currentClass = classes[index];
         return CustomListItem(
           onTap: () async {
-            // await ClassService().saveCurrentClass(currentClass);
-            print(await ClassService().getCurrentProfile());
-            CustomPageTransition.navigateTo(
-                context: context,
-                page: ClassScreen(
-                  currentClass: currentClass,
-                ),
-                transitionType: PageTransitionType.slideFromRight);
-          },
-          title: currentClass.name,
-          leading: const CustomAvatar(
-            imageAsset: 'assets/images/class.jpg',
-          ),
-          hasTrailingArrow: true,
-        );
-      },
-      separatorBuilder: (context, index) => const SizedBox(height: kMarginMd),
-    );
-  }
-
-  Widget _buildListClassParentView() {
-    return ListView.separated(
-      shrinkWrap: true,
-      itemCount: classes.length,
-      itemBuilder: (context, index) {
-        final currentClass = classes[index];
-        return CustomListItem(
-          onTap: () async {
+            // print(currentClass);
             await ClassService().saveCurrentClass(currentClass);
+            print(await ClassService().getCurrentClass());
             CustomPageTransition.navigateTo(
                 context: context,
                 page: ClassScreen(

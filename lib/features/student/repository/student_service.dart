@@ -36,12 +36,12 @@ class StudentService extends ProfileService {
     try {
       final currentProfile = await getCurrentProfile();
 
-      var result;
+      ProfileModel? result;
 
       if (currentProfile!.groupType == 0) {
         print(1);
         result = await insertProfile(displayName, 'Student', 0);
-        await ClassService().bindRelationship(result.id);
+        await ClassService().bindRelationship([result!.id]);
       } else {
         print(2);
         result = await insertProfile(displayName, 'Student', 1);
@@ -72,8 +72,6 @@ class StudentService extends ProfileService {
   Future<List<ProfileModel>?> getStudents() async {
     try {
       final profiles = await getProfilesByGroup(1);
-
-      print(profiles);
 
       final studentRoleId = await getRoleIdByName('Student');
 

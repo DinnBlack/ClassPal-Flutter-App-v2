@@ -101,9 +101,11 @@ class ProfileService {
     }
   }
 
-  Future<ProfileModel?> insertProfile(String name, String role, int groupType) async {
+  Future<ProfileModel?> insertProfile(
+      String name, String role, int groupType) async {
     try {
-      final cookies = !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
+      final cookies =
+          !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
 
       if (!kIsWeb && cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
@@ -123,13 +125,11 @@ class ProfileService {
           ? '$_baseUrl/profiles/0/${currentProfile?.groupId}'
           : '$_baseUrl/profiles/1/${currentClass?.id}';
 
-      print(responseUrl);
-
       final response = await _dio.post(
         responseUrl,
         data: jsonEncode({
           'displayName': name,
-          'roles': [role],
+          'roles': role is List ? role : [role],
         }),
         options: Options(
           headers: {
@@ -139,8 +139,6 @@ class ProfileService {
           },
         ),
       );
-
-      print(response.data);
 
       if (response.statusCode == 201) {
         print('Create profile successfully: ${response.data}');
@@ -155,7 +153,6 @@ class ProfileService {
       return null;
     }
   }
-
 
   Future<bool> insertBatchProfile(
       List<String> names, String role, int groupType) async {
@@ -178,7 +175,8 @@ class ProfileService {
       await _initialize();
 
       // Không tải cookies nếu là môi trường web
-      final cookies = !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
+      final cookies =
+          !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
       if (!kIsWeb && cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
@@ -220,7 +218,8 @@ class ProfileService {
       await _initialize();
 
       // Không tải cookies nếu là môi trường web
-      final cookies = !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
+      final cookies =
+          !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
       if (!kIsWeb && cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
@@ -239,6 +238,8 @@ class ProfileService {
         responseUrl = '$_baseUrl/profiles/0/${currentClass?.id}';
       }
 
+      print(responseUrl);
+
       final response = await _dio.get(
         responseUrl,
         options: Options(
@@ -250,11 +251,15 @@ class ProfileService {
         ),
       );
 
+      print(response.data);
+
       if (response.statusCode == 200) {
         var profilesData = response.data['data'] as List;
         List<ProfileModel> profiles = profilesData
             .map((profile) => ProfileModel.fromMap(profile))
             .toList();
+
+        print(profiles);
 
         return profiles;
       } else {
@@ -272,7 +277,8 @@ class ProfileService {
       await _initialize();
 
       // Không tải cookies nếu là môi trường web
-      final cookies = !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
+      final cookies =
+          !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
       if (!kIsWeb && cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
@@ -311,7 +317,6 @@ class ProfileService {
     }
   }
 
-
   Future<List<ProfileModel>> getProfilesByRole(List<String> roles) async {
     try {
       await _initialize();
@@ -328,15 +333,20 @@ class ProfileService {
           print('No cookies available for authentication');
           return [];
         }
-        final cookieHeader = cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+        final cookieHeader = cookies
+            .map((cookie) => '${cookie.name}=${cookie.value}')
+            .join('; ');
         options.headers!['Cookie'] = cookieHeader;
       }
 
       final response = await _dio.get(url, options: options);
 
-      if (response.statusCode == 200 && response.data?.containsKey('data') == true) {
+      if (response.statusCode == 200 &&
+          response.data?.containsKey('data') == true) {
         var profilesData = response.data['data'] as List;
-        List<ProfileModel> profiles = profilesData.map((profile) => ProfileModel.fromMap(profile)).toList();
+        List<ProfileModel> profiles = profilesData
+            .map((profile) => ProfileModel.fromMap(profile))
+            .toList();
 
         // Lưu profiles vào SharedPreferences
         await saveUserProfiles(profiles);
@@ -356,7 +366,8 @@ class ProfileService {
       await _initialize();
 
       // Không tải cookies nếu là môi trường web
-      final cookies = !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
+      final cookies =
+          !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
       if (!kIsWeb && cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
@@ -399,7 +410,8 @@ class ProfileService {
       await _initialize();
 
       // Không tải cookies nếu là môi trường web
-      final cookies = !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
+      final cookies =
+          !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
       if (!kIsWeb && cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
@@ -436,7 +448,7 @@ class ProfileService {
         List<ProfileModel> filteredProfiles = profiles
             .where(
               (profile) => profile.roles.contains(studentRoleId),
-        )
+            )
             .toList();
 
         return filteredProfiles;
@@ -448,12 +460,14 @@ class ProfileService {
       return [];
     }
   }
+
   Future<bool> addChildForParent(String parentId, String childId) async {
     try {
       await _initialize();
 
       // Không tải cookies nếu là môi trường web
-      final cookies = !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
+      final cookies =
+          !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
       if (!kIsWeb && cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
@@ -496,7 +510,8 @@ class ProfileService {
       await _initialize();
 
       // Không tải cookies nếu là môi trường web
-      final cookies = !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
+      final cookies =
+          !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
       if (!kIsWeb && cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
@@ -538,7 +553,6 @@ class ProfileService {
     }
   }
 
-
   Future<String?> getRoleIdByName(String roleName) async {
     // Lấy danh sách vai trò từ SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -575,7 +589,8 @@ class ProfileService {
       await _initialize();
 
       // Không tải cookies nếu là môi trường web
-      final cookies = !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
+      final cookies =
+          !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
       if (!kIsWeb && cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
@@ -592,7 +607,8 @@ class ProfileService {
 
       final headers = {
         'Content-Type': 'application/json',
-        if (!kIsWeb) 'Cookie': cookieHeader,  // Chỉ thêm cookie khi không phải là web
+        if (!kIsWeb) 'Cookie': cookieHeader,
+        // Chỉ thêm cookie khi không phải là web
         'x-profile-id': currentProfile.id,
       };
 
@@ -627,7 +643,8 @@ class ProfileService {
   Future<void> updateAvatar(String studentId, File imageFile) async {
     try {
       // Không tải cookies nếu là môi trường web
-      final cookies = !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
+      final cookies =
+          !kIsWeb ? await _cookieJar.loadForRequest(Uri.parse(_baseUrl)) : [];
       if (!kIsWeb && cookies.isEmpty) {
         throw Exception('No cookies available for authentication');
       }
@@ -640,7 +657,10 @@ class ProfileService {
 
       // Tạo header, không gửi cookies nếu môi trường web
       final headers = {
-        if (!kIsWeb) 'Cookie': cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; '),
+        if (!kIsWeb)
+          'Cookie': cookies
+              .map((cookie) => '${cookie.name}=${cookie.value}')
+              .join('; '),
         'x-profile-id': currentProfile.id,
         'Content-Type': "multipart/form-data",
       };
@@ -677,5 +697,4 @@ class ProfileService {
           'Lỗi khi gửi yêu cầu cập nhật avatar: ${e.response?.data}');
     }
   }
-
 }

@@ -1,3 +1,5 @@
+import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
+import 'package:classpal_flutter_app/features/auth/views/forgot_password_screen.dart';
 import 'package:classpal_flutter_app/features/auth/views/widgets/custom_button_google.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -202,7 +204,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           const SizedBox(height: kMarginLg),
                           GestureDetector(
                             onTap: () {
-                              context.push('/auth/login/forgot-password', extra: _emailOrPhoneNumberController.text);
+                              CustomPageTransition.navigateTo(context: context, page: ForgotPasswordScreen(email: _emailOrPhoneNumberController.text), transitionType: PageTransitionType.slideFromRight);
                             },
                             child: Text(
                               'Quên mật khẩu?',

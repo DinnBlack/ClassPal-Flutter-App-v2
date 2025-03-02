@@ -109,7 +109,7 @@ class _TeacherListScreenState extends State<TeacherListScreen> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
               child:
-                  CircularProgressIndicator()); // Hiển thị loading khi chờ dữ liệu
+                  CircularProgressIndicator());
         }
 
         if (!snapshot.hasData) {

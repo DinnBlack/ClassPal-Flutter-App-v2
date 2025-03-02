@@ -143,6 +143,8 @@ class ClassService extends ProfileService {
         ),
       );
 
+      print(response.data);
+
       if (response.statusCode == 200) {
         classes = (response.data['data'] as List<dynamic>)
             .map((profile) =>
@@ -243,6 +245,8 @@ class ClassService extends ProfileService {
         final classData = (response.data['data'] as List)
             .expand((data) => [ClassModel.fromMap(data)])
             .first;
+
+        print(classData);
 
         return classData;
       } else {
@@ -431,7 +435,7 @@ class ClassService extends ProfileService {
         ),
       );
 
-      print(response.data);
+      print('bind successful: ${response.data}');
 
       if (response.statusCode == 200) {
         return response.data['data'];
