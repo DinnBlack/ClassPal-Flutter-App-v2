@@ -35,7 +35,7 @@ class SubjectScreen extends StatelessWidget {
 
   CustomAppBar _buildAppBar(BuildContext context) {
     return CustomAppBar(
-      title: 'Thông tin lớp học',
+      title: 'Môn học',
       leftWidget: InkWell(
         onTap: () => Navigator.pop(context),
         child: const Icon(
