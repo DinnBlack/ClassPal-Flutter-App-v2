@@ -78,63 +78,66 @@ class _InvitationFormState extends State<InvitationForm> {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(kPaddingMd),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CustomAppBar(
-                      title: 'Gửi lời mời',
-                      isSafeArea: false,
-                      subtitle: widget.subtitle,
-                      leftWidget: InkWell(
-                        child: const Icon(
-                          FontAwesomeIcons.xmark,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 400), // Đặt maxWidth là 400
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CustomAppBar(
+                        title: 'Gửi lời mời',
+                        isSafeArea: false,
+                        subtitle: widget.subtitle,
+                        leftWidget: InkWell(
+                          child: const Icon(
+                            FontAwesomeIcons.xmark,
+                          ),
+                          onTap: () {
+                            if (_emailController.text.isNotEmpty) {
+                              _showExitConfirmationDialog(context);
+                            } else {
+                              Navigator.pop(context);
+                            }
+                          },
                         ),
+                      ),
+                      const SizedBox(height: kMarginMd),
+                      CustomTextField(
+                        controller: _emailController,
+                        text: 'Email hoặc số điện thoại',
+                        autofocus: true,
+                      ),
+                      const SizedBox(height: kMarginLg),
+                      CustomButton(
+                        text: 'Mời',
                         onTap: () {
-                          if (_emailController.text.isNotEmpty) {
-                            _showExitConfirmationDialog(context);
-                          } else {
-                            Navigator.pop(context);
+                          final email = _emailController.text.trim();
+                          if (email.isNotEmpty) {
+                            if (widget.role == 'Teacher') {
+                              print('sent teacher');
+                              context.read<InvitationBloc>().add(
+                                InvitationCreateForTeacherStarted(
+                                  name: email,
+                                  email: email,
+                                ),
+                              );
+                            } else {
+                              print('sent parent');
+                              context.read<InvitationBloc>().add(
+                                InvitationCreateForParentStarted(
+                                  name: widget.parentInvitation!.studentName,
+                                  email: email,
+                                  studentId:
+                                  widget.parentInvitation!.studentId,
+                                ),
+                              );
+                            }
                           }
                         },
                       ),
-                    ),
-                    const SizedBox(height: kMarginMd),
-                    CustomTextField(
-                      controller: _emailController,
-                      text: 'Email hoặc số điện thoại',
-                      autofocus: true,
-                    ),
-                    const SizedBox(height: kMarginLg),
-                    CustomButton(
-                      text: 'Mời',
-                      onTap: () {
-                        final email = _emailController.text.trim();
-                        if (email.isNotEmpty) {
-                          if (widget.role == 'Teacher') {
-                            print('sent teacher');
-                            context.read<InvitationBloc>().add(
-                                  InvitationCreateForTeacherStarted(
-                                    name: email,
-                                    email: email,
-                                  ),
-                                );
-                          } else {
-                            print('sent parent');
-                            context.read<InvitationBloc>().add(
-                                  InvitationCreateForParentStarted(
-                                    name: widget.parentInvitation!.studentName,
-                                    email: email,
-                                    studentId:
-                                        widget.parentInvitation!.studentId,
-                                  ),
-                                );
-                          }
-                        }
-                      },
-                    ),
-                    const SizedBox(height: kMarginMd),
-                  ],
+                      const SizedBox(height: kMarginMd),
+                    ],
+                  ),
                 ),
               ),
             ),

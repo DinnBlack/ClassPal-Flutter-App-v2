@@ -1,7 +1,9 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_avatar.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -41,7 +43,14 @@ class _PostCreateButtonState extends State<PostCreateButton>
       onTap: () async {
         await _controller.reverse();
         await _controller.forward();
-        CustomPageTransition.navigateTo(context: context, page: const PostCreateScreen(), transitionType: PageTransitionType.slideFromBottom);
+        if (kIsWeb) {
+          showCustomDialog(context, const PostCreateScreen(),);
+        } else {
+          CustomPageTransition.navigateTo(
+              context: context,
+              page: const PostCreateScreen(),
+              transitionType: PageTransitionType.slideFromBottom);
+        }
       },
       child: ScaleTransition(
         scale: _controller,
@@ -66,8 +75,13 @@ class _PostCreateButtonState extends State<PostCreateButton>
                 ),
               ),
               const Spacer(),
-              const Icon(FontAwesomeIcons.cameraRetro, color: kPrimaryColor,),
-              const SizedBox(width: kMarginMd,),
+              const Icon(
+                FontAwesomeIcons.cameraRetro,
+                color: kPrimaryColor,
+              ),
+              const SizedBox(
+                width: kMarginMd,
+              ),
             ],
           ),
         ),

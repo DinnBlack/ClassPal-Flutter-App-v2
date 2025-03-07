@@ -1,3 +1,4 @@
+import 'package:classpal_flutter_app/core/utils/responsive.dart';
 import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
 import 'package:classpal_flutter_app/features/student/sub_features/group/model/group_with_students_model.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +19,7 @@ class CustomGroupListItem extends StatefulWidget {
   });
 
   @override
-  State<CustomGroupListItem> createState() =>
-      _CustomGroupListItemState();
+  State<CustomGroupListItem> createState() => _CustomGroupListItemState();
 }
 
 class _CustomGroupListItemState extends State<CustomGroupListItem>
@@ -124,63 +124,64 @@ class _CustomGroupListItemState extends State<CustomGroupListItem>
         scale: _controller,
         child: Stack(children: [
           Container(
-            height: 105,
+            padding: const EdgeInsets.only(bottom: 5),
             decoration: BoxDecoration(
               color: kGreyLightColor,
               borderRadius: BorderRadius.circular(kBorderRadiusMd),
             ),
-          ),
-          Container(
-            height: 100,
-            decoration: BoxDecoration(
-              color: kWhiteColor,
-              borderRadius: BorderRadius.circular(kBorderRadiusMd),
-              border: Border.all(color: kGreyMediumColor, width: 2),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if (widget.addItem!)
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: kWhiteColor,
-                          width: 1,
+            child: Container(
+              decoration: BoxDecoration(
+                color: kWhiteColor,
+                borderRadius: BorderRadius.circular(kBorderRadiusMd),
+                border: Border.all(color: kGreyLightColor, width: 2),
+              ),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (widget.addItem!)
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: kWhiteColor,
+                            width: 1,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.add,
+                          color: kPrimaryColor,
+                        ),
+                      )
+                    else
+                      Container(
+                        height: 48,
+                        alignment: Alignment.center,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: studentAvatars,
                         ),
                       ),
-                      child: const Icon(
-                        Icons.add,
-                        color: kPrimaryColor,
-                      ),
-                    )
-                  else
-                    Container(
-                      height: 48,
-                      alignment: Alignment.center,
-                      child:  Stack(
-                        alignment: Alignment.center,
-                        children: studentAvatars,
+                    const SizedBox(height: kMarginMd),
+                    Text(
+                      widget.addItem!
+                          ? "Thêm mới"
+                          : widget.groupWithStudents?.group.name ?? '',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyle.bold(
+                        Responsive.isMobile(context)
+                            ? kTextSizeXs
+                            : kTextSizeSm,
+                        widget.addItem! ? kPrimaryColor : kBlackColor,
                       ),
                     ),
-                  const SizedBox(height: kMarginSm),
-                  Text(
-                    widget.addItem!
-                        ? "Thêm mới"
-                        : widget.groupWithStudents?.group.name ?? '',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: AppTextStyle.semibold(
-                      kTextSizeXs,
-                      widget.addItem! ? kPrimaryColor : kBlackColor,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

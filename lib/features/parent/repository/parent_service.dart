@@ -1,36 +1,18 @@
 import 'package:classpal_flutter_app/features/parent/models/parent_model.dart';
 import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/config/cookie/token_manager.dart';
 import '../../profile/model/profile_model.dart';
 
 class ParentService extends ProfileService {
   final String _baseUrl =
       'https://cpserver.amrakk.rest/api/v1/academic-service';
-  final Dio _dio = Dio();
-  late PersistCookieJar _cookieJar;
+  final Dio _dio = TokenManager.dio;
 
   ParentService() {
-    _initialize();
-  }
-
-  // Khởi tạo PersistCookieJar để lưu trữ cookie
-  Future<void> _initialize() async {
-    if (kIsWeb) {
-      // Xử lý cho nền tảng web
-    } else {
-      final directory = await getApplicationDocumentsDirectory();
-      final cookieStorage = FileStorage('${directory.path}/cookies');
-      _cookieJar = PersistCookieJar(storage: cookieStorage);
-      _dio.interceptors.add(CookieManager(_cookieJar));
-      // Khôi phục cookies khi khởi tạo
-      await restoreCookies();
-    }
+    TokenManager.initialize();
   }
 
   Future<List<ParentInvitationModel>> getParents() async {
@@ -132,34 +114,16 @@ class ParentService extends ProfileService {
   Future<List<ProfileModel>> getChildren() async {
     try {
       final parents = await getUserProfiles();
-      print(parents);
 
       List<ProfileModel> allProfiles = [];
 
       for (var parent in parents) {
-        print(parent);
         try {
-          await _initialize();
-          final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-          if (cookies.isEmpty) {
-            throw Exception('No cookies available for authentication');
-          }
-
-          print(parent.id);
-
-          // Tạo headers với cookies
-          final cookieHeader = cookies
-              .map((cookie) => '${cookie.name}=${cookie.value}')
-              .join('; ');
-
+          final headers = await buildHeaders(profileId: parent.id);
           final response = await _dio.get(
             '$_baseUrl/profiles/${parent.id}/related',
             options: Options(
-              headers: {
-                'Content-Type': 'application/json',
-                'Cookie': cookieHeader,
-                'x-profile-id': parent.id
-              },
+              headers: headers, extra: {'withCredentials': true}
             ),
           );
 

@@ -1,6 +1,9 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_avatar.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_list_item.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/utils/app_text_style.dart';
@@ -34,9 +37,9 @@ class _StudentConnectListScreenState extends State<StudentConnectListScreen> {
         } else if (state is StudentFetchSuccess) {
           int totalStudents = state.students.length;
           List<ProfileModel> disconnectedStudents =
-          state.students.where((s) => s.userId == null).toList();
+              state.students.where((s) => s.userId == null).toList();
           List<ProfileModel> connectedStudents =
-          state.students.where((s) => s.userId != null).toList();
+              state.students.where((s) => s.userId != null).toList();
 
           double percentage = totalStudents > 0
               ? (connectedStudents.length / totalStudents) * 100
@@ -70,14 +73,18 @@ class _StudentConnectListScreenState extends State<StudentConnectListScreen> {
                   CustomButton(
                     text: 'Mã lớp học',
                     onTap: () async {
-                      final code = await InvitationService().generateGroupCode();
+                      final code =
+                          await InvitationService().generateGroupCode();
                       if (code != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => QRCodeScreen(code: code),
-                          ),
-                        );
+                        if (kIsWeb) {
+                          showCustomDialog(context, QRCodeScreen(code: code));
+                        } else {
+                          CustomPageTransition.navigateTo(
+                              context: context,
+                              page: QRCodeScreen(code: code),
+                              transitionType:
+                                  PageTransitionType.slideFromBottom);
+                        }
                       }
                     },
                   ),
@@ -109,7 +116,8 @@ class _StudentConnectListScreenState extends State<StudentConnectListScreen> {
         ),
         const SizedBox(height: kMarginLg),
         ListView.separated(
-          separatorBuilder: (context, index) => const SizedBox(height: kMarginMd),
+          separatorBuilder: (context, index) =>
+              const SizedBox(height: kMarginMd),
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: students.length,
@@ -117,7 +125,8 @@ class _StudentConnectListScreenState extends State<StudentConnectListScreen> {
             final student = students[index];
             return CustomListItem(
               title: student.displayName,
-              leading: const CustomAvatar(imageAsset: 'assets/images/student.jpg'),
+              leading:
+                  const CustomAvatar(imageAsset: 'assets/images/student.jpg'),
             );
           },
         ),

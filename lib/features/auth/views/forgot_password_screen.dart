@@ -1,12 +1,14 @@
 import 'package:classpal_flutter_app/core/widgets/custom_bottom_sheet.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/auth/views/otp_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import '../../../core/utils/validators.dart';
@@ -57,14 +59,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      appBar: CustomAppBar(
-        leftWidget: InkWell(
-          child: const Icon(FontAwesomeIcons.arrowLeft),
-          onTap: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
+      appBar: kIsWeb
+          ? null
+          : CustomAppBar(
+              leftWidget: InkWell(
+                child: const Icon(FontAwesomeIcons.arrowLeft),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 500),
@@ -100,17 +104,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       }
 
                       if (state is AuthForgotPasswordSuccess) {
-                        CustomPageTransition.navigateTo(
-                          context: context,
-                          page: OtpScreen(email: _emailController.text),
-                          transitionType: PageTransitionType.slideFromRight,
-                        );
+                        final email = _emailController.text.trim();
+                        if (kIsWeb) {
+                          GoRouter.of(context)
+                              .go('/auth/otp', extra: {'email': email});
+                        } else {
+                          CustomPageTransition.navigateTo(
+                            context: context,
+                            page: OtpScreen(email: _emailController.text),
+                            transitionType: PageTransitionType.slideFromRight,
+                          );
+                        }
                       } else if (state is AuthForgotPasswordFailure) {
                         showTopSnackBar(
                           Overlay.of(context),
                           const CustomSnackBar.error(
-                            message:
-                            'Khôi phục tài khoản thất bại!',
+                            message: 'Khôi phục tài khoản thất bại!',
                           ),
                         );
                       }
@@ -121,13 +130,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         isValid: _isValid,
                         onTap: _isValid
                             ? () {
-                          if (_formKey.currentState!.validate()) {
-                            final email = _emailController.text;
-                            context.read<AuthBloc>().add(
-                              AuthForgotPasswordStarted(email: email),
-                            );
-                          }
-                        }
+                                if (_formKey.currentState!.validate()) {
+                                  final email = _emailController.text;
+                                  context.read<AuthBloc>().add(
+                                        AuthForgotPasswordStarted(email: email),
+                                      );
+                                }
+                              }
                             : null,
                       );
                     },
@@ -144,7 +153,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           ),
                           TextSpan(
                             text: 'Đăng nhập',
-                            style: AppTextStyle.medium(kTextSizeXs, kPrimaryColor),
+                            style:
+                                AppTextStyle.medium(kTextSizeXs, kPrimaryColor),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
                                 Navigator.pop(context);
@@ -160,7 +170,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
         ),
       ),
-
     );
   }
 }

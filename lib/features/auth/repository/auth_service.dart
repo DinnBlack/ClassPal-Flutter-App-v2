@@ -1,41 +1,21 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:classpal_flutter_app/features/auth/models/role_model.dart';
 import 'package:classpal_flutter_app/features/auth/repository/google_service.dart';
 import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../../core/config/cookie/token_manager.dart';
 import '../models/user_model.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService extends ProfileService {
   static const String _baseUrl = 'https://cpserver.amrakk.rest/api/v1';
-  final Dio _dio = Dio();
-  late PersistCookieJar _cookieJar;
+  final Dio _dio = TokenManager.dio;
   static final _googleSignIn = GoogleSignIn();
 
   AuthService() {
-    _initialize();
-  }
-
-  // Khởi tạo PersistCookieJar để lưu trữ cookie
-  Future<void> _initialize() async {
-    if (kIsWeb) {
-      // Xử lý cho nền tảng web
-    } else {
-      final directory = await getApplicationDocumentsDirectory();
-      final cookieStorage = FileStorage('${directory.path}/cookies');
-      _cookieJar = PersistCookieJar(storage: cookieStorage);
-      _dio.interceptors.add(CookieManager(_cookieJar));
-      // Khôi phục cookies khi khởi tạo
-      await restoreCookies();
-    }
+    TokenManager.initialize();
   }
 
   Future<void> saveCurrentUser(UserModel user) async {
@@ -71,7 +51,7 @@ class AuthService extends ProfileService {
   }
 
 
-  // Đăng nhập và lưu cookie
+  /// Đăng nhập
   Future<UserModel?> login(String emailOrPhone, String password) async {
     try {
       final response = await _dio.post(
@@ -80,29 +60,38 @@ class AuthService extends ProfileService {
           'emailOrPhone': emailOrPhone,
           'password': password,
         },
-        options: Options(headers: {'Content-Type': 'application/json'}),
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          extra: {
+            'withCredentials': true,
+          },
+        ),
       );
 
       if (response.statusCode == 200) {
         print('Đăng nhập thành công');
-
-        // Lưu trạng thái đăng nhập
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
-
         UserModel user = UserModel.fromMap(response.data['data']['user']);
         await saveCurrentUser(user);
+        print('Response Headers: ${response.headers}');
+
+        await TokenManager.saveCookies();
+
         return user;
       } else {
         print('Đăng nhập thất bại: ${response.data}');
         return null;
       }
     } on DioException catch (e) {
-      print('Lỗi khi đăng nhập: ${e.response!.data}');
+      print('Lỗi khi đăng nhập: ${e.response?.data}');
     }
-    print('Lỗi khi đăng nhập');
     return null;
   }
+
+
 
   // Đăng ký (Register)
   Future<String?> register(

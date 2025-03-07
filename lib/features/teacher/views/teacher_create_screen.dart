@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:classpal_flutter_app/core/widgets/custom_loading_dialog.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -81,7 +82,7 @@ class _TeacherCreateScreenState extends State<TeacherCreateScreen> {
       builder: (context, state) {
         return Scaffold(
           appBar: _buildAppBar(context),
-          backgroundColor: kBackgroundColor,
+          backgroundColor: kIsWeb ? kTransparentColor: kBackgroundColor,
           body: _buildBody(),
         );
       },

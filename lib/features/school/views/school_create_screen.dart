@@ -3,6 +3,7 @@ import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_text_field.dart';
 import 'package:classpal_flutter_app/features/school/views/school_join_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -59,92 +60,105 @@ class _SchoolCreateScreenState extends State<SchoolCreateScreen> {
           }
         },
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  const SizedBox(height: kMarginLg),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      InkWell(
-                        child: const Icon(FontAwesomeIcons.arrowLeft),
-                        onTap: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: kMarginLg),
-                  Text(
-                    'Chào mừng lãnh đạo trường!',
-                    style: AppTextStyle.bold(kTextSizeXxl),
-                  ),
-                  Text(
-                    'Hãy tạo trường học của bạn để quản lý',
-                    style: AppTextStyle.semibold(kTextSizeSm, kGreyColor),
-                  ),
-                  const SizedBox(height: kMarginLg),
-                  CustomTextField(
-                    text: 'Tên trường học',
-                    controller: _nameController,
-                  ),
-                  const SizedBox(height: kMarginMd),
-                  CustomTextField(
-                    text: 'Địa chỉ',
-                    controller: _addressController,
-                  ),
-                  const SizedBox(height: kMarginMd),
-                  CustomTextField(
-                    text: 'Số điện thoại',
-                    controller: _phoneController,
-                    isNumber: true,
-                    validator: (value) => Validators.validatePhone(value),
-                  ),
-                  const SizedBox(height: kMarginLg),
-                  CustomButton(
-                    text: 'Tạo trường học',
-                    onTap: () {
-                      if (_formKey.currentState!.validate()) {
-                        context.read<SchoolBloc>().add(
-                              SchoolCreateStarted(
-                                name: _nameController.text,
-                                address: _addressController.text,
-                                phoneNumber: _phoneController.text,
-                              ),
-                            );
-                      }
-                    },
-                  ),
-                  const SizedBox(height: kMarginLg),
-                  Align(
-                    alignment: Alignment.center,
-                    child: RichText(
-                      text: TextSpan(
-                        style: AppTextStyle.semibold(kTextSizeSm, kGreyColor),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: 'Bạn đã được mời từ trường học? ',
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 650),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          const SizedBox(height: kMarginLg),
+                          if (!kIsWeb)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                InkWell(
+                                  child: const Icon(FontAwesomeIcons.arrowLeft),
+                                  onTap: () => Navigator.pop(context),
+                                ),
+                              ],
+                            ),
+                          const SizedBox(height: kMarginLg),
+                          Text(
+                            'Chào mừng lãnh đạo trường!',
+                            style: AppTextStyle.bold(kTextSizeXxl),
+                          ),
+                          Text(
+                            'Hãy tạo trường học của bạn để quản lý',
                             style:
                                 AppTextStyle.semibold(kTextSizeSm, kGreyColor),
                           ),
-                          TextSpan(
-                            text: 'Tham gia',
-                            style: AppTextStyle.semibold(
-                                kTextSizeSm, kPrimaryColor),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                Navigator.pushNamed(
-                                    context, SchoolJoinScreen.route);
-                              },
+                          const SizedBox(height: kMarginLg),
+                          CustomTextField(
+                            text: 'Tên trường học',
+                            controller: _nameController,
+                          ),
+                          const SizedBox(height: kMarginMd),
+                          CustomTextField(
+                            text: 'Địa chỉ',
+                            controller: _addressController,
+                          ),
+                          const SizedBox(height: kMarginMd),
+                          CustomTextField(
+                            text: 'Số điện thoại',
+                            controller: _phoneController,
+                            isNumber: true,
+                            validator: (value) =>
+                                Validators.validatePhone(value),
+                          ),
+                          const SizedBox(height: kMarginLg),
+                          CustomButton(
+                            text: 'Tạo trường học',
+                            onTap: () {
+                              if (_formKey.currentState!.validate()) {
+                                context.read<SchoolBloc>().add(
+                                      SchoolCreateStarted(
+                                        name: _nameController.text,
+                                        address: _addressController.text,
+                                        phoneNumber: _phoneController.text,
+                                      ),
+                                    );
+                              }
+                            },
+                          ),
+                          const SizedBox(height: kMarginLg),
+                          Align(
+                            alignment: Alignment.center,
+                            child: RichText(
+                              text: TextSpan(
+                                style: AppTextStyle.semibold(
+                                    kTextSizeSm, kGreyColor),
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: 'Bạn đã được mời từ trường học? ',
+                                    style: AppTextStyle.semibold(
+                                        kTextSizeSm, kGreyColor),
+                                  ),
+                                  TextSpan(
+                                    text: 'Tham gia',
+                                    style: AppTextStyle.semibold(
+                                        kTextSizeSm, kPrimaryColor),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () {
+                                        Navigator.pushNamed(
+                                            context, SchoolJoinScreen.route);
+                                      },
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),

@@ -1,58 +1,25 @@
-import 'dart:convert';
 import 'dart:io';
-
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:flutter/foundation.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:path_provider/path_provider.dart';
 
+import '../../../core/config/cookie/token_manager.dart';
 import '../../profile/repository/profile_service.dart';
 import '../models/post_model.dart';
 
 class PostService extends ProfileService {
   final String _baseUrl =
       'https://cpserver.amrakk.rest/api/v1/academic-service';
-  final Dio _dio = Dio();
-  late PersistCookieJar _cookieJar;
+  final Dio _dio = TokenManager.dio;
 
   PostService() {
-    _initialize();
-  }
-
-  // Khởi tạo PersistCookieJar để lưu trữ cookie
-  Future<void> _initialize() async {
-    if (kIsWeb) {
-      // Xử lý cho nền tảng web
-    } else {
-      final directory = await getApplicationDocumentsDirectory();
-      final cookieStorage = FileStorage('${directory.path}/cookies');
-      _cookieJar = PersistCookieJar(storage: cookieStorage);
-      _dio.interceptors.add(CookieManager(_cookieJar));
-      // Khôi phục cookies khi khởi tạo
-      await restoreCookies();
-    }
+    TokenManager.initialize();
   }
 
   Future<void> insertNews(File? imageFile, String content) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
       final currentProfile = await getCurrentProfile();
-
+      final headers = await buildHeaders(profileId: currentProfile?.id, contentType: 'multipart/form-data');
       final requestUrl = '$_baseUrl/news/${currentProfile?.groupId}';
-      final headers = {
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-        'Content-Type': "multipart/form-data"
-      };
 
       FormData formData = FormData.fromMap({
         "content": content,
@@ -72,7 +39,7 @@ class PostService extends ProfileService {
       final response = await _dio.post(
         requestUrl,
         data: formData,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       print(response.statusCode);
@@ -91,18 +58,8 @@ class PostService extends ProfileService {
 
   Future<List<PostModel>> getGroupNews() async {
     try {
-      await _initialize();
-
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
       final currentProfile = await getCurrentProfile();
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       // Lấy thời gian từ 3 ngày trước
       final DateTime fromDate = DateTime.now();
 
@@ -112,21 +69,13 @@ class PostService extends ProfileService {
         'limit': '10',
         'targetRoles': [],
       };
-
       final requestUrl = '$_baseUrl/news';
-
-      // Headers với thông tin user
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       // Gọi API
       final response = await _dio.get(
         requestUrl,
         queryParameters: queryParams,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       // Xử lý response
@@ -171,20 +120,9 @@ class PostService extends ProfileService {
     }
   }
 
-
   // ✅ Viết thêm hàm này để hỗ trợ gọi API theo từng profile
   Future<List<PostModel>> getGroupNewsForProfile(String profileId) async {
     try {
-      await _initialize();
-
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
       final DateTime fromDate = DateTime.now();
 
       final queryParams = {
@@ -194,17 +132,12 @@ class PostService extends ProfileService {
       };
 
       final requestUrl = '$_baseUrl/news';
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': profileId,
-      };
+      final headers = await buildHeaders(profileId: profileId);
 
       final response = await _dio.get(
         requestUrl,
         queryParameters: queryParams,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {
@@ -222,22 +155,13 @@ class PostService extends ProfileService {
 
   Future<void> deleteNews(String newsId) async {
     try {
-      await _initialize();
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+
       final currentProfile = await getCurrentProfile();
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/news/${currentProfile?.groupId}/$newsId';
-      final headers = {
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
       final response = await _dio.delete(
         requestUrl,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
       if (response.statusCode == 200) {
         print("News deleted successfully!");

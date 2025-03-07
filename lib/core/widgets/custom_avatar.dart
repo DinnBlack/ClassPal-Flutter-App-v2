@@ -12,14 +12,14 @@ class CustomAvatar extends StatelessWidget {
   final double size;
 
   const CustomAvatar({
-    Key? key,
+    super.key,
     this.profile,
     this.imageAsset,
     this.imageUrl,
     this.text,
     this.backgroundColor,
     this.size = 40.0,
-  }) : super(key: key);
+  });
 
   // Hàm tạo màu ngẫu nhiên
   Color _getRandomColor() {
@@ -61,6 +61,11 @@ class CustomAvatar extends StatelessWidget {
       }
     }
 
+    // Kiểm tra nếu profile có avatarUrl
+    if (profile?.avatarUrl != null && profile?.avatarUrl != 'https://i.ibb.co/s224bhZ/profile-icon.png') {
+      return _buildImageAvatar(Image.network(profile!.avatarUrl!));
+    }
+
     // Nếu có text hoặc profile.name, hiển thị chữ cái đầu
     if (shouldUseInitials) {
       return _buildInitialsAvatar(initials, avatarBackground);
@@ -78,7 +83,12 @@ class CustomAvatar extends StatelessWidget {
         shape: BoxShape.circle,
         color: kPrimaryColor,
       ),
-      child: ClipOval(child: image),
+      child: ClipOval(
+        child: FittedBox(
+          fit: BoxFit.cover,
+          child: image,
+        ),
+      ),
     );
   }
 

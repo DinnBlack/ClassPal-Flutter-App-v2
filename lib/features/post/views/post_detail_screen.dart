@@ -1,4 +1,5 @@
 import 'package:classpal_flutter_app/features/post/sub_feature/comment/views/comment_list_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -50,6 +51,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       },
       child: Scaffold(
         resizeToAvoidBottomInset: true,
+        backgroundColor: kIsWeb ? kTransparentColor: kBackgroundColor,
         appBar: _buildAppBar(context),
         body: _buildBody(),
         bottomSheet: _buildBottom(),
@@ -59,8 +61,9 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   Container _buildBottom() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+      padding: const EdgeInsets.symmetric(horizontal: kIsWeb ? kPaddingLg : kPaddingMd),
       height: 70,
+      color: kTransparentColor,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -125,7 +128,6 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   CustomAppBar _buildAppBar(BuildContext context) {
     return CustomAppBar(
-      backgroundColor: kWhiteColor,
       title: 'Bài đăng',
       leftWidget: InkWell(
         child: const Icon(FontAwesomeIcons.arrowLeft),

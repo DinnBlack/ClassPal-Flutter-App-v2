@@ -1,59 +1,26 @@
 import 'dart:convert';
-
 import 'package:classpal_flutter_app/features/class/sub_features/grade/models/grade_model.dart';
 import 'package:classpal_flutter_app/features/class/sub_features/subject/repository/subject_service.dart';
 import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
+import '../../../../../core/config/cookie/token_manager.dart';
 import '../models/grade_type_model.dart';
 
 class GradeService extends ProfileService {
   final String _baseUrl =
       'https://cpserver.amrakk.rest/api/v1/academic-service';
-  final Dio _dio = Dio();
-  late PersistCookieJar _cookieJar;
+  final Dio _dio = TokenManager.dio;
 
   GradeService() {
-    _initialize();
-  }
-
-  // Khởi tạo PersistCookieJar để lưu trữ cookie
-  Future<void> _initialize() async {
-    if (kIsWeb) {
-      // Xử lý cho nền tảng web
-    } else {
-      final directory = await getApplicationDocumentsDirectory();
-      final cookieStorage = FileStorage('${directory.path}/cookies');
-      _cookieJar = PersistCookieJar(storage: cookieStorage);
-      _dio.interceptors.add(CookieManager(_cookieJar));
-      // Khôi phục cookies khi khởi tạo
-      await restoreCookies();
-    }
+    TokenManager.initialize();
   }
 
   Future<bool> insertGrade(String subjectId, String gradeTypeId,
       String studentId, double value, String comment) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
       final currentProfile = await getCurrentProfile();
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/grades/subject/$subjectId';
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.post(
         requestUrl,
@@ -65,7 +32,7 @@ class GradeService extends ProfileService {
             'comment': comment,
           },
         ),
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 201) {
@@ -81,31 +48,14 @@ class GradeService extends ProfileService {
 
   Future<List<GradeModel>> getGradesByStudentId(String studentId) async {
     try {
-      await _initialize();
-
-      // Lấy cookies từ PersistCookieJar
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
       final currentProfile = await getCurrentProfile();
-
-      // Tạo cookie header cho yêu cầu
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders(
+          profileId: currentProfile?.tempId ?? currentProfile?.id);
       var requestUrl = '$_baseUrl/grades/student/$studentId';
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.tempId ?? currentProfile?.id,
-      };
 
       final response = await _dio.get(
         requestUrl,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {
@@ -152,30 +102,13 @@ class GradeService extends ProfileService {
 
   Future<List<GradeModel>> getGradesBySubjectId(String subjectId) async {
     try {
-      await _initialize();
-
-      // Lấy cookies từ PersistCookieJar
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
       final currentProfile = await getCurrentProfile();
-
-      // Tạo cookie header cho yêu cầu
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/grades/subject/$subjectId';
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.get(
         requestUrl,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {
@@ -226,25 +159,12 @@ class GradeService extends ProfileService {
     }
   }
 
-  Future<bool> updateGrade(String subjectId, String gradeId, double value, String comment) async {
+  Future<bool> updateGrade(
+      String subjectId, String gradeId, double value, String comment) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
       final currentProfile = await getCurrentProfile();
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/grades/subject/$subjectId/$gradeId';
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.patch(
         requestUrl,
@@ -254,7 +174,7 @@ class GradeService extends ProfileService {
             'comment': comment,
           },
         ),
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {
@@ -270,27 +190,13 @@ class GradeService extends ProfileService {
 
   Future<bool> deleteGrade(String subjectId, String gradeId) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
       final currentProfile = await getCurrentProfile();
-
-      final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/grades/subject/$subjectId/$gradeId';
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.delete(
         requestUrl,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {

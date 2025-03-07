@@ -1,6 +1,8 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -39,10 +41,10 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
         'Chỉnh sửa bài viết',
       ],
       [
-        () {
+            () {
           _showDeleteConfirmationDialog(context);
         },
-        () {
+            () {
           print('chinh sua');
         },
       ],
@@ -96,11 +98,15 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
       onTap: widget.disableOnTap
           ? null
           : () {
-              CustomPageTransition.navigateTo(
-                  context: context,
-                  page: PostDetailScreen(post: widget.post),
-                  transitionType: PageTransitionType.slideFromRight);
-            },
+        if (kIsWeb) {
+          showCustomDialog(context, PostDetailScreen(post: widget.post),);
+        } else {
+          CustomPageTransition.navigateTo(
+              context: context,
+              page: PostDetailScreen(post: widget.post),
+              transitionType: PageTransitionType.slideFromRight);
+        }
+      },
       child: Container(
         padding: widget.disableOnTap
             ? null
@@ -168,48 +174,58 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
             widget.disableOnTap || widget.isParentView
                 ? const SizedBox.shrink()
                 : Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
-                    child: GestureDetector(
-                      onTap: () {
-                        CustomPageTransition.navigateTo(
-                          context: context,
-                          page: PostDetailScreen(
-                            post: widget.post,
-                            isFocusTextField: true,
-                          ),
-                          transitionType: PageTransitionType.slideFromRight,
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              FontAwesomeIcons.solidCommentDots,
-                              color: kPrimaryColor,
-                              size: 18,
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              'Bình luận',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: kPrimaryColor,
-                              ),
-                            ),
-                          ],
+              padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+              child: GestureDetector(
+                onTap: () {
+                  if (kIsWeb) {
+                    showCustomDialog(
+                      context,
+                      PostDetailScreen(
+                        post: widget.post,
+                        isFocusTextField: true,
+                      ),
+                    );
+                  } else {
+                    CustomPageTransition.navigateTo(
+                      context: context,
+                      page: PostDetailScreen(
+                        post: widget.post,
+                        isFocusTextField: true,
+                      ),
+                      transitionType: PageTransitionType.slideFromRight,
+                    );
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        FontAwesomeIcons.solidCommentDots,
+                        color: kPrimaryColor,
+                        size: 18,
+                      ),
+                      SizedBox(width: 6),
+                      Text(
+                        'Bình luận',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: kPrimaryColor,
                         ),
                       ),
-                    ),
+                    ],
                   ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -220,34 +236,35 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Scaffold(
-          backgroundColor: Colors.black,
-          body: Stack(
-            children: [
-              Center(
-                child: PhotoView(
-                  imageProvider: NetworkImage(widget.post.imageUrl!),
-                  minScale: PhotoViewComputedScale.contained,
-                  maxScale: PhotoViewComputedScale.covered,
-                ),
-              ),
-              Positioned(
-                top: 60,
-                left: 20,
-                child: InkWell(
-                  child: const Icon(
-                    FontAwesomeIcons.xmark,
-                    color: kWhiteColor,
-                    size: 24,
+        builder: (context) =>
+            Scaffold(
+              backgroundColor: Colors.black,
+              body: Stack(
+                children: [
+                  Center(
+                    child: PhotoView(
+                      imageProvider: NetworkImage(widget.post.imageUrl!),
+                      minScale: PhotoViewComputedScale.contained,
+                      maxScale: PhotoViewComputedScale.covered,
+                    ),
                   ),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
+                  Positioned(
+                    top: 60,
+                    left: 20,
+                    child: InkWell(
+                      child: const Icon(
+                        FontAwesomeIcons.xmark,
+                        color: kWhiteColor,
+                        size: 24,
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
       ),
     );
   }

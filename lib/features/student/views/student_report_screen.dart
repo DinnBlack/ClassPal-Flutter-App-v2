@@ -1,8 +1,10 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/widgets/custom_tab_bar.dart';
+import '../../../core/utils/responsive.dart';
 import '../../class/sub_features/grade/views/grade_student_list_screen.dart';
 import '../../class/sub_features/roll_call/views/roll_call_report_screen.dart';
 
@@ -38,10 +40,16 @@ class _StudentReportScreenState extends State<StudentReportScreen> {
     );
   }
 
+  double calculateTabBarWidthRatio(BuildContext context, double maxWidth) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double ratio = maxWidth / screenWidth;
+    return ratio > 1 ? 1 : ratio;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kBackgroundColor,
+      backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
       appBar: _buildAppBar(),
       body: Column(
         children: [
@@ -49,7 +57,9 @@ class _StudentReportScreenState extends State<StudentReportScreen> {
             currentIndex: _currentIndex,
             onTabTapped: _onTabTapped,
             tabTitles: const ['Điểm số', 'Điểm danh'],
-            tabBarWidthRatio: 0.9,
+            tabBarWidthRatio: Responsive.isMobile(context)
+                ? 0.9
+                : calculateTabBarWidthRatio(context, 650),
             lineHeight: 4,
             linePadding: 0,
             tabBarHeight: 40,
@@ -62,11 +72,13 @@ class _StudentReportScreenState extends State<StudentReportScreen> {
                   _currentIndex = index;
                 });
               },
-              children:  [
+              children: [
                 GradeStudentListScreen(
                   studentId: widget.studentId,
                 ),
-                const RollCallReportScreen(isStudentView: true,),
+                const RollCallReportScreen(
+                  isStudentView: true,
+                ),
               ],
             ),
           ),

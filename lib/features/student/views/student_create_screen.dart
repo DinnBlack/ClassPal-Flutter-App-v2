@@ -1,5 +1,7 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
+import 'package:classpal_flutter_app/core/utils/responsive.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -33,7 +35,7 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kWhiteColor,
+      backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
       appBar: _buildAppBar(context),
       body: BlocListener<StudentBloc, StudentState>(
         listener: (context, state) {
@@ -69,7 +71,7 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
 
   Widget _buildBody() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+      padding: const EdgeInsets.symmetric(horizontal: kIsWeb ? kPaddingLg : kPaddingMd),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -1,6 +1,7 @@
-
+import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/features/class/views/class_create_screen.dart';
 import 'package:classpal_flutter_app/features/teacher/views/teacher_create_batch_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -67,34 +68,64 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
       ],
       [
         () {
-          CustomPageTransition.navigateTo(
-            context: context,
-            page: const ClassCreateScreen(
-              isClassSchoolCreateView: true,
-            ),
-            transitionType: PageTransitionType.slideFromBottom,
-          );
+          if (kIsWeb) {
+            showCustomDialog(
+              context,
+              const ClassCreateScreen(
+                isClassSchoolCreateView: true,
+              ),
+            );
+          } else {
+            CustomPageTransition.navigateTo(
+              context: context,
+              page: const ClassCreateScreen(
+                isClassSchoolCreateView: true,
+              ),
+              transitionType: PageTransitionType.slideFromBottom,
+            );
+          }
         },
         () {
-          CustomPageTransition.navigateTo(
-            context: context,
-            page: const ClassCreateBatchScreen(),
-            transitionType: PageTransitionType.slideFromBottom,
-          );
+          if (kIsWeb) {
+            showCustomDialog(
+              context,
+              const ClassCreateBatchScreen(),
+            );
+          } else {
+            CustomPageTransition.navigateTo(
+              context: context,
+              page: const ClassCreateBatchScreen(),
+              transitionType: PageTransitionType.slideFromBottom,
+            );
+          }
         },
         () {
-          CustomPageTransition.navigateTo(
-            context: context,
-            page: const TeacherCreateScreen(),
-            transitionType: PageTransitionType.slideFromBottom,
-          );
+          if (kIsWeb) {
+            showCustomDialog(
+              context,
+              const TeacherCreateScreen(),
+            );
+          } else {
+            CustomPageTransition.navigateTo(
+              context: context,
+              page: const TeacherCreateScreen(),
+              transitionType: PageTransitionType.slideFromBottom,
+            );
+          }
         },
         () {
-          CustomPageTransition.navigateTo(
-            context: context,
-            page: const TeacherCreateBatchScreen(),
-            transitionType: PageTransitionType.slideFromBottom,
-          );
+          if (kIsWeb) {
+            showCustomDialog(
+              context,
+              const TeacherCreateBatchScreen(),
+            );
+          } else {
+            CustomPageTransition.navigateTo(
+              context: context,
+              page: const TeacherCreateBatchScreen(),
+              transitionType: PageTransitionType.slideFromBottom,
+            );
+          }
         },
       ],
     );
@@ -175,9 +206,7 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
   Widget _buildTeachersTab() {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: kPaddingMd),
-      child: TeacherListScreen(
-
-      ),
+      child: TeacherListScreen(),
     );
   }
 }

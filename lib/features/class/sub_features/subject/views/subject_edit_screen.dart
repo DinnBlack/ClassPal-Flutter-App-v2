@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:classpal_flutter_app/features/class/sub_features/subject/models/subject_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -200,9 +201,8 @@ class _SubjectEditScreenState extends State<SubjectEditScreen> {
           );
         }
       },
-      child: Scaffold(
+      child: Scaffold( backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
         appBar: _buildAppBar(context),
-        backgroundColor: kBackgroundColor,
         body: _buildBody(),
       ),
     );

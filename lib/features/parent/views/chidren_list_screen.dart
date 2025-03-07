@@ -1,10 +1,12 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_loading_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
 import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:classpal_flutter_app/features/parent/bloc/parent_bloc.dart';
@@ -64,7 +66,6 @@ class _ChildrenListScreenState extends State<ChildrenListScreen> {
       ),
     );
   }
-
 
   Widget _buildEmptyChildView() {
     return Padding(
@@ -148,12 +149,21 @@ class _CustomChildrenListItem extends StatelessWidget {
               text: 'Xem báo cáo',
               onTap: () async {
                 await ProfileService().saveCurrentProfile(child);
-                CustomPageTransition.navigateTo(
-                    context: context,
-                    page: StudentReportScreen(
+                if (kIsWeb) {
+                  showCustomDialog(
+                    context,
+                    StudentReportScreen(
                       studentId: child.id,
                     ),
-                    transitionType: PageTransitionType.slideFromBottom);
+                  );
+                } else {
+                  CustomPageTransition.navigateTo(
+                      context: context,
+                      page: StudentReportScreen(
+                        studentId: child.id,
+                      ),
+                      transitionType: PageTransitionType.slideFromBottom);
+                }
               },
             ),
           ],

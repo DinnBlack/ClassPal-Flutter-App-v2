@@ -1,5 +1,7 @@
+import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/features/class/sub_features/subject/views/subject_create_screen.dart';
 import 'package:classpal_flutter_app/features/class/sub_features/subject/views/widgets/custom_subject_list_item.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -60,9 +62,12 @@ class _SubjectListScreenState extends State<SubjectListScreen> {
                     mainAxisSpacing: kMarginLg,
                     childAspectRatio: itemWidth / itemHeight,
                   ),
-                  itemCount: widget.isGradeStudentView ? state.subjects.length : state.subjects.length + 1,
+                  itemCount: widget.isGradeStudentView
+                      ? state.subjects.length
+                      : state.subjects.length + 1,
                   itemBuilder: (context, index) {
-                    if (!widget.isGradeStudentView && index == state.subjects.length) {
+                    if (!widget.isGradeStudentView &&
+                        index == state.subjects.length) {
                       return const CustomSubjectListItem(isAddButton: true);
                     }
                     final subject = state.subjects[index];
@@ -114,11 +119,15 @@ class _SubjectListScreenState extends State<SubjectListScreen> {
             CustomButton(
               text: 'Thêm môn học',
               onTap: () {
-                CustomPageTransition.navigateTo(
-                  context: context,
-                  page: const SubjectCreateScreen(),
-                  transitionType: PageTransitionType.slideFromRight,
-                );
+                if (kIsWeb) {
+                  showCustomDialog(context, const SubjectCreateScreen());
+                } else {
+                  CustomPageTransition.navigateTo(
+                    context: context,
+                    page: const SubjectCreateScreen(),
+                    transitionType: PageTransitionType.slideFromRight,
+                  );
+                }
               },
             ),
           ],

@@ -1,4 +1,5 @@
 import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
@@ -85,10 +86,12 @@ class _CountdownTimerScreenState extends State<CountdownTimerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
       appBar: _buildAppBar(context),
       body: Padding(
         padding:  const EdgeInsets.symmetric(horizontal: kPaddingMd),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
              const SizedBox(height: kMarginLg),
             Wrap(

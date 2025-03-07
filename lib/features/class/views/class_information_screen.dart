@@ -4,6 +4,7 @@ import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
 import 'package:classpal_flutter_app/features/class/models/class_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -65,7 +66,7 @@ class _ClassInformationScreenState extends State<ClassInformationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kBackgroundColor,
+      backgroundColor: kIsWeb ? kTransparentColor: kBackgroundColor,
       appBar: _buildAppBar(context),
       body: _buildBody(),
     );

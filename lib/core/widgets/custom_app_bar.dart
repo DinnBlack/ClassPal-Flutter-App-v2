@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../config/app_constants.dart';
@@ -14,7 +15,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? bottomWidget;
   final double additionalHeight;
   final bool isSafeArea;
-  final double horizontalPadding; // Thêm trường horizontalPadding
+  final double horizontalPadding;
+  final double height; // Thêm trường height
 
   const CustomAppBar({
     super.key,
@@ -28,7 +30,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.bottomWidget,
     this.additionalHeight = 0,
     this.isSafeArea = true,
-    this.horizontalPadding = 0, // Giá trị mặc định là 0
+    this.horizontalPadding = 0,
+    this.height = kToolbarHeight, // Giá trị mặc định là kToolbarHeight
   });
 
   @override
@@ -36,11 +39,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     Widget appBarContent = Container(
       color: backgroundColor ?? kTransparentColor,
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: horizontalPadding), // Áp dụng horizontalPadding
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
         child: Column(
           children: [
             SizedBox(
-              height: kToolbarHeight,
+              height: height, // Sử dụng height ở đây
               child: Stack(
                 children: [
                   // Left Widget
@@ -54,22 +57,20 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     ),
                   ],
                   Center(
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (title != null)
-                            Text(
-                              title!,
-                              style: titleStyle ?? AppTextStyle.bold(kTextSizeLg),
-                            ),
-                          if (subtitle != null)
-                            Text(
-                              subtitle!,
-                              style: subtitleStyle ?? AppTextStyle.medium(kTextSizeXs),
-                            ),
-                        ],
-                      ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (title != null)
+                          Text(
+                            title!,
+                            style: titleStyle ?? AppTextStyle.bold(kTextSizeLg),
+                          ),
+                        if (subtitle != null)
+                          Text(
+                            subtitle!,
+                            style: subtitleStyle ?? AppTextStyle.medium(kTextSizeXs),
+                          ),
+                      ],
                     ),
                   ),
 
@@ -106,6 +107,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize {
     double bottomHeight = bottomWidget == null ? 0 : additionalHeight;
-    return Size.fromHeight(kToolbarHeight + bottomHeight);
+    return Size.fromHeight(height + bottomHeight); // Sử dụng height ở đây
   }
 }

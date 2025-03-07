@@ -30,26 +30,31 @@ class CustomFeatureDialog extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(kBorderRadiusXl),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(
-                  features!.length,
-                      (index) {
-                    return Column(
-                      children: [
-                        _CustomListItem(
-                          index: index,
-                          feature: features![index],
-                          onItemTaps: onItemTaps,
-                        ),
-                        if (index < features!.length - 1)
-                          Container(
-                            height: 1.0,
-                            color: kGreyLightColor,
+              child: Container(
+                constraints: const BoxConstraints(
+                  maxWidth: 400,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: List.generate(
+                    features!.length,
+                    (index) {
+                      return Column(
+                        children: [
+                          _CustomListItem(
+                            index: index,
+                            feature: features![index],
+                            onItemTaps: onItemTaps,
                           ),
-                      ],
-                    );
-                  },
+                          if (index < features!.length - 1)
+                            Container(
+                              height: 1.0,
+                              color: kGreyLightColor,
+                            ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
             ),

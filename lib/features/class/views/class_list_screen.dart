@@ -1,10 +1,14 @@
 import 'package:classpal_flutter_app/core/widgets/custom_list_item_skeleton.dart';
 import 'package:classpal_flutter_app/features/class/repository/class_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:skeleton_loader/skeleton_loader.dart';
 import '../../../core/config/app_constants.dart';
 import '../../../core/utils/app_text_style.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/custom_avatar.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/custom_list_item.dart';
@@ -83,33 +87,309 @@ class _ClassListScreenState extends State<ClassListScreen> {
     );
   }
 
-  Widget _buildListClassPersonalView() {
-    return ListView.separated(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: classes.length,
-      itemBuilder: (context, index) {
-        final currentClass = classes[index];
-        final profile = profiles[index];
+  Widget _buildSkeletonLoading() {
+    return FutureBuilder<List<ProfileModel>>(
+      future: ProfileService().getUserProfiles(),
+      builder: (context, snapshot) {
+        int itemCount = 2;
+        if (snapshot.connectionState == ConnectionState.done &&
+            snapshot.hasData) {
+          itemCount =
+              snapshot.data!.where((profile) => profile.groupType == 1).length;
+          itemCount = itemCount > 0 ? itemCount + 1 : 1;
+        }
 
-        return CustomListItem(
-          leading: const CustomAvatar(
-            imageAsset: 'assets/images/class.jpg',
-          ),
-          title: currentClass.name,
-          onTap: () async {
-            await ProfileService().saveCurrentProfile(profile);
-            await ClassService().saveCurrentClass(currentClass);
-            CustomPageTransition.navigateTo(
-                context: context,
-                page: ClassScreen(
-                  currentClass: currentClass,
+        if (Responsive.isMobile(context)) {
+          return ListView.separated(
+            itemCount: itemCount,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) => const SkeletonLoader(
+              builder: CustomListItemSkeleton(),
+            ),
+            separatorBuilder: (context, index) =>
+            const SizedBox(height: kMarginMd),
+          );
+        } else {
+          return GridView.builder(
+            itemCount: itemCount,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: Responsive.isTablet(context) ? 4 : 6,
+              crossAxisSpacing: kPaddingLg,
+              mainAxisSpacing: kPaddingLg,
+              childAspectRatio: 1,
+            ),
+            itemBuilder: (context, index) => SkeletonLoader(
+              builder: SizedBox(
+                width: 200,
+                height: 200,
+                child: Container(
+                  padding: const EdgeInsets.all(kPaddingMd),
+                  height: 200,
+                  width: 200,
+                  decoration: BoxDecoration(
+                    border: Border.all(width: 2, color: kGreyLightColor),
+                    borderRadius: BorderRadius.circular(kBorderRadiusLg),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: 80,
+                        width: 80,
+                        decoration: const BoxDecoration(
+                          color: kPrimaryColor,
+                          shape: BoxShape.circle,
+                        ),
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/images/class.jpg',
+                            height: 80,
+                            width: 80,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: kMarginLg),
+                      Container(
+                        height: 20,
+                        width: 80,
+                        decoration: BoxDecoration(
+                            color: kGreyLightColor,
+                            borderRadius:
+                            BorderRadius.circular(kBorderRadiusLg)),
+                      ),
+                    ],
+                  ),
                 ),
-                transitionType: PageTransitionType.slideFromRight);
-          },
-        );
+              ),
+            ),
+          );
+        }
       },
-      separatorBuilder: (context, index) => const SizedBox(height: kMarginMd),
+    );
+  }
+
+  Widget _buildListClassPersonalView() {
+    return Responsive.isMobile(context)
+        ? ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: classes.length + 1,
+            // Thêm 1 item cho lớp học mới
+            itemBuilder: (context, index) {
+              if (index == classes.length) {
+                // Hiển thị item tạo lớp học mới
+                return CustomListItem(
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: const BoxDecoration(
+                        color: kPrimaryColor, shape: BoxShape.circle),
+                    child: const Icon(
+                      FontAwesomeIcons.plus,
+                      color: kWhiteColor,
+                    ),
+                  ),
+                  title: 'Tạo lớp học mới',
+                  subtitle: 'Quản lý các lớp học cá nhân của bạn',
+                  onTap: () async {
+                    if (kIsWeb) {
+                      GoRouter.of(context).go('/home/class/create');
+                    } else {
+                      CustomPageTransition.navigateTo(
+                        context: context,
+                        page: const ClassCreateScreen(),
+                        transitionType: PageTransitionType.slideFromRight,
+                      );
+                    }
+                  },
+                );
+              }
+              final currentClass = classes[index];
+              final profile = profiles[index];
+
+              return CustomListItem(
+                leading: const CustomAvatar(
+                  imageAsset: 'assets/images/class.jpg',
+                ),
+                title: currentClass.name,
+                onTap: () async {
+                  await ProfileService().saveCurrentProfile(profile);
+                  await ClassService().saveCurrentClass(currentClass);
+                  CustomPageTransition.navigateTo(
+                    context: context,
+                    page: ClassScreen(currentClass: currentClass),
+                    transitionType: PageTransitionType.slideFromRight,
+                  );
+                },
+              );
+            },
+            separatorBuilder: (context, index) =>
+                const SizedBox(height: kMarginMd),
+          )
+        : GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: classes.length + 1,
+            // Thêm 1 item cho lớp học mới
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: Responsive.isTablet(context) ? 4 : 6,
+              crossAxisSpacing: kPaddingLg,
+              mainAxisSpacing: kPaddingLg,
+              childAspectRatio: 1,
+            ),
+            itemBuilder: (context, index) {
+              if (index == classes.length) {
+                // Hiển thị item tạo lớp học mới
+                return _buildCreateClassItem();
+              }
+              final currentClass = classes[index];
+              final profile = profiles[index];
+
+              return MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () async {
+                    await ProfileService().saveCurrentProfile(profile);
+                    await ClassService().saveCurrentClass(currentClass);
+                    // if (kIsWeb) {
+                    //   GoRouter.of(context).go(
+                    //     '/home/class',
+                    //     extra: {'currentClass': currentClass.toMap()},
+                    //   );
+                    // } else {
+                    //   CustomPageTransition.navigateTo(
+                    //     context: context,
+                    //     page: ClassScreen(currentClass: currentClass),
+                    //     transitionType: PageTransitionType.slideFromRight,
+                    //   );
+                    // }
+                    CustomPageTransition.navigateTo(
+                      context: context,
+                      page: ClassScreen(currentClass: currentClass),
+                      transitionType: PageTransitionType.slideFromRight,
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.only(bottom: 5),
+                    decoration: BoxDecoration(
+                      color: kGreyLightColor,
+                      borderRadius: BorderRadius.circular(kBorderRadiusLg),
+                    ),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.all(kPaddingMd),
+                      height: 200,
+                      width: 200,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(width: 2, color: kGreyLightColor),
+                        borderRadius: BorderRadius.circular(kBorderRadiusLg),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            height: 80,
+                            width: 80,
+                            decoration: const BoxDecoration(
+                              color: kPrimaryColor,
+                              shape: BoxShape.circle,
+                            ),
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/images/class.jpg',
+                                height: 80,
+                                width: 80,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: kMarginLg),
+                          Text(
+                            currentClass.name,
+                            style: AppTextStyle.semibold(kTextSizeMd),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+  }
+
+  /// Widget hiển thị item "Lớp học mới"
+  Widget _buildCreateClassItem() {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () async {
+          if (kIsWeb) {
+            GoRouter.of(context).go('/home/class/create');
+          } else {
+            CustomPageTransition.navigateTo(
+              context: context,
+              page: const ClassCreateScreen(),
+              transitionType: PageTransitionType.slideFromRight,
+            );
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.only(bottom: 5),
+          decoration: BoxDecoration(
+            color: kGreyLightColor,
+            borderRadius: BorderRadius.circular(kBorderRadiusLg),
+          ),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 200,
+            height: 200,
+            padding: const EdgeInsets.all(kPaddingMd),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(kBorderRadiusLg),
+              border: Border.all(width: 2, color: kGreyLightColor),
+            ),
+            constraints: const BoxConstraints(
+              maxWidth: 400,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: const BoxDecoration(
+                    color: kPrimaryColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    FontAwesomeIcons.plus,
+                    color: Colors.white,
+                    size: 40,
+                  ),
+                ),
+                const SizedBox(height: kMarginMd),
+                Text(
+                  'Lớp học mới',
+                  style: AppTextStyle.semibold(kTextSizeMd, kPrimaryColor),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -121,9 +401,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
         final currentClass = classes[index];
         return CustomListItem(
           onTap: () async {
-            // print(currentClass);
             await ClassService().saveCurrentClass(currentClass);
-            print(await ClassService().getCurrentClass());
             CustomPageTransition.navigateTo(
                 context: context,
                 page: ClassScreen(
@@ -179,6 +457,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
                   onTap: () async {
                     await ProfileService().saveCurrentProfile(profile);
                     await ClassService().saveCurrentClass(currentClass);
+
                     CustomPageTransition.navigateTo(
                         context: context,
                         page: StudentReportScreen(
@@ -196,47 +475,103 @@ class _ClassListScreenState extends State<ClassListScreen> {
     );
   }
 
-  Widget _buildSkeletonLoading() {
-    return FutureBuilder<List<ProfileModel>>(
-      future: ProfileService().getUserProfiles(),
-      builder: (context, snapshot) {
-        int itemCount = 1;
-        if (snapshot.connectionState == ConnectionState.done &&
-            snapshot.hasData) {
-          itemCount =
-              snapshot.data!.where((profile) => profile.groupType == 1).length;
-          itemCount = itemCount > 0 ? itemCount : 1;
-        }
 
-        return ListView.separated(
-          itemCount: itemCount,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) => const SkeletonLoader(
-            builder: CustomListItemSkeleton(),
-          ),
-          separatorBuilder: (context, index) =>
-              const SizedBox(height: kMarginMd),
-        );
-      },
-    );
-  }
 
   Widget _buildEmptyClassView() {
-    return CustomListItem(
-      title: 'Chưa có lớp học cá nhân nào!',
-      subtitle: 'Tạo lớp học cá nhân của bạn nào',
-      hasTrailingArrow: true,
-      leading: const CustomAvatar(
-        imageAsset: 'assets/images/class.jpg',
-      ),
-      onTap: () async {
-        CustomPageTransition.navigateTo(
-            context: context,
-            page: const ClassCreateScreen(),
-            transitionType: PageTransitionType.slideFromRight);
-      },
-    );
+    return Responsive.isMobile(context)
+        ? CustomListItem(
+            title: 'Chưa có lớp học cá nhân nào!',
+            subtitle: 'Tạo lớp học cá nhân của bạn nào',
+            hasTrailingArrow: true,
+            leading: Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(
+                color: kPrimaryColor,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                FontAwesomeIcons.plus,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+            onTap: () async {
+              if (kIsWeb) {
+                GoRouter.of(context).go('/home/class/create');
+              } else {
+                CustomPageTransition.navigateTo(
+                  context: context,
+                  page: const ClassCreateScreen(),
+                  transitionType: PageTransitionType.slideFromRight,
+                );
+              }
+            },
+          )
+        : MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () async {
+                if (kIsWeb) {
+                  GoRouter.of(context).go('/home/class/create');
+                } else {
+                  CustomPageTransition.navigateTo(
+                    context: context,
+                    page: const ClassCreateScreen(),
+                    transitionType: PageTransitionType.slideFromRight,
+                  );
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.only(bottom: 5),
+                decoration: BoxDecoration(
+                  color: kGreyLightColor,
+                  borderRadius: BorderRadius.circular(kBorderRadiusLg),
+                ),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 200,
+                  height: 200,
+                  padding: const EdgeInsets.all(kPaddingMd),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(kBorderRadiusLg),
+                    border: Border.all(width: 2, color: kGreyLightColor),
+                  ),
+                  constraints: const BoxConstraints(
+                    maxWidth: 400,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: const BoxDecoration(
+                          color: kPrimaryColor,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          FontAwesomeIcons.plus,
+                          color: Colors.white,
+                          size: 40,
+                        ),
+                      ),
+                      const SizedBox(height: kMarginMd),
+                      Text(
+                        'Lớp học mới',
+                        style:
+                            AppTextStyle.semibold(kTextSizeMd, kPrimaryColor),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
   }
 
   Widget _buildEmptyClassSchoolView() {
@@ -248,7 +583,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
           const SizedBox(height: kMarginLg),
           Text(
             'Thêm lớp học mới nào!',
-            style: AppTextStyle.bold(kTextSizeLg),
+            style: AppTextStyle.bold(kTextSizeMd),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: kMarginSm),

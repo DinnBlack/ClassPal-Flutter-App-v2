@@ -1,5 +1,6 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -9,8 +10,8 @@ import 'class_connect_page/class_connect_student_page.dart';
 import 'class_connect_page/class_connect_teacher_page.dart';
 
 class ClassConnectScreen extends StatefulWidget {
-
   final int? pageIndex;
+
   const ClassConnectScreen({super.key, this.pageIndex = 0});
 
   @override
@@ -41,10 +42,16 @@ class _ClassConnectScreenState extends State<ClassConnectScreen> {
     );
   }
 
+  double calculateTabBarWidthRatio(BuildContext context, double maxWidth) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double ratio = maxWidth / screenWidth;
+    return ratio > 1 ? 1 : ratio;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kBackgroundColor,
+      backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
       appBar: _buildAppBar(),
       body: Column(
         children: [
@@ -52,7 +59,8 @@ class _ClassConnectScreenState extends State<ClassConnectScreen> {
             currentIndex: _currentIndex,
             onTabTapped: _onTabTapped,
             tabTitles: const ['Gia đình', 'Học sinh', 'Giáo viên'],
-            tabBarWidthRatio: 0.9,
+            tabBarWidthRatio:
+                kIsWeb ? calculateTabBarWidthRatio(context, 650) : 0.9,
             lineHeight: 4,
             linePadding: 0,
             tabBarHeight: 40,
@@ -78,7 +86,7 @@ class _ClassConnectScreenState extends State<ClassConnectScreen> {
   }
 
   CustomAppBar _buildAppBar() {
-    return  CustomAppBar(
+    return CustomAppBar(
       title: 'Kết nối lớp',
       leftWidget: InkWell(
         child: const Icon(
@@ -91,4 +99,3 @@ class _ClassConnectScreenState extends State<ClassConnectScreen> {
     );
   }
 }
-

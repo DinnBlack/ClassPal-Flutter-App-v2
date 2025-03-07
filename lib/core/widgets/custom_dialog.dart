@@ -5,28 +5,32 @@ import 'package:flutter/material.dart';
 class CustomDialog extends StatelessWidget {
   final Widget widget;
   final bool isDismissible;
+  final double? maxWidth;  // Thêm tham số maxWidth (không bắt buộc)
 
   const CustomDialog({
     super.key,
     required this.widget,
     this.isDismissible = true,
+    this.maxWidth,  // Cho phép truyền maxWidth không bắt buộc
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: isDismissible ? () => Navigator.of(context).pop() : null,
-      child: Material(
-        color: Colors.transparent,
-        child: Center(
-          child: ScaleTransition(
-            scale: CurvedAnimation(
-              parent: ModalRoute.of(context)!.animation!,
-              curve: Curves.elasticOut,
+    return Material(
+      color: Colors.transparent,
+      child: Center(
+        child: ScaleTransition(
+          scale: CurvedAnimation(
+            parent: ModalRoute.of(context)!.animation!,
+            curve: Curves.elasticOut,
+          ),
+          child: Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(kBorderRadiusXl),
             ),
-            child: Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(kBorderRadiusXl),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: maxWidth ?? 650, // Nếu maxWidth không được truyền vào, mặc định là 650
               ),
               child: widget,
             ),
@@ -37,71 +41,7 @@ class CustomDialog extends StatelessWidget {
   }
 }
 
-class _CustomListItem extends StatefulWidget {
-  const _CustomListItem({
-    super.key,
-    required this.index,
-    required this.feature,
-    required this.onItemTaps,
-  });
-
-  final int index;
-  final String feature;
-  final List<Function()> onItemTaps;
-
-  @override
-  State<_CustomListItem> createState() => _CustomListItemState();
-}
-
-class _CustomListItemState extends State<_CustomListItem>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      lowerBound: 0.9,
-      upperBound: 1.0,
-      duration: const Duration(milliseconds: 100),
-    )..value = 1.0;
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () async {
-        await _controller.reverse();
-        await _controller.forward();
-        Navigator.of(context).pop();
-        widget.onItemTaps[widget.index]();
-      },
-      child: ScaleTransition(
-        scale: _controller,
-        child: Container(
-          color: kTransparentColor,
-          height: 50,
-          width: double.infinity,
-          child: Center(
-            child: Text(
-              widget.feature,
-              style: AppTextStyle.medium(kTextSizeSm),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-void showCustomDialog(BuildContext context, Widget widget, {bool isDismissible = true}) {
+void showCustomDialog(BuildContext context, Widget widget, {bool isDismissible = true, double? maxWidth}) {
   showGeneralDialog(
     context: context,
     barrierDismissible: isDismissible,
@@ -118,6 +58,7 @@ void showCustomDialog(BuildContext context, Widget widget, {bool isDismissible =
             child: CustomDialog(
               widget: widget,
               isDismissible: isDismissible,
+              maxWidth: maxWidth,  // Truyền maxWidth vào nếu có
             ),
           ),
         ),

@@ -1,6 +1,9 @@
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/auth/views/forgot_password_screen.dart';
+import 'package:classpal_flutter_app/features/auth/views/register_screen.dart';
+import 'package:classpal_flutter_app/features/auth/views/select_role_screen.dart';
 import 'package:classpal_flutter_app/features/auth/views/widgets/custom_button_google.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,7 +11,6 @@ import 'package:go_router/go_router.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import '../../../core/config/app_constants.dart';
-import '../../../core/config/app_routes.dart';
 import '../../../core/utils/app_text_style.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/widgets/custom_app_bar.dart';
@@ -52,11 +54,13 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       final isEmailValid =
           Validators.validateEmail(_emailOrPhoneNumberController.text) == null;
+      final isPhoneValid =
+          Validators.validatePhone(_emailOrPhoneNumberController.text) == null;
       final isPasswordValid = Validators.validateRequiredText(
               _passwordController.text, 'Mật khẩu không được bỏ trống') ==
           null;
 
-      _isValid = isEmailValid &&
+      _isValid = (isEmailValid || isPhoneValid) &&
           isPasswordValid &&
           _emailOrPhoneNumberController.text.trim().isNotEmpty &&
           _passwordController.text.trim().isNotEmpty;
@@ -124,7 +128,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                       kTextSizeXs, kPrimaryColor),
                                   recognizer: TapGestureRecognizer()
                                     ..onTap = () {
-                                      GoRouter.of(context).go(RouteConstants.register);
+                                      if (kIsWeb) {
+                                        GoRouter.of(context)
+                                            .go('/auth/register');
+                                      } else {
+                                        CustomPageTransition.navigateTo(
+                                            context: context,
+                                            page: const RegisterScreen(),
+                                            transitionType: PageTransitionType
+                                                .slideFromRight);
+                                      }
                                     },
                                 ),
                               ],
@@ -164,13 +177,21 @@ class _LoginScreenState extends State<LoginScreen> {
                               }
 
                               if (state is AuthLoginSuccess) {
-                                context.go('/auth/select-role');
+                                if (kIsWeb) {
+                                  GoRouter.of(context).go('/auth/select-role');
+                                } else {
+                                  CustomPageTransition.navigateTo(
+                                      context: context,
+                                      page: const SelectRoleScreen(),
+                                      transitionType:
+                                          PageTransitionType.slideFromRight);
+                                }
                               } else if (state is AuthLoginFailure) {
                                 showTopSnackBar(
                                   Overlay.of(context),
                                   const CustomSnackBar.error(
                                     message:
-                                        'Đăng nhập không thành công. Vui lòng kiểm tra lại.',
+                                        'Tài khoản hoặc mật khẩu không đúng! Vui lòng thử lại.',
                                   ),
                                 );
                               }
@@ -204,7 +225,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           const SizedBox(height: kMarginLg),
                           GestureDetector(
                             onTap: () {
-                              CustomPageTransition.navigateTo(context: context, page: ForgotPasswordScreen(email: _emailOrPhoneNumberController.text), transitionType: PageTransitionType.slideFromRight);
+                              final email =
+                                  _emailOrPhoneNumberController.text.trim();
+                              if (kIsWeb) {
+                                GoRouter.of(context).go('/auth/forgot-password',
+                                    extra: {'email': email});
+                              } else {
+                                CustomPageTransition.navigateTo(
+                                    context: context,
+                                    page: ForgotPasswordScreen(email: email),
+                                    transitionType:
+                                        PageTransitionType.slideFromRight);
+                              }
                             },
                             child: Text(
                               'Quên mật khẩu?',

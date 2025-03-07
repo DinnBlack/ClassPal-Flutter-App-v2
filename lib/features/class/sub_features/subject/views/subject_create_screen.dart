@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -138,8 +139,8 @@ class _SubjectCreateScreenState extends State<SubjectCreateScreen> {
         }
       },
       child: Scaffold(
+        backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
         appBar: _buildAppBar(context),
-        backgroundColor: kBackgroundColor,
         body: _buildBody(),
       ),
     );

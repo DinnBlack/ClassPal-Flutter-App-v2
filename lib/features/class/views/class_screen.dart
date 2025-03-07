@@ -36,10 +36,6 @@ class _ClassScreenState extends State<ClassScreen> {
       ClassDashboardPage(currentClass: widget.currentClass),
       const SizedBox.shrink(),
       ClassNewsPage(currentClass: widget.currentClass),
-      // ClassSchedulePage(
-      //   currentClass: widget.currentClass,
-      // ),
-      // ClassNotificationPage(currentClass: widget.currentClass),
     ];
   }
 
@@ -79,31 +75,6 @@ class _ClassScreenState extends State<ClassScreen> {
       title: 'Bảng Tin',
     ),
   ];
-
-  void _showFavoriteBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "This is the wishlist BottomSheet!",
-                style: AppTextStyle.bold(kTextSizeXl),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Close"),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,3 @@
-
 import 'package:classpal_flutter_app/features/parent/repository/parent_service.dart';
 import 'package:flutter/material.dart';
 
@@ -14,13 +13,17 @@ class ParentManagementPage extends StatefulWidget {
 class _ParentManagementPageState extends State<ParentManagementPage> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     ParentService().getChildren();
   }
 
   @override
   Widget build(BuildContext context) {
-    return const ChildrenListScreen();
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 600),
+        child: const ChildrenListScreen(),
+      ),
+    );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/class/sub_features/grade/views/grade_student_create_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../../core/config/app_constants.dart';
@@ -55,24 +56,40 @@ class _CustomSubjectListItemState extends State<CustomSubjectListItem>
         await _controller.forward();
 
         if (widget.isAddButton) {
-          CustomPageTransition.navigateTo(
-              context: context,
-              page: const SubjectCreateScreen(),
-              transitionType: PageTransitionType.slideFromRight);
+          if (kIsWeb) {
+            showCustomDialog(context, const SubjectCreateScreen());
+          } else {
+            CustomPageTransition.navigateTo(
+                context: context,
+                page: const SubjectCreateScreen(),
+                transitionType: PageTransitionType.slideFromRight);
+          }
         } else if (widget.isGradeStudentView) {
           showCustomDialog(
-              context,
-              GradeStudentCreateScreen(
-                subject: widget.subject!,
-                studentId: widget.studentId,
-              ), isDismissible: false);
+            context,
+            GradeStudentCreateScreen(
+              subject: widget.subject!,
+              studentId: widget.studentId,
+            ),
+            isDismissible: false,
+            maxWidth: 400,
+          );
         } else {
-          CustomPageTransition.navigateTo(
-              context: context,
-              page: SubjectDetailScreen(
+          if (kIsWeb) {
+            showCustomDialog(
+              context,
+              SubjectDetailScreen(
                 subject: widget.subject!,
               ),
-              transitionType: PageTransitionType.slideFromRight);
+            );
+          } else {
+            CustomPageTransition.navigateTo(
+                context: context,
+                page: SubjectDetailScreen(
+                  subject: widget.subject!,
+                ),
+                transitionType: PageTransitionType.slideFromRight);
+          }
         }
       },
       child: ScaleTransition(

@@ -1,6 +1,7 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
 import 'package:classpal_flutter_app/features/student/sub_features/group/model/group_with_students_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -34,9 +35,10 @@ class _GroupEditScreenState extends State<GroupEditScreen> {
   }
 
   void _checkChanges() {
-    final bool isNameChanged = _controller.text != widget.groupWithStudents.group.name;
+    final bool isNameChanged =
+        _controller.text != widget.groupWithStudents.group.name;
     final Set<String> initialStudentIds =
-    widget.groupWithStudents.students.map((s) => s.id).toSet();
+        widget.groupWithStudents.students.map((s) => s.id).toSet();
     final Set<String> newStudentIds = _selectedStudentIds.toSet();
 
     final bool isStudentsChanged = initialStudentIds != newStudentIds;
@@ -76,7 +78,7 @@ class _GroupEditScreenState extends State<GroupEditScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: kBackgroundColor,
+        backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
         appBar: _buildAppBar(context),
         body: _buildBody(context),
       ),
@@ -129,16 +131,16 @@ class _GroupEditScreenState extends State<GroupEditScreen> {
     final String newName = _controller.text;
     final String initialName = widget.groupWithStudents.group.name;
     final List<String> initialStudentIds =
-    widget.groupWithStudents.students.map((s) => s.id).toList();
+        widget.groupWithStudents.students.map((s) => s.id).toList();
     final Set<String> newStudentIds = _selectedStudentIds.toSet();
 
     final String? updatedName = (newName != initialName) ? newName : null;
     final List<String>? updatedStudentIds =
-    (newStudentIds != initialStudentIds) ? _selectedStudentIds : null;
+        (newStudentIds != initialStudentIds) ? _selectedStudentIds : null;
 
     context.read<GroupBloc>().add(
-      GroupUpdateStarted(widget.groupWithStudents,
-          name: updatedName, studentIds: updatedStudentIds),
-    );
+          GroupUpdateStarted(widget.groupWithStudents,
+              name: updatedName, studentIds: updatedStudentIds),
+        );
   }
 }

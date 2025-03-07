@@ -1,7 +1,10 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
+import 'package:classpal_flutter_app/core/utils/responsive.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
 import 'package:classpal_flutter_app/features/student/views/student_edit_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -58,35 +61,60 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
         'Xóa học sinh',
       ],
       [
-            () {
-          CustomPageTransition.navigateTo(
-            context: context,
-            page: StudentEditScreen(
-              student: widget.student,
-            ),
-            transitionType: PageTransitionType.slideFromBottom,
-          );
+        () {
+          if (kIsWeb) {
+            showCustomDialog(
+              context,
+              StudentEditScreen(
+                student: widget.student,
+              ),
+            );
+          } else {
+            CustomPageTransition.navigateTo(
+              context: context,
+              page: StudentEditScreen(
+                student: widget.student,
+              ),
+              transitionType: PageTransitionType.slideFromBottom,
+            );
+          }
         },
-            () {
-          CustomPageTransition.navigateTo(
-            context: context,
-            page: const ClassConnectScreen(
-              pageIndex: 0,
-            ),
-            transitionType: PageTransitionType.slideFromBottom,
-          );
+        () {
+          if (kIsWeb) {
+            showCustomDialog(
+              context,
+              const ClassConnectScreen(
+                pageIndex: 0,
+              ),
+            );
+          } else {
+            CustomPageTransition.navigateTo(
+              context: context,
+              page: const ClassConnectScreen(
+                pageIndex: 0,
+              ),
+              transitionType: PageTransitionType.slideFromBottom,
+            );
+          }
         },
-            () {
+        () {
           _showDeleteConfirmationDialog(context, widget.student);
         },
       ],
     );
   }
 
+  double calculateTabBarWidthRatio(BuildContext context, double maxWidth) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double ratio = maxWidth / screenWidth;
+    return ratio > 1 ? 1 : ratio;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kBackgroundColor,
+      backgroundColor:
+          Responsive.isMobile(context) ? kWhiteColor : kTransparentColor,
       appBar: _buildAppBar(),
       body: Column(
         children: [
@@ -94,7 +122,9 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             currentIndex: _currentIndex,
             onTabTapped: _onTabTapped,
             tabTitles: const ['Điểm', 'Thống kê'],
-            tabBarWidthRatio: 0.9,
+            tabBarWidthRatio: Responsive.isMobile(context)
+                ? 0.9
+                : calculateTabBarWidthRatio(context, 650),
             lineHeight: 4,
             linePadding: 0,
             tabBarHeight: 40,
@@ -143,16 +173,15 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     );
   }
 
-  void _showDeleteConfirmationDialog(BuildContext context,
-      ProfileModel student) {
+  void _showDeleteConfirmationDialog(
+      BuildContext context, ProfileModel student) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text("Xác nhận xóa"),
           content: Text(
-              "Bạn có chắc muốn hủy bỏ học sinh '${student
-                  .displayName}' không?"),
+              "Bạn có chắc muốn hủy bỏ học sinh '${student.displayName}' không?"),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -167,7 +196,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                 Navigator.pop(context);
               },
               child:
-              const Text("Xác nhận", style: TextStyle(color: Colors.red)),
+                  const Text("Xác nhận", style: TextStyle(color: Colors.red)),
             ),
           ],
         );

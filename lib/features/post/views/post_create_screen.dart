@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:classpal_flutter_app/core/widgets/custom_loading_dialog.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -100,13 +101,14 @@ class _PostCreateScreenState extends State<PostCreateScreen> {
       },
       builder: (context, state) {
         return Scaffold(
+          backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
           appBar: _buildAppBar(context),
           body: SafeArea(
             child: Column(
               children: [
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+                    padding: const EdgeInsets.symmetric(horizontal: kIsWeb ? kPaddingLg: kPaddingMd),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

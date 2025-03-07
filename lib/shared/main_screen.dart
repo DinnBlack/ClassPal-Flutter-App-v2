@@ -2,6 +2,8 @@ import 'package:classpal_flutter_app/features/auth/repository/auth_service.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import '../core/config/app_constants.dart';
 import '../core/utils/app_text_style.dart';
@@ -83,12 +85,18 @@ class _MainScreenState extends State<MainScreen> {
         }
 
         if (state is AuthLogoutSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Đăng xuất thành công')),
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.success(
+              message: 'Đăng xuất thành công',
+            ),
           );
         } else if (state is AuthLogoutFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Đăng xuất thất bại')),
+          showTopSnackBar(
+            Overlay.of(context),
+            const CustomSnackBar.error(
+              message: 'Đăng xuất thất bại',
+            ),
           );
         }
       },

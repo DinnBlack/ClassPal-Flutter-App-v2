@@ -2,54 +2,24 @@ import 'dart:convert';
 
 import 'package:classpal_flutter_app/features/post/sub_feature/comment/model/comment_model.dart';
 import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
+
+import '../../../../../core/config/cookie/token_manager.dart';
 
 class CommentService extends ProfileService {
   final String _baseUrl =
       'https://cpserver.amrakk.rest/api/v1/academic-service';
-  final Dio _dio = Dio();
-  late PersistCookieJar _cookieJar;
+  final Dio _dio = TokenManager.dio;
 
   CommentService() {
-    _initialize();
-  }
-
-  // Khởi tạo PersistCookieJar để lưu trữ cookie
-  Future<void> _initialize() async {
-    if (kIsWeb) {
-      // Xử lý cho nền tảng web
-    } else {
-      final directory = await getApplicationDocumentsDirectory();
-      final cookieStorage = FileStorage('${directory.path}/cookies');
-      _cookieJar = PersistCookieJar(storage: cookieStorage);
-      _dio.interceptors.add(CookieManager(_cookieJar));
-      // Khôi phục cookies khi khởi tạo
-      await restoreCookies();
-    }
+    TokenManager.initialize();
   }
 
   Future<bool> insertComment(String newsId, String content) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
       final currentProfile = await getCurrentProfile();
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/comments/$newsId';
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.post(
         requestUrl,
@@ -58,7 +28,7 @@ class CommentService extends ProfileService {
             'content': content,
           },
         ),
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {
@@ -76,31 +46,14 @@ class CommentService extends ProfileService {
 
   Future<List<CommentModel>> getCommentsByNewsId(String newsId) async {
     try {
-      await _initialize();
-
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
       final currentProfile = await getCurrentProfile();
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/comments/$newsId';
-
-      // Headers với thông tin user
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       // Gọi API
       final response = await _dio.get(
         requestUrl,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       // Xử lý response
@@ -120,25 +73,13 @@ class CommentService extends ProfileService {
 
   Future<List<CommentModel>> getLatestComments(String newsId) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
       final currentProfile = await getCurrentProfile();
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/comments/$newsId/latest';
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.get(
         requestUrl,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {
@@ -154,28 +95,17 @@ class CommentService extends ProfileService {
     }
   }
 
-  Future<bool> updateComment(String newsId, String commentId, String newContent) async {
+  Future<bool> updateComment(
+      String newsId, String commentId, String newContent) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
       final currentProfile = await getCurrentProfile();
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/comments/$newsId/$commentId';
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.patch(
         requestUrl,
         data: jsonEncode({'content': newContent}),
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       return response.statusCode == 200;
@@ -187,25 +117,14 @@ class CommentService extends ProfileService {
 
   Future<bool> deleteComment(String newsId, String commentId) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
 
-      final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
       final currentProfile = await getCurrentProfile();
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/comments/$newsId/$commentId';
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.delete(
         requestUrl,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       return response.statusCode == 200;
@@ -214,5 +133,4 @@ class CommentService extends ProfileService {
       return false;
     }
   }
-
 }

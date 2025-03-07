@@ -3,6 +3,7 @@ import 'package:classpal_flutter_app/core/widgets/custom_loading_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/class/bloc/class_bloc.dart';
 import 'package:classpal_flutter_app/features/teacher/views/teacher_create_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -103,13 +104,13 @@ class _ClassCreateScreenState extends State<ClassCreateScreen> {
             : _currentStep == 1
                 ? 'Phân công'
                 : 'Tạo lớp học mới',
-        leftWidget: _currentStep != 2
+        leftWidget: !kIsWeb && _currentStep != 2
             ? GestureDetector(
-                child: _currentStep == 0
-                    ? const Icon(FontAwesomeIcons.xmark)
-                    : _currentStep == 1
-                        ? const Icon(FontAwesomeIcons.arrowLeft)
-                        : null,
+                child: Icon(
+                  _currentStep == 0
+                      ? FontAwesomeIcons.xmark
+                      : FontAwesomeIcons.arrowLeft,
+                ),
                 onTap: () {
                   if (_currentStep == 0) {
                     Navigator.pop(context);
@@ -148,7 +149,7 @@ class _ClassCreateScreenState extends State<ClassCreateScreen> {
               )
             : null,
       ),
-      backgroundColor: kBackgroundColor,
+      backgroundColor: kIsWeb ? kTransparentColor: kBackgroundColor,
       body: widget.isClassSchoolCreateView
           ? _buildClassSchoolCreationSteps()
           : _buildClassPersonalCreationSteps(),

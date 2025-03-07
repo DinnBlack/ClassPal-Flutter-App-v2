@@ -145,9 +145,12 @@ class _SchoolPostPageState extends State<SchoolPostPage> {
         appBar: _buildAppBar(context),
         body: RefreshIndicator(
           onRefresh: () => _reFetchPosts(context),
-          child: SizedBox.expand(
-            child: PostListScreen(
-              isTeacherView: widget.isTeacherView,
+          child: Center( // Đảm bảo nội dung ở giữa
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 650),
+              child: PostListScreen(
+                isTeacherView: widget.isTeacherView,
+              ),
             ),
           ),
         ),

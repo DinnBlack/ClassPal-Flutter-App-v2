@@ -1,7 +1,9 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/features/class/sub_features/subject/models/subject_model.dart';
 import 'package:classpal_flutter_app/features/class/sub_features/subject/views/subject_edit_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -36,11 +38,18 @@ class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
       ['Chỉnh sửa môn học', 'Xóa môn học'],
       [
         () {
-          CustomPageTransition.navigateTo(
-            context: context,
-            page: SubjectEditScreen(subject: _subject ?? widget.subject),
-            transitionType: PageTransitionType.slideFromBottom,
-          );
+          if (kIsWeb) {
+            showCustomDialog(
+              context,
+              SubjectEditScreen(subject: _subject ?? widget.subject),
+            );
+          } else {
+            CustomPageTransition.navigateTo(
+              context: context,
+              page: SubjectEditScreen(subject: _subject ?? widget.subject),
+              transitionType: PageTransitionType.slideFromBottom,
+            );
+          }
         },
         () {
           _showDeleteConfirmationDialog(context);
@@ -111,7 +120,7 @@ class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: kBackgroundColor,
+        backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
         appBar: _buildAppBar(context),
         body: _buildBody(),
       ),
@@ -120,7 +129,8 @@ class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
 
   Widget _buildBody() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+      padding: const EdgeInsets.symmetric(
+          horizontal: kIsWeb ? kPaddingLg : kPaddingMd),
       child: GradeListScreen(
         subject: _subject!,
       ),
@@ -132,7 +142,8 @@ class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
       title: _subject?.name ?? widget.subject.name,
       leftWidget: InkWell(
         onTap: () => Navigator.pop(context),
-        child: const Icon(FontAwesomeIcons.arrowLeft),
+        child: const Icon(
+            kIsWeb ? FontAwesomeIcons.xmark : FontAwesomeIcons.arrowLeft),
       ),
       rightWidget: InkWell(
         onTap: () => _showFeatureDialog(context),

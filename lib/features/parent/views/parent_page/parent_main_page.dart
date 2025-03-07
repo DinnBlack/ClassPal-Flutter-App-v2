@@ -16,7 +16,12 @@ class _ParentMainPageState extends State<ParentMainPage> {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () => _reFetchPosts(context),
-        child: const PostListScreen(isParentView: true),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: const PostListScreen(isParentView: true),
+          ),
+        ),
       ),
     );
   }

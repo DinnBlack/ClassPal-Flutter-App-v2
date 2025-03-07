@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -65,7 +66,7 @@ class _StudentEditScreenState extends State<StudentEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kWhiteColor,
+      backgroundColor: kIsWeb ? kTransparentColor : kWhiteColor,
       appBar: _buildAppBar(context),
       body: BlocListener<StudentBloc, StudentState>(
         listener: (context, state) {
@@ -98,7 +99,7 @@ class _StudentEditScreenState extends State<StudentEditScreen> {
 
   Widget _buildBody() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+      padding: const EdgeInsets.symmetric(horizontal: kIsWeb ? kPaddingLg: kPaddingMd),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/config/cookie/token_manager.dart';
 import '../../auth/models/role_model.dart';
 import '../../profile/model/profile_model.dart';
 import '../../profile/repository/profile_service.dart';
@@ -15,50 +16,18 @@ import '../../profile/repository/profile_service.dart';
 class TeacherService extends ProfileService {
   final String _baseUrl =
       'https://cpserver.amrakk.rest/api/v1/academic-service';
-  final Dio _dio = Dio();
-  late PersistCookieJar _cookieJar;
+  final Dio _dio = TokenManager.dio;
 
   TeacherService() {
-    _initialize();
-  }
-
-  // Khởi tạo PersistCookieJar để lưu trữ cookie
-  Future<void> _initialize() async {
-    if (kIsWeb) {
-      // Xử lý cho nền tảng web
-    } else {
-      final directory = await getApplicationDocumentsDirectory();
-      final cookieStorage = FileStorage('${directory.path}/cookies');
-      _cookieJar = PersistCookieJar(storage: cookieStorage);
-      _dio.interceptors.add(CookieManager(_cookieJar));
-      // Khôi phục cookies khi khởi tạo
-      await restoreCookies();
-    }
+    TokenManager.initialize();
   }
 
   Future<bool> insertTeacher(String displayName, String email) async {
     try {
-      await _initialize();
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
       final currentProfile = await getCurrentProfile();
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl =
           '$_baseUrl/profiles/${currentProfile?.groupType}/${currentProfile?.groupId}';
-
-      print(requestUrl);
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.post(
         requestUrl,
@@ -68,7 +37,7 @@ class TeacherService extends ProfileService {
             'roles': ['Teacher']
           },
         ),
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 201) {
@@ -113,10 +82,8 @@ class TeacherService extends ProfileService {
     List<ProfileModel> teachers = [];
 
     try {
-      await _initialize();
-
       final currentProfile = await getCurrentProfile();
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       // Lấy danh sách vai trò từ SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       List<String>? roleJsonList = prefs.getStringList('roles');
@@ -144,27 +111,12 @@ class TeacherService extends ProfileService {
         return [];
       }
 
-      // Lấy cookies từ PersistCookieJar
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      // Tạo cookie header cho yêu cầu
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
       final requestUrl =
           '$_baseUrl/profiles/${currentProfile?.groupType}/${currentProfile?.groupId}';
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.get(
         requestUrl,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {

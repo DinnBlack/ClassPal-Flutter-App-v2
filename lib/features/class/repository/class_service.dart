@@ -1,12 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/config/cookie/token_manager.dart';
 import '../../profile/model/profile_model.dart';
 import '../../profile/repository/profile_service.dart';
 import '../models/class_model.dart';
@@ -14,25 +11,10 @@ import '../models/class_model.dart';
 class ClassService extends ProfileService {
   final String _baseUrl =
       'https://cpserver.amrakk.rest/api/v1/academic-service';
-  final Dio _dio = Dio();
-  late PersistCookieJar _cookieJar;
+  final Dio _dio = TokenManager.dio;
 
   ClassService() {
-    _initialize();
-  }
-
-  // Khởi tạo PersistCookieJar để lưu trữ cookie
-  Future<void> _initialize() async {
-    if (kIsWeb) {
-      // Xử lý cho nền tảng web
-    } else {
-      final directory = await getApplicationDocumentsDirectory();
-      final cookieStorage = FileStorage('${directory.path}/cookies');
-      _cookieJar = PersistCookieJar(storage: cookieStorage);
-      _dio.interceptors.add(CookieManager(_cookieJar));
-      // Khôi phục cookies khi khởi tạo
-      await restoreCookies();
-    }
+    TokenManager.initialize();
   }
 
   // Lưu profile vào Shared Preferences
@@ -59,41 +41,20 @@ class ClassService extends ProfileService {
     List<ProfileModel> classProfiles = [];
 
     try {
-      await _initialize();
       final profiles = await getUserProfiles();
-
-      if (profiles.isEmpty) {
-        print('Không có profile nào được lưu trong SharedPreferences');
-        return {'profiles': [], 'classes': []};
-      }
-
-      // Lấy cookies từ PersistCookieJar
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      // Tạo cookie header cho yêu cầu
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
       for (var profile in profiles) {
         if (profile.groupType != 1) {
           continue;
         }
+        final headers = await buildHeaders(profileId: profile.id);
 
         classProfiles.add(profile);
 
         final requestUrl = '$_baseUrl/classes/${profile.groupId}';
-        final headers = {
-          'Content-Type': 'application/json',
-          'Cookie': cookieHeader,
-          'x-profile-id': profile.id,
-        };
 
         final response = await _dio.get(
           requestUrl,
-          options: Options(headers: headers),
+          options: Options(headers: headers, extra: {'withCredentials': true}),
         );
 
         if (response.statusCode == 200) {
@@ -118,32 +79,13 @@ class ClassService extends ProfileService {
     List<ClassModel> classes = [];
 
     try {
-      await _initialize();
-
-      // Lấy cookies từ PersistCookieJar
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      // Tạo cookie header cho yêu cầu
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
       final currentProfile = await getCurrentProfile();
+      final headers = await buildHeaders(profileId: currentProfile?.id);
 
       final response = await _dio.get(
         '$_baseUrl/classes/school/${currentProfile?.groupId}',
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Cookie': cookieHeader,
-            'x-profile-id': currentProfile?.id,
-          },
-        ),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
-
-      print(response.data);
 
       if (response.statusCode == 200) {
         classes = (response.data['data'] as List<dynamic>)
@@ -165,14 +107,7 @@ class ClassService extends ProfileService {
   // Insert personal class
   Future<ClassModel> insertPersonalClass(String name, File? avatarUrl) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders();
       final finalAvatarUrl =
           avatarUrl ?? 'https://i.ibb.co/V9Znq7h/class-icon.png';
 
@@ -184,12 +119,7 @@ class ClassService extends ProfileService {
             'avatarUrl': finalAvatarUrl,
           },
         ),
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Cookie': cookieHeader,
-          },
-        ),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 201) {
@@ -209,16 +139,7 @@ class ClassService extends ProfileService {
 
   Future<ClassModel> insertSchoolClass(String name, String? avatarUrl) async {
     try {
-      await _initialize();
-
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders();
       final finalAvatarUrl =
           avatarUrl ?? 'https://i.ibb.co/V9Znq7h/class-icon.png';
 
@@ -232,12 +153,7 @@ class ClassService extends ProfileService {
             'avatarUrl': finalAvatarUrl,
           },
         ),
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Cookie': cookieHeader,
-          },
-        ),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 201) {
@@ -260,28 +176,10 @@ class ClassService extends ProfileService {
 
   Future<void> updateClass(String newName) async {
     try {
-      await _initialize();
-
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
       final currentProfile = await getCurrentProfile();
+      final headers = await buildHeaders(profileId: currentProfile?.id);
 
       final requestUrl = '$_baseUrl/classes/${currentProfile?.groupId}';
-      print('Request URL: $requestUrl');
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
-
-      print('Request Headers: $headers');
 
       final response = await _dio.patch(
         requestUrl,
@@ -290,7 +188,7 @@ class ClassService extends ProfileService {
             'name': newName,
           },
         ),
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {
@@ -306,32 +204,16 @@ class ClassService extends ProfileService {
 
   Future<ClassModel> getClassById(String classId) async {
     try {
-      await _initialize();
-
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
       final currentProfile = await getCurrentProfile();
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/classes/$classId';
       print('Request URL: $requestUrl');
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       print('Request Headers: $headers');
 
       final response = await _dio.get(
         requestUrl,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {
@@ -347,35 +229,14 @@ class ClassService extends ProfileService {
 
   Future<bool> deleteClass(String classId) async {
     try {
-      await _initialize();
-
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
       final currentProfile = await getCurrentProfile();
-
-      print(classId);
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/classes/$classId';
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.delete(
         requestUrl,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
-
-      print(response.statusCode);
-      print(response.data);
 
       if (response.statusCode == 200) {
         return true;
@@ -404,35 +265,16 @@ class ClassService extends ProfileService {
   // Insert personal class
   Future<void> bindRelationship(List<String> profileIds) async {
     try {
-      await _initialize();
-
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
       final currentProfile = await getCurrentProfile();
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final currentClass = await getCurrentClass();
-
-      print(profileIds);
-      print(currentClass);
 
       final response = await _dio.post(
         '$_baseUrl/classes/${currentClass?.id}/rels',
         data: jsonEncode(
           {'profiles': profileIds},
         ),
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Cookie': cookieHeader,
-            'x-profile-id': currentProfile?.id,
-          },
-        ),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       print('bind successful: ${response.data}');

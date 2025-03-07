@@ -3,6 +3,7 @@ import 'package:classpal_flutter_app/features/school/bloc/school_bloc.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uni_links/uni_links.dart';
 import 'core/config/app_routes.dart';
@@ -54,13 +55,13 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   StreamSubscription? _sub;
   String? _pendingDeepLink;
-  bool _isAppReady = false;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  late final GoRouter _router;
 
   @override
   void initState() {
     super.initState();
-    _initDeepLink();
+    _router = MyAppRouter().router;
   }
 
   Future<void> _initDeepLink() async {
@@ -162,7 +163,7 @@ class _MyAppState extends State<MyApp> {
         builder: DevicePreview.appBuilder,
         theme: lightTheme,
         themeMode: ThemeMode.system,
-        routerConfig: createRouter(widget.isLoggedIn), // Sử dụng GoRouter
+        routerConfig: _router,
       ),
     );
   }

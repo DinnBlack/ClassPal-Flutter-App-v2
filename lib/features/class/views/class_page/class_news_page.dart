@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/config/app_constants.dart';
+import '../../../../core/utils/app_text_style.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../post/bloc/post_bloc.dart';
 import '../../../post/views/post_list_screen.dart';
@@ -16,9 +18,13 @@ class ClassNewsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: RefreshIndicator(
-        onRefresh: () => _onRefresh(context),
-        child: const PostListScreen(),
+      body: Center(
+        child: RefreshIndicator(
+          onRefresh: () => _onRefresh(context),
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: const PostListScreen()),
+        ),
       ),
     );
   }
@@ -30,8 +36,11 @@ class ClassNewsPage extends StatelessWidget {
 
   CustomAppBar _buildAppBar(BuildContext context) {
     return CustomAppBar(
+      height: Responsive.isMobile(context) ? kToolbarHeight : 70,
       backgroundColor: kWhiteColor,
       title: 'Bảng tin',
+      titleStyle:
+      Responsive.isMobile(context) ? null : AppTextStyle.bold(kTextSizeXxl),
       leftWidget: InkWell(
         child: const Icon(FontAwesomeIcons.arrowLeft),
         onTap: () {

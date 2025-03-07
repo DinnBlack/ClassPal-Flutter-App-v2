@@ -3,20 +3,20 @@ import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_text_field.dart';
 import 'package:classpal_flutter_app/features/invitation/repository/invitation_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
-import '../../../shared/main_screen.dart';
-
 class ClassJoinScreen extends StatefulWidget {
   final bool isStudentView;
   static const route = 'ClassJoinScreen';
   final VoidCallback? onJoinSuccess;
 
-  const ClassJoinScreen({super.key, this.isStudentView = false, this.onJoinSuccess});
+  const ClassJoinScreen(
+      {super.key, this.isStudentView = false, this.onJoinSuccess});
 
   @override
   State<ClassJoinScreen> createState() => _ClassJoinScreenState();
@@ -39,14 +39,12 @@ class _ClassJoinScreenState extends State<ClassJoinScreen> {
     try {
       bool success = await InvitationService().submitGroupCode(code);
       if (success) {
-        if (success) {
-          showTopSnackBar(
-            Overlay.of(context),
-            const CustomSnackBar.success(message: 'Tham gia lớp thành công!'),
-          );
+        showTopSnackBar(
+          Overlay.of(context),
+          const CustomSnackBar.success(message: 'Tham gia lớp thành công!'),
+        );
 
-          widget.onJoinSuccess?.call();
-        }
+        widget.onJoinSuccess?.call();
       } else {
         showTopSnackBar(
           Overlay.of(context),
@@ -58,7 +56,7 @@ class _ClassJoinScreenState extends State<ClassJoinScreen> {
     } catch (e) {
       showTopSnackBar(
         Overlay.of(context),
-         CustomSnackBar.error(
+        CustomSnackBar.error(
           message: 'Lỗi: $e',
         ),
       );
@@ -71,10 +69,11 @@ class _ClassJoinScreenState extends State<ClassJoinScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: kMarginLg),
               if (!widget.isStudentView)
@@ -91,7 +90,9 @@ class _ClassJoinScreenState extends State<ClassJoinScreen> {
                 ),
               const SizedBox(height: kMarginLg),
               Text(
-                widget.isStudentView ? 'Xin chào Học sinh' : 'Chào mừng Giáo viên!',
+                widget.isStudentView
+                    ? 'Xin chào Học sinh'
+                    : 'Chào mừng Giáo viên!',
                 style: AppTextStyle.bold(kTextSizeXxl),
               ),
               Text(
@@ -99,33 +100,35 @@ class _ClassJoinScreenState extends State<ClassJoinScreen> {
                 style: AppTextStyle.semibold(kTextSizeSm, kGreyColor),
               ),
               const SizedBox(height: kMarginLg),
-              Container(
-                width: 300,
-                height: 300,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(kBorderRadiusMd),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(kBorderRadiusMd),
-                  child: MobileScanner(
-                    onDetect: (capture) {
-                      final barcodes = capture.barcodes;
-                      for (final barcode in barcodes) {
-                        final String? code = barcode.rawValue;
-                        if (code != null) {
-                          _codeController.text = code; // Gán mã vào text field
-                          _joinClass(code);
+              if (!kIsWeb) ...[
+                Container(
+                  width: 300,
+                  height: 300,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(kBorderRadiusMd),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(kBorderRadiusMd),
+                    child: MobileScanner(
+                      onDetect: (capture) {
+                        final barcodes = capture.barcodes;
+                        for (final barcode in barcodes) {
+                          final String? code = barcode.rawValue;
+                          if (code != null) {
+                            _codeController.text = code;
+                            _joinClass(code);
+                          }
                         }
-                      }
-                    },
+                      },
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: kMarginLg),
-              Text(
-                'Hoặc',
-                style: AppTextStyle.semibold(kTextSizeSm, kGreyColor),
-              ),
+                const SizedBox(height: kMarginLg),
+                Text(
+                  'Hoặc',
+                  style: AppTextStyle.semibold(kTextSizeSm, kGreyColor),
+                ),
+              ],
               const SizedBox(height: kMarginLg),
               CustomTextField(
                 controller: _codeController,
@@ -134,7 +137,8 @@ class _ClassJoinScreenState extends State<ClassJoinScreen> {
               const SizedBox(height: kMarginLg),
               CustomButton(
                 text: _isLoading ? 'Đang xử lý...' : 'Tham gia lớp',
-                onTap: _isLoading ? null : () => _joinClass(_codeController.text),
+                onTap:
+                    _isLoading ? null : () => _joinClass(_codeController.text),
               ),
             ],
           ),

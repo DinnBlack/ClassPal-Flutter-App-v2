@@ -3,69 +3,33 @@ import 'dart:convert';
 import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
 import 'package:classpal_flutter_app/features/student/repository/student_service.dart';
 import 'package:classpal_flutter_app/features/student/sub_features/group/model/group_model.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
-
+import '../../../../../core/config/cookie/token_manager.dart';
 import '../../../../profile/model/profile_model.dart';
 import '../model/group_with_students_model.dart';
 
 class GroupService extends ProfileService {
   final String _baseUrl =
       'https://cpserver.amrakk.rest/api/v1/academic-service';
-  final Dio _dio = Dio();
-  late PersistCookieJar _cookieJar;
+  final Dio _dio = TokenManager.dio;
 
   GroupService() {
-    _initialize();
-  }
-
-  // Khởi tạo PersistCookieJar để lưu trữ cookie
-  Future<void> _initialize() async {
-    if (kIsWeb) {
-      // Xử lý cho nền tảng web
-    } else {
-      final directory = await getApplicationDocumentsDirectory();
-      final cookieStorage = FileStorage('${directory.path}/cookies');
-      _cookieJar = PersistCookieJar(storage: cookieStorage);
-      _dio.interceptors.add(CookieManager(_cookieJar));
-      // Khôi phục cookies khi khởi tạo
-      await restoreCookies();
-    }
+    TokenManager.initialize();
   }
 
   Future<bool> insertGroup(String name, List<String> studentIds) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
       final currentProfile = await getCurrentProfile();
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/parties/${currentProfile?.groupId}';
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.post(
         requestUrl,
         data: jsonEncode(
           {'name': name, 'memberIds': studentIds},
         ),
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
-
-      print(response.statusCode);
-      print(response.data);
 
       if (response.statusCode == 201) {
         return true;
@@ -82,29 +46,13 @@ class GroupService extends ProfileService {
     List<GroupWithStudentsModel> groupWithStudentsList = [];
 
     try {
-      await _initialize();
-
-      // Lấy cookies từ PersistCookieJar
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
       final currentProfile = await getCurrentProfile();
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/parties/${currentProfile?.groupId}';
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.get(
         requestUrl,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {
@@ -137,23 +85,9 @@ class GroupService extends ProfileService {
   Future<void> updateGroup(GroupWithStudentsModel groupWithStudents,
       String? name, List<String>? studentIds) async {
     try {
-      await _initialize();
-
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
 
       final currentProfile = await getCurrentProfile();
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
+      final headers = await buildHeaders(profileId: currentProfile?.id);
 
       // Cập nhật tên nhóm nếu có thay đổi
       if (name != null) {
@@ -164,7 +98,7 @@ class GroupService extends ProfileService {
         final response = await _dio.patch(
           requestUrl,
           data: jsonEncode({'name': name}),
-          options: Options(headers: headers),
+          options: Options(headers: headers, extra: {'withCredentials': true}),
         );
 
         if (response.statusCode != 200) {
@@ -193,7 +127,7 @@ class GroupService extends ProfileService {
         final response = await _dio.patch(
           requestUrl,
           data: jsonEncode({'memberIds': studentIds}),
-          options: Options(headers: headers),
+          options: Options(headers: headers, extra: {'withCredentials': true}),
         );
 
         if (response.statusCode != 200) {
@@ -211,29 +145,16 @@ class GroupService extends ProfileService {
   Future<bool> deleteStudentInGroup(
       GroupModel group, List<String> studentIds) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
 
       final currentProfile = await getCurrentProfile();
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl =
           '$_baseUrl/parties/${currentProfile?.groupId}/${group.id}/members';
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.delete(
         requestUrl,
         data: jsonEncode({'memberIds': studentIds}),
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {
@@ -249,28 +170,14 @@ class GroupService extends ProfileService {
 
   Future<bool> deleteGroup(String groupId) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
       final currentProfile = await getCurrentProfile();
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl =
           '$_baseUrl/parties/${currentProfile?.groupId}/$groupId';
 
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
-
       final response = await _dio.delete(
         requestUrl,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {

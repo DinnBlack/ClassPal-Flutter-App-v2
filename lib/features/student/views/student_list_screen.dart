@@ -1,11 +1,14 @@
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
+import 'package:classpal_flutter_app/core/utils/responsive.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_avatar.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_feature_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_list_item.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
 import 'package:classpal_flutter_app/features/student/views/student_create_screen.dart';
 import 'package:classpal_flutter_app/features/student/views/student_edit_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/features/student/views/widgets/custom_student_list_item.dart';
@@ -120,11 +123,22 @@ class _StudentListScreenState extends State<StudentListScreen> {
         LayoutBuilder(
           builder: (context, constraints) {
             double itemHeight = 105;
-            double itemWidth =
-                (constraints.maxWidth - (4 - 1) * kPaddingMd) / 4;
+            double itemWidth = (constraints.maxWidth -
+                    ((Responsive.isMobile(context)
+                                ? 4
+                                : Responsive.isTablet(context)
+                                    ? 5
+                                    : 6) -
+                            1) *
+                        kPaddingMd) /
+                (Responsive.isMobile(context)
+                    ? 4
+                    : Responsive.isTablet(context)
+                        ? 5
+                        : 6);
 
             return _buildGridView(
-                widget.studentsInGroup!, itemHeight, itemWidth, false);
+                widget.studentsInGroup!, itemHeight, itemWidth, false, true);
           },
         ),
       ],
@@ -170,12 +184,22 @@ class _StudentListScreenState extends State<StudentListScreen> {
                     ['Chỉnh sửa học sinh', 'Hủy bỏ học sinh'],
                     [
                       () {
-                        CustomPageTransition.navigateTo(
-                            context: context,
-                            page: StudentEditScreen(
+                        if (kIsWeb) {
+                          showCustomDialog(
+                            context,
+                            StudentEditScreen(
                               student: student,
                             ),
-                            transitionType: PageTransitionType.slideFromBottom);
+                          );
+                        } else {
+                          CustomPageTransition.navigateTo(
+                              context: context,
+                              page: StudentEditScreen(
+                                student: student,
+                              ),
+                              transitionType:
+                                  PageTransitionType.slideFromBottom);
+                        }
                       },
                       () {
                         _showDeleteConfirmationDialog(context, student);
@@ -242,9 +266,15 @@ class _StudentListScreenState extends State<StudentListScreen> {
         builder: (context, constraints) {
           final studentData = [...students, null];
           double itemHeight = 105;
-          double itemWidth = (constraints.maxWidth - (4 - 1) * kPaddingMd) / 4;
+          double itemWidth = (constraints.maxWidth - (4 - 1) * kPaddingMd) /
+              (Responsive.isMobile(context)
+                  ? 4
+                  : Responsive.isTablet(context)
+                      ? 5
+                      : 6);
 
-          return _buildGridView(studentData, itemHeight, itemWidth, false);
+          return _buildGridView(
+              studentData, itemHeight, itemWidth, false, false);
         },
       ),
     );
@@ -266,10 +296,22 @@ class _StudentListScreenState extends State<StudentListScreen> {
           LayoutBuilder(
             builder: (context, constraints) {
               double itemHeight = 105;
-              double itemWidth =
-                  (constraints.maxWidth - (4 - 1) * kPaddingMd) / 4;
+              double itemWidth = (constraints.maxWidth -
+                      ((Responsive.isMobile(context)
+                                  ? 4
+                                  : Responsive.isTablet(context)
+                                      ? 5
+                                      : 6) -
+                              1) *
+                          kPaddingMd) /
+                  (Responsive.isMobile(context)
+                      ? 4
+                      : Responsive.isTablet(context)
+                          ? 5
+                          : 6);
 
-              return _buildGridView(students, itemHeight, itemWidth, true);
+              return _buildGridView(
+                  students, itemHeight, itemWidth, true, false);
             },
           ),
         ],
@@ -278,12 +320,16 @@ class _StudentListScreenState extends State<StudentListScreen> {
   }
 
   Widget _buildGridView(List<ProfileModel?> studentData, double itemHeight,
-      double itemWidth, bool isPicker) {
+      double itemWidth, bool isPicker, bool isGroup) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
+        crossAxisCount: Responsive.isMobile(context)
+            ? 4
+            : Responsive.isTablet(context)
+                ? 5
+                : 6,
         crossAxisSpacing: kPaddingMd,
         mainAxisSpacing: kPaddingMd,
         childAspectRatio: itemWidth / itemHeight,
@@ -295,10 +341,14 @@ class _StudentListScreenState extends State<StudentListScreen> {
           return CustomStudentListItem(
             addItem: true,
             onTap: () {
-              CustomPageTransition.navigateTo(
-                  context: context,
-                  page: const StudentCreateScreen(),
-                  transitionType: PageTransitionType.slideFromBottom);
+              if (kIsWeb) {
+                showCustomDialog(context, const StudentCreateScreen());
+              } else {
+                CustomPageTransition.navigateTo(
+                    context: context,
+                    page: const StudentCreateScreen(),
+                    transitionType: PageTransitionType.slideFromBottom);
+              }
             },
           );
         } else if (isPicker) {
@@ -311,16 +361,30 @@ class _StudentListScreenState extends State<StudentListScreen> {
               _toggleSelection(student.id);
             },
           );
+        } else if (isGroup) {
+          return CustomStudentListItem(
+            isGroup: true,
+            student: student,
+          );
         } else {
           return CustomStudentListItem(
             student: student,
             onTap: () {
-              CustomPageTransition.navigateTo(
-                  context: context,
-                  page: StudentDashboardScreen(
+              if (kIsWeb) {
+                showCustomDialog(
+                  context,
+                  StudentDashboardScreen(
                     student: student,
                   ),
-                  transitionType: PageTransitionType.slideFromBottom);
+                );
+              } else {
+                CustomPageTransition.navigateTo(
+                    context: context,
+                    page: StudentDashboardScreen(
+                      student: student,
+                    ),
+                    transitionType: PageTransitionType.slideFromBottom);
+              }
             },
           );
         }

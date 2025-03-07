@@ -5,9 +5,9 @@ import 'package:classpal_flutter_app/features/class/repository/class_service.dar
 import 'package:classpal_flutter_app/features/class/views/class_create_screen.dart';
 import 'package:classpal_flutter_app/features/class/views/class_list_screen.dart';
 import 'package:classpal_flutter_app/features/school/views/school_create_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import '../../core/utils/app_text_style.dart';
 import '../../features/class/bloc/class_bloc.dart';
 import '../../features/school/bloc/school_bloc.dart';
@@ -42,11 +42,12 @@ class _PrincipalViewState extends State<PrincipalView> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
+      padding: const EdgeInsets.symmetric(horizontal: kIsWeb ? kPaddingLg: kPaddingMd),
       child: RefreshIndicator(
         onRefresh: _prefetchData,
         child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(), // Để có thể kéo xuống ngay cả khi nội dung ít
+          physics: const AlwaysScrollableScrollPhysics(),
+          // Để có thể kéo xuống ngay cả khi nội dung ít
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -55,12 +56,18 @@ class _PrincipalViewState extends State<PrincipalView> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('Trường học', style: AppTextStyle.semibold(kTextSizeMd)),
-                  GestureDetector(
-                    onTap: () {
-                      CustomPageTransition.navigateTo(context: context, page: const SchoolCreateScreen(), transitionType: PageTransitionType.slideFromBottom);
-                    },
-                    child: Text('+ Thêm trường học', style: AppTextStyle.semibold(kTextSizeSm, kPrimaryColor)),
-                  ),
+                  if (!kIsWeb)
+                    GestureDetector(
+                      onTap: () {
+                        CustomPageTransition.navigateTo(
+                            context: context,
+                            page: const SchoolCreateScreen(),
+                            transitionType: PageTransitionType.slideFromBottom);
+                      },
+                      child: Text('+ Thêm trường học',
+                          style: AppTextStyle.semibold(
+                              kTextSizeSm, kPrimaryColor)),
+                    ),
                 ],
               ),
               const SizedBox(height: kMarginLg),
@@ -69,17 +76,21 @@ class _PrincipalViewState extends State<PrincipalView> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Lớp học cá nhân', style: AppTextStyle.semibold(kTextSizeMd)),
-                  GestureDetector(
-                    onTap: () {
-                      CustomPageTransition.navigateTo(
-                        context: context,
-                        page: const ClassCreateScreen(),
-                        transitionType: PageTransitionType.slideFromBottom,
-                      );
-                    },
-                    child: Text('+ Thêm lớp học', style: AppTextStyle.semibold(kTextSizeSm, kPrimaryColor)),
-                  ),
+                  Text('Lớp học cá nhân',
+                      style: AppTextStyle.semibold(kTextSizeMd)),
+                  if (!kIsWeb)
+                    GestureDetector(
+                      onTap: () {
+                        CustomPageTransition.navigateTo(
+                          context: context,
+                          page: const ClassCreateScreen(),
+                          transitionType: PageTransitionType.slideFromBottom,
+                        );
+                      },
+                      child: Text('+ Thêm lớp học',
+                          style: AppTextStyle.semibold(
+                              kTextSizeSm, kPrimaryColor)),
+                    ),
                 ],
               ),
               const SizedBox(height: kMarginLg),

@@ -5,45 +5,17 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
+import '../../../../../core/config/cookie/token_manager.dart';
 import '../../../../profile/repository/profile_service.dart';
 import '../models/roll_call_session_model.dart';
 
 class RollCallService extends ProfileService {
   final String _baseUrl =
       'https://cpserver.amrakk.rest/api/v1/academic-service';
-  final Dio _dio = Dio();
-  late PersistCookieJar _cookieJar;
+  final Dio _dio = TokenManager.dio;
 
   RollCallService() {
-    _initialize();
-  }
-
-  // Khởi tạo PersistCookieJar để lưu trữ cookie
-  Future<void> _initialize() async {
-    if (kIsWeb) {
-      // Xử lý cho nền tảng web
-    } else {
-      final directory = await getApplicationDocumentsDirectory();
-      final cookieStorage = FileStorage('${directory.path}/cookies');
-      _cookieJar = PersistCookieJar(storage: cookieStorage);
-      _dio.interceptors.add(CookieManager(_cookieJar));
-      // Khôi phục cookies khi khởi tạo
-      await restoreCookies();
-    }
-  }
-
-  /// **Lấy headers bao gồm cookies và thông tin xác thực**
-  Future<Map<String, String>> _getHeaders() async {
-    final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-    final cookieHeader =
-        cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-    final currentProfile = await getCurrentProfile();
-
-    return {
-      'Content-Type': 'application/json',
-      'Cookie': cookieHeader,
-      'x-profile-id': currentProfile?.id ?? '',
-    };
+    TokenManager.initialize();
   }
 
   /// **Tạo điểm danh cho lớp**
@@ -80,28 +52,14 @@ class RollCallService extends ProfileService {
   /// **Tạo phiên điểm danh**
   Future<String?> createRollCallSession(String date) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
       final currentProfile = await getCurrentProfile();
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/rollcall/class/${currentProfile?.groupId}';
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.post(
         requestUrl,
         data: jsonEncode({'date': date}),
-        options: Options(headers: await _getHeaders()),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {
@@ -119,23 +77,9 @@ class RollCallService extends ProfileService {
   Future<bool> createRollCallEntry(
       String rollCallSessionId, String profileId, int status) async {
     try {
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
       final currentProfile = await getCurrentProfile();
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/rollcall/$rollCallSessionId';
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       String statusString;
       if (status == 0) {
@@ -154,7 +98,7 @@ class RollCallService extends ProfileService {
           'profileId': profileId,
           'status': statusString,
         }),
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {
@@ -171,29 +115,14 @@ class RollCallService extends ProfileService {
   Future<List<RollCallEntryModel>> getRollCallEntriesBySessionId(
       String rollCallSessionId) async {
     try {
-      await _initialize();
-
-      // Lấy cookies từ PersistCookieJar
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
       final currentProfile = await getCurrentProfile();
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders(
+          profileId: currentProfile?.tempId ?? currentProfile?.id);
       final requestUrl = '$_baseUrl/rollcall/$rollCallSessionId';
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.tempId ?? currentProfile?.id,
-      };
 
       final response = await _dio.get(
         requestUrl,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {
@@ -213,29 +142,14 @@ class RollCallService extends ProfileService {
 
   Future<List<RollCallSessionModel>> getRollCallSession() async {
     try {
-      await _initialize();
-
-      // Lấy cookies từ PersistCookieJar
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
       final currentProfile = await getCurrentProfile();
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders(
+          profileId: currentProfile?.tempId ?? currentProfile?.id);
       final requestUrl = '$_baseUrl/rollcall/class/${currentProfile?.groupId}';
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.tempId ?? currentProfile?.id,
-      };
 
       final response = await _dio.get(
         requestUrl,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {
@@ -256,30 +170,15 @@ class RollCallService extends ProfileService {
   Future<List<RollCallSessionModel>> getRollCallSessionsByDateRange(
       String startDate, String endDate) async {
     try {
-      await _initialize();
-
-      // Lấy cookies từ PersistCookieJar
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
       final currentProfile = await getCurrentProfile();
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders(
+          profileId: currentProfile?.tempId ?? currentProfile?.id);
       final requestUrl =
           '$_baseUrl/rollcall/class/${currentProfile?.groupId}?startDate=$startDate&endDate=$endDate';
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.tempId ?? currentProfile?.id,
-      };
 
       final response = await _dio.get(
         requestUrl,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {
@@ -306,12 +205,6 @@ class RollCallService extends ProfileService {
 
       final rollCallSessionIds =
           rollCallSessions.map((session) => session.id).toList();
-
-      // Lấy cookies từ PersistCookieJar
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
 
       // Lấy danh sách điểm danh từ các phiên điểm danh
       final results = await Future.wait(
@@ -349,12 +242,6 @@ class RollCallService extends ProfileService {
       final rollCallSessionIds =
           rollCallSessions.map((session) => session.id).toList();
 
-      // Lấy cookies từ PersistCookieJar
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
       // Lấy danh sách điểm danh từ các phiên điểm danh
       final results = await Future.wait(
         rollCallSessionIds.map((id) => getRollCallEntriesBySessionId(id)),
@@ -382,29 +269,13 @@ class RollCallService extends ProfileService {
 
   Future<bool> deleteRollCallSession(String rollCallSessionId) async {
     try {
-      await _initialize();
-
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
       final currentProfile = await getCurrentProfile();
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/rollcall/$rollCallSessionId';
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.delete(
         requestUrl,
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       if (response.statusCode == 200) {
@@ -421,9 +292,11 @@ class RollCallService extends ProfileService {
   /// **Xóa một phiên điểm danh**
   Future<bool> removeRollCallSession(String sessionId) async {
     try {
+      final currentProfile = await getCurrentProfile();
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final response = await _dio.delete(
         '$_baseUrl/rollcall/$sessionId',
-        options: Options(headers: await _getHeaders()),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       return response.statusCode == 200;
@@ -437,30 +310,14 @@ class RollCallService extends ProfileService {
   Future<bool> updateRollCallEntry(
       String entryId, String status, String remarks) async {
     try {
-      await _initialize();
-
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
       final currentProfile = await getCurrentProfile();
-
-      final cookieHeader =
-          cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/rollcall/entry/$entryId';
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.patch(
         requestUrl,
         data: jsonEncode({'status': status, 'remarks': remarks}),
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
       return response.statusCode == 200;
     } catch (e) {
@@ -473,30 +330,14 @@ class RollCallService extends ProfileService {
   Future<bool> deleteRollCallEntry(
       String entryId, String status, String remarks) async {
     try {
-      await _initialize();
-
-      final cookies = await _cookieJar.loadForRequest(Uri.parse(_baseUrl));
-      if (cookies.isEmpty) {
-        throw Exception('No cookies available for authentication');
-      }
-
       final currentProfile = await getCurrentProfile();
-
-      final cookieHeader =
-      cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final requestUrl = '$_baseUrl/rollcall/entry/$entryId';
-
-      final headers = {
-        'Content-Type': 'application/json',
-        'Cookie': cookieHeader,
-        'x-profile-id': currentProfile?.id,
-      };
 
       final response = await _dio.patch(
         requestUrl,
         data: jsonEncode({'status': status, 'remarks': remarks}),
-        options: Options(headers: headers),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
       return response.statusCode == 200;
     } catch (e) {

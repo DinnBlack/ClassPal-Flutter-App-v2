@@ -48,7 +48,7 @@ class _PostListScreenState extends State<PostListScreen> {
                     child: PostCreateButton(),
                   ),
                   const SizedBox(
-                    height: kMarginLg,
+                    height: kMarginMd,
                   ),
                 ],
                 _buildSkeletonLoading(),
@@ -68,7 +68,7 @@ class _PostListScreenState extends State<PostListScreen> {
                     child: PostCreateButton(),
                   ),
                   const SizedBox(
-                    height: kMarginLg,
+                    height: kMarginMd,
                   ),
                 ],
                 const SizedBox(
@@ -116,7 +116,7 @@ class _PostListScreenState extends State<PostListScreen> {
                         child: PostCreateButton(),
                       ),
                       SizedBox(
-                        height: kMarginLg,
+                        height: kMarginMd,
                       ),
                     ],
                   ],

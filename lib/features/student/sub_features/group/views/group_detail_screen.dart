@@ -1,5 +1,7 @@
+import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/student/sub_features/group/model/group_with_students_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -31,10 +33,21 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
       ],
       [
         () {
-          CustomPageTransition.navigateTo(
-              context: context,
-              page: GroupEditScreen(groupWithStudents: widget.groupWithStudents,),
-              transitionType: PageTransitionType.slideFromBottom);
+          if (kIsWeb) {
+            showCustomDialog(
+              context,
+              GroupEditScreen(
+                groupWithStudents: widget.groupWithStudents,
+              ),
+            );
+          } else {
+            CustomPageTransition.navigateTo(
+                context: context,
+                page: GroupEditScreen(
+                  groupWithStudents: widget.groupWithStudents,
+                ),
+                transitionType: PageTransitionType.slideFromBottom);
+          }
         },
         () {
           _showDeleteConfirmationDialog(context);
@@ -57,7 +70,9 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              context.read<GroupBloc>().add(GroupDeleteStarted(widget.groupWithStudents.group.id));
+              context
+                  .read<GroupBloc>()
+                  .add(GroupDeleteStarted(widget.groupWithStudents.group.id));
             },
             child: const Text('Xóa', style: TextStyle(color: Colors.red)),
           ),
@@ -88,7 +103,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: kBackgroundColor,
+        backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
         appBar: _buildAppBar(context),
         body: _buildBody(context),
       ),

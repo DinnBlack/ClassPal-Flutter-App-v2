@@ -1,4 +1,5 @@
 import 'package:classpal_flutter_app/core/widgets/custom_list_item.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -80,6 +81,7 @@ class _RollCallReportScreenState extends State<RollCallReportScreen> {
     List<DateTime> weekDays =
         List.generate(7, (index) => _startOfWeek.add(Duration(days: index)));
     return Scaffold(
+      backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
       appBar: widget.isStudentView ? null : _buildAppBar(context),
       body: Column(
         children: [

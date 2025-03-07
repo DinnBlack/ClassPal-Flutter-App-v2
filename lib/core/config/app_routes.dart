@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/views/login_screen.dart';
 import '../../features/auth/views/register_screen.dart';
@@ -6,6 +6,7 @@ import '../../features/auth/views/forgot_password_screen.dart';
 import '../../features/auth/views/reset_password_screen.dart';
 import '../../features/auth/views/select_role_screen.dart';
 import '../../features/auth/views/otp_screen.dart';
+import '../../features/class/models/class_model.dart';
 import '../../features/class/views/class_create_screen.dart';
 import '../../features/class/views/class_join_screen.dart';
 import '../../features/class/views/class_screen.dart';
@@ -19,79 +20,80 @@ import '../../shared/main_screen.dart';
 
 class RouteConstants {
   // Authentication
-  static const String login = '/auth/login';
-  static const String register = '/auth/register';
-  static const String forgotPassword = '/auth/forgot-password';
-  static const String otp = '/auth/otp';
-  static const String resetPassword = '/auth/reset-password';
-  static const String selectRole = '/auth/select-role';
+  static const String login = 'login';
+  static const String register = 'register';
+  static const String forgotPassword = 'forgot-password';
+  static const String otp = 'otp';
+  static const String resetPassword = 'reset-password';
+  static const String selectRole = 'select-role';
 
   // Home with dynamic role
-  static const String home = '/home/:role';
+  static const String home = 'home';
 
   // School
-  static const String school = '/home/school';
-  static const String schoolCreate = '/home/school/create';
-  static const String schoolJoin = '/home/school/join';
+  static const String school = 'school';
+  static const String schoolCreate = 'school-create';
+  static const String schoolJoin = 'school-join';
 
   // Class
-  static const String classScreen = '/home/class';
-  static const String classCreate = '/home/class/create';
-  static const String classJoin = '/home/class/join';
+  static const String classScreen = 'class';
+  static const String classCreate = 'class-create';
+  static const String classJoin = 'class-join';
 
   // Student
-  static const String studentList = '/home/student/list';
-  static const String studentCreate = '/home/student/create';
+  static const String studentList = 'student-list';
+  static const String studentCreate = 'student-create';
 
   // Invitation
-  static const String invitation = '/invitation/:token';
+  static const String invitation = 'invitation';
 }
 
-final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
-
-GoRouter createRouter(bool isLoggedIn) {
-  return GoRouter(
-    navigatorKey: _rootNavigatorKey,
-    debugLogDiagnostics: true,
-    initialLocation:
-        isLoggedIn ? RouteConstants.selectRole : RouteConstants.login,
+class MyAppRouter {
+  late final GoRouter router = GoRouter(
+    initialLocation: '/auth/login',
     routes: [
       // Authentication
       GoRoute(
-          path: RouteConstants.login,
-          name: 'login',
-          builder: (context, state) => const LoginScreen()),
+        name: RouteConstants.login,
+        path: '/auth/login',
+        pageBuilder: (context, state) {
+          return const MaterialPage(child: LoginScreen());
+        },
+      ),
       GoRoute(
-          path: RouteConstants.register,
-          name: 'register',
-          builder: (context, state) => const RegisterScreen()),
+        name: RouteConstants.register,
+        path: '/auth/register',
+        pageBuilder: (context, state) {
+          return const MaterialPage(child: RegisterScreen());
+        },
+      ),
       GoRoute(
-          path: RouteConstants.forgotPassword,
-          name: 'forgotPassword',
-          builder: (context, state) =>
-              ForgotPasswordScreen(email: state.extra as String? ?? '')),
+        name: RouteConstants.forgotPassword,
+        path: '/auth/forgot-password',
+        builder: (context, state) => ForgotPasswordScreen(
+            email: (state.extra as Map<String, dynamic>?)?['email']),
+      ),
       GoRoute(
-          path: RouteConstants.otp,
-          name: 'otp',
+          name: RouteConstants.otp,
+          path: '/auth/otp',
           builder: (context, state) => OtpScreen(
               email: (state.extra as Map<String, dynamic>?)?['email'])),
       GoRoute(
-          path: RouteConstants.resetPassword,
-          name: 'resetPassword',
+          name: RouteConstants.resetPassword,
+          path: '/auth/reset-password',
           builder: (context, state) => ResetPasswordScreen(
               email: (state.extra as Map<String, dynamic>?)?['email'],
               otp: (state.extra as Map<String, dynamic>?)?['otp'])),
       GoRoute(
-          path: RouteConstants.selectRole,
-          name: 'selectRole',
+          name: RouteConstants.selectRole,
+          path: '/auth/select-role',
           builder: (context, state) => const SelectRoleScreen()),
 
       // Home (Dynamic Role)
       GoRoute(
-        path: RouteConstants.home,
-        name: 'home',
+        name: RouteConstants.home,
+        path: '/home/:role',
         builder: (context, state) {
-          // Lấy tham số role từ URL
           final role = state.pathParameters['role']!;
           return MainScreen(role: role);
         },
@@ -99,56 +101,71 @@ GoRouter createRouter(bool isLoggedIn) {
 
       // School
       GoRoute(
-          path: RouteConstants.school,
-          name: 'school',
+          name: RouteConstants.school,
+          path: '/home/school',
           builder: (context, state) => SchoolScreen(
               school: (state.extra as Map<String, dynamic>?)?['school'])),
       GoRoute(
-          path: RouteConstants.schoolCreate,
-          name: 'schoolCreate',
+          name: RouteConstants.schoolCreate,
+          path: '/home/school/create',
           builder: (context, state) => const SchoolCreateScreen()),
       GoRoute(
-          path: RouteConstants.schoolJoin,
-          name: 'schoolJoin',
+          name: RouteConstants.schoolJoin,
+          path: '/home/school/join',
           builder: (context, state) => const SchoolJoinScreen()),
 
       // Class
       GoRoute(
-          path: RouteConstants.classScreen,
-          name: 'classScreen',
-          builder: (context, state) => ClassScreen(
-              currentClass:
-                  (state.extra as Map<String, dynamic>?)?['currentClass'])),
+        name: RouteConstants.classScreen,
+        path: '/home/class',
+        builder: (context, state) {
+          print(1);
+          // Kiểm tra xem extra có null không
+          final Map<String, dynamic>? extra =
+              state.extra as Map<String, dynamic>?;
+
+          print(extra);
+
+          // Chuyển đổi Map sang ClassModel
+          final currentClass = ClassModel.fromMap(extra!['currentClass']);
+
+          // Debug thông tin
+          print(currentClass); // Xem thông tin của currentClass để debug
+
+          // Trả về ClassScreen với currentClass
+          return ClassScreen(currentClass: currentClass);
+        },
+      ),
       GoRoute(
-          path: RouteConstants.classCreate,
-          name: 'classCreate',
+          name: RouteConstants.classCreate,
+          path: '/home/class/create',
           builder: (context, state) => const ClassCreateScreen()),
       GoRoute(
-          path: RouteConstants.classJoin,
-          name: 'classJoin',
+          name: RouteConstants.classJoin,
+          path: '/home/class/join',
           builder: (context, state) => const ClassJoinScreen()),
 
       // Student
       GoRoute(
-          path: RouteConstants.studentList,
-          name: 'studentList',
+          name: RouteConstants.studentList,
+          path: '/home/student/list',
           builder: (context, state) => const StudentListScreen()),
       GoRoute(
-          path: RouteConstants.studentCreate,
-          name: 'studentCreate',
+          name: RouteConstants.studentCreate,
+          path: '/home/student/create',
           builder: (context, state) => const StudentCreateScreen()),
 
       // Invitation
       GoRoute(
-          path: RouteConstants.invitation,
-          name: 'invitation',
+          name: RouteConstants.invitation,
+          path: '/invitation/:token',
           builder: (context, state) =>
               InvitationScreen(token: state.pathParameters['token']!)),
 
       // Default route
       GoRoute(
-          path: '/',
           name: 'default',
+          path: '/',
           builder: (context, state) => MainScreen(
               role: (state.extra as Map<String, dynamic>?)?['role'] ??
                   'default')),
