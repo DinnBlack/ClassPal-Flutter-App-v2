@@ -9,6 +9,8 @@ import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import '../../../../core/config/app_constants.dart';
+import '../../../../core/utils/app_text_style.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/custom_feature_dialog.dart';
 import '../../../auth/repository/auth_service.dart';
 import '../../../class/bloc/class_bloc.dart';
@@ -19,7 +21,8 @@ class SchoolPostPage extends StatefulWidget {
   final SchoolModel school;
   final bool isTeacherView;
 
-  const SchoolPostPage({super.key, required this.school,  this.isTeacherView = false});
+  const SchoolPostPage(
+      {super.key, required this.school, this.isTeacherView = false});
 
   @override
   State<SchoolPostPage> createState() => _SchoolPostPageState();
@@ -41,7 +44,7 @@ class _SchoolPostPageState extends State<SchoolPostPage> {
         'Kết thúc trường học',
       ],
       [
-            () {
+        () {
           _showDeleteClassDialog(context);
         },
       ],
@@ -66,7 +69,8 @@ class _SchoolPostPageState extends State<SchoolPostPage> {
                 const SizedBox(height: 10),
                 TextFormField(
                   controller: schoolNameController,
-                  decoration: const InputDecoration(labelText: 'Tên trường học'),
+                  decoration:
+                      const InputDecoration(labelText: 'Tên trường học'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Tên trường học không được để trống';
@@ -145,7 +149,8 @@ class _SchoolPostPageState extends State<SchoolPostPage> {
         appBar: _buildAppBar(context),
         body: RefreshIndicator(
           onRefresh: () => _reFetchPosts(context),
-          child: Center( // Đảm bảo nội dung ở giữa
+          child: Center(
+            // Đảm bảo nội dung ở giữa
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 650),
               child: PostListScreen(
@@ -161,8 +166,10 @@ class _SchoolPostPageState extends State<SchoolPostPage> {
   Future<void> _reFetchPosts(BuildContext context) async {
     context.read<PostBloc>().add(PostFetchStarted());
   }
+
   CustomAppBar _buildAppBar(BuildContext context) {
     return CustomAppBar(
+      height: Responsive.isMobile(context) ? kToolbarHeight : 70,
       backgroundColor: kWhiteColor,
       title: widget.school.name,
       leftWidget: InkWell(
@@ -172,10 +179,35 @@ class _SchoolPostPageState extends State<SchoolPostPage> {
           Navigator.pop(context);
         },
       ),
-      rightWidget: !widget.isTeacherView ? InkWell(
+      rightWidget: Responsive.isMobile(context)
+          ? InkWell(
         child: const Icon(FontAwesomeIcons.ellipsis),
         onTap: () => _showFeatureDialog(context),
-      ) : null,
+      )
+          : GestureDetector(
+        onTap: () => _showFeatureDialog(context),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Tùy chọn',
+              style: AppTextStyle.semibold(kTextSizeMd),
+            ),
+            const SizedBox(
+              width: kMarginMd,
+            ),
+            const Icon(
+              FontAwesomeIcons.caretDown,
+            )
+          ],
+        ),
+      ),
+      bottomWidget: Container(
+        height: 2,
+        width: double.infinity,
+        color: kGreyMediumColor,
+      ),
+      additionalHeight: 2,
     );
   }
 }

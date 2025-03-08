@@ -256,18 +256,6 @@ class _ClassListScreenState extends State<ClassListScreen> {
                   onTap: () async {
                     await ProfileService().saveCurrentProfile(profile);
                     await ClassService().saveCurrentClass(currentClass);
-                    // if (kIsWeb) {
-                    //   GoRouter.of(context).go(
-                    //     '/home/class',
-                    //     extra: {'currentClass': currentClass.toMap()},
-                    //   );
-                    // } else {
-                    //   CustomPageTransition.navigateTo(
-                    //     context: context,
-                    //     page: ClassScreen(currentClass: currentClass),
-                    //     transitionType: PageTransitionType.slideFromRight,
-                    //   );
-                    // }
                     CustomPageTransition.navigateTo(
                       context: context,
                       page: ClassScreen(currentClass: currentClass),
@@ -394,31 +382,108 @@ class _ClassListScreenState extends State<ClassListScreen> {
   }
 
   Widget _buildListClassSchoolView() {
-    return ListView.separated(
+    return Responsive.isMobile(context)
+        ? ListView.separated(
       shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: classes.length,
       itemBuilder: (context, index) {
         final currentClass = classes[index];
+
         return CustomListItem(
-          onTap: () async {
-            await ClassService().saveCurrentClass(currentClass);
-            CustomPageTransition.navigateTo(
-                context: context,
-                page: ClassScreen(
-                  currentClass: currentClass,
-                ),
-                transitionType: PageTransitionType.slideFromRight);
-          },
-          title: currentClass.name,
           leading: const CustomAvatar(
             imageAsset: 'assets/images/class.jpg',
           ),
+          title: currentClass.name,
+          onTap: () async {
+            await ClassService().saveCurrentClass(currentClass);
+            CustomPageTransition.navigateTo(
+              context: context,
+              page: ClassScreen(currentClass: currentClass),
+              transitionType: PageTransitionType.slideFromRight,
+            );
+          },
           hasTrailingArrow: true,
         );
       },
       separatorBuilder: (context, index) => const SizedBox(height: kMarginMd),
+    )
+        : GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: classes.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: Responsive.isTablet(context) ? 4 : 6,
+        crossAxisSpacing: kPaddingLg,
+        mainAxisSpacing: kPaddingLg,
+        childAspectRatio: 1,
+      ),
+      itemBuilder: (context, index) {
+        final currentClass = classes[index];
+
+        return MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () async {
+              await ClassService().saveCurrentClass(currentClass);
+              CustomPageTransition.navigateTo(
+                context: context,
+                page: ClassScreen(currentClass: currentClass),
+                transitionType: PageTransitionType.slideFromRight,
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.only(bottom: 5),
+              decoration: BoxDecoration(
+                color: kGreyLightColor,
+                borderRadius: BorderRadius.circular(kBorderRadiusLg),
+              ),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.all(kPaddingMd),
+                height: 200,
+                width: 200,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(width: 2, color: kGreyLightColor),
+                  borderRadius: BorderRadius.circular(kBorderRadiusLg),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 80,
+                      width: 80,
+                      decoration: const BoxDecoration(
+                        color: kPrimaryColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: ClipOval(
+                        child: Image.asset(
+                          'assets/images/class.jpg',
+                          height: 80,
+                          width: 80,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: kMarginLg),
+                    Text(
+                      currentClass.name,
+                      style: AppTextStyle.semibold(kTextSizeMd),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
+
 
   Widget _buildListClassStudentView() {
     return ListView.separated(

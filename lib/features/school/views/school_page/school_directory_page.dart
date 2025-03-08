@@ -7,6 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../core/config/app_constants.dart';
+import '../../../../core/utils/app_text_style.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../../core/widgets/custom_feature_dialog.dart';
 import '../../../../core/widgets/custom_page_transition.dart';
@@ -138,15 +140,6 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
       body: !widget.isTeacherView
           ? Column(
               children: [
-                CustomTabBar(
-                  currentIndex: _currentIndex,
-                  onTabTapped: _onTabTapped,
-                  tabTitles: const ['Lớp học', 'Giáo viên'],
-                  tabBarWidthRatio: 0.9,
-                  lineHeight: 4,
-                  linePadding: 0,
-                  tabBarHeight: 40,
-                ),
                 Expanded(
                   child: PageView(
                     controller: _pageController,
@@ -166,6 +159,7 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
 
   CustomAppBar _buildAppBar(BuildContext context) {
     return CustomAppBar(
+      height: Responsive.isMobile(context) ? kToolbarHeight : 70,
       backgroundColor: kWhiteColor,
       title: widget.isTeacherView ? 'Lớp học của bạn' : 'Quản lý',
       leftWidget: InkWell(
@@ -175,14 +169,51 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
           Navigator.pop(context);
         },
       ),
-      rightWidget: !widget.isTeacherView
+      additionalHeight: 60,
+      bottomWidget: Column(
+        children: [
+          CustomTabBar(
+            currentIndex: _currentIndex,
+            onTabTapped: _onTabTapped,
+            tabTitles: const ['Lớp học', 'Giáo viên'],
+            tabBarWidthRatio: Responsive.isMobile(context) ? 0.9 : 0.3,
+            lineHeight: 4,
+            linePadding: 0,
+            tabBarHeight: 40,
+          ),
+          const SizedBox(height: kMarginSm,),
+          Container(
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+              border:
+                  Border(bottom: BorderSide(width: 2, color: kGreyMediumColor)),
+            ),
+          )
+        ],
+      ),
+      rightWidget: Responsive.isMobile(context)
           ? InkWell(
               child: const Icon(FontAwesomeIcons.ellipsis),
-              onTap: () {
-                _showFeatureDialog(context);
-              },
+              onTap: () => _showFeatureDialog(context),
             )
-          : null,
+          : GestureDetector(
+              onTap: () => _showFeatureDialog(context),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Tùy chọn',
+                    style: AppTextStyle.semibold(kTextSizeMd),
+                  ),
+                  const SizedBox(
+                    width: kMarginMd,
+                  ),
+                  const Icon(
+                    FontAwesomeIcons.caretDown,
+                  )
+                ],
+              ),
+            ),
     );
   }
 

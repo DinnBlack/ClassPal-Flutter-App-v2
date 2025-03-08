@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/config/cookie/token_manager.dart';
@@ -54,7 +55,8 @@ class ClassService extends ProfileService {
 
         final response = await _dio.get(
           requestUrl,
-          options: Options(headers: headers, extra: {'withCredentials': true}),
+          options: Options(
+              headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
         );
 
         if (response.statusCode == 200) {
@@ -84,7 +86,8 @@ class ClassService extends ProfileService {
 
       final response = await _dio.get(
         '$_baseUrl/classes/school/${currentProfile?.groupId}',
-        options: Options(headers: headers, extra: {'withCredentials': true}),
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
       );
 
       if (response.statusCode == 200) {
@@ -119,7 +122,8 @@ class ClassService extends ProfileService {
             'avatarUrl': finalAvatarUrl,
           },
         ),
-        options: Options(headers: headers, extra: {'withCredentials': true}),
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
       );
 
       if (response.statusCode == 201) {
@@ -153,7 +157,8 @@ class ClassService extends ProfileService {
             'avatarUrl': finalAvatarUrl,
           },
         ),
-        options: Options(headers: headers, extra: {'withCredentials': true}),
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
       );
 
       if (response.statusCode == 201) {
@@ -188,7 +193,8 @@ class ClassService extends ProfileService {
             'name': newName,
           },
         ),
-        options: Options(headers: headers, extra: {'withCredentials': true}),
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
       );
 
       if (response.statusCode == 200) {
@@ -213,7 +219,8 @@ class ClassService extends ProfileService {
 
       final response = await _dio.get(
         requestUrl,
-        options: Options(headers: headers, extra: {'withCredentials': true}),
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
       );
 
       if (response.statusCode == 200) {
@@ -235,7 +242,8 @@ class ClassService extends ProfileService {
 
       final response = await _dio.delete(
         requestUrl,
-        options: Options(headers: headers, extra: {'withCredentials': true}),
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
       );
 
       if (response.statusCode == 200) {
@@ -268,13 +276,14 @@ class ClassService extends ProfileService {
       final currentProfile = await getCurrentProfile();
       final headers = await buildHeaders(profileId: currentProfile?.id);
       final currentClass = await getCurrentClass();
-
+      print(currentClass);
       final response = await _dio.post(
         '$_baseUrl/classes/${currentClass?.id}/rels',
         data: jsonEncode(
           {'profiles': profileIds},
         ),
-        options: Options(headers: headers, extra: {'withCredentials': true}),
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
       );
 
       print('bind successful: ${response.data}');

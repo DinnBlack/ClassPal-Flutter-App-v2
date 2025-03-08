@@ -38,7 +38,8 @@ class ProfileService {
     }
   }
 
-  Future<Map<String, String>> buildHeaders({String? profileId, String? contentType}) async {
+  Future<Map<String, String>> buildHeaders(
+      {String? profileId, String? contentType}) async {
     String? cookieHeader;
     if (!kIsWeb) {
       cookieHeader = await TokenManager.getCookies();
@@ -95,7 +96,8 @@ class ProfileService {
           'displayName': name,
           'roles': [role]
         }),
-        options: Options(headers: headers, extra: {'withCredentials': true}),
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
       );
 
       if (response.statusCode == 201) {
@@ -127,10 +129,12 @@ class ProfileService {
 
   Future<bool> deleteProfile(String profileId) async {
     try {
-      final headers = await buildHeaders();
+      final currentProfile = await getCurrentProfile();
+      final headers = await buildHeaders(profileId: currentProfile?.id);
       final response = await _dio.delete(
         '$_baseUrl/profiles/$profileId',
-        options: Options(headers: headers, extra: {'withCredentials': true}),
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
       );
       return response.statusCode == 201;
     } catch (e) {
@@ -150,10 +154,11 @@ class ProfileService {
       final responseUrl = '$_baseUrl/profiles/$groupType/${currentClass.id}';
       final headers = await buildHeaders(profileId: currentProfile?.id);
 
-      print(1);
-
-      final response =
-          await _dio.get(responseUrl, options: Options(headers: headers, extra: {'withCredentials': true}));
+      final response = await _dio.get(
+        responseUrl,
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
+      );
       if (response.statusCode == 200) {
         return (response.data['data'] as List)
             .map((profile) => ProfileModel.fromMap(profile))
@@ -172,7 +177,8 @@ class ProfileService {
       final headers = await buildHeaders();
       final response = await _dio.get(
         '$_baseUrl/profiles/me',
-        options: Options(headers: headers, extra: {'withCredentials': true}),
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
       );
 
       if (response.statusCode == 200) {
@@ -212,7 +218,9 @@ class ProfileService {
 
       // Gửi request GET
       final response = await _dio.get(url,
-          options: Options(headers: headers, extra: {'withCredentials': true}));
+          options: Options(
+              headers: headers,
+              extra: kIsWeb ? {'withCredentials': true} : null));
 
       // Kiểm tra phản hồi từ server
       if (response.statusCode == 200) {
@@ -248,7 +256,8 @@ class ProfileService {
 
       final response = await _dio.get(
         '$_baseUrl/profiles/$id',
-        options: Options(headers: headers, extra: {'withCredentials': true}),
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
       );
 
       if (response.statusCode == 200) {
@@ -272,7 +281,8 @@ class ProfileService {
       final headers = await buildHeaders(profileId: currentProfile?.id);
       final response = await _dio.get(
         '$_baseUrl/profiles/$parentId/related',
-        options: Options(headers: headers, extra: {'withCredentials': true}),
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
       );
 
       if (response.statusCode == 200) {
@@ -312,7 +322,8 @@ class ProfileService {
         data: jsonEncode({
           'childIds': [childId]
         }),
-        options: Options(headers: headers, extra: {'withCredentials': true}),
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
       );
 
       if (response.statusCode == 200) {
@@ -336,7 +347,8 @@ class ProfileService {
 
       final response = await _dio.get(
         requestUrl,
-        options: Options(headers: headers, extra: {'withCredentials': true}),
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
       );
 
       if (response.statusCode == 200) {
@@ -406,7 +418,8 @@ class ProfileService {
       final response = await _dio.patch(
         requestUrl,
         data: jsonEncode(data),
-        options: Options(headers: headers, extra: {'withCredentials': true}),
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
       );
 
       if (response.statusCode != 200 && response.statusCode != 204) {
@@ -443,7 +456,8 @@ class ProfileService {
       final response = await _dio.patch(
         requestUrl,
         data: formData,
-        options: Options(headers: headers, extra: {'withCredentials': true}),
+        options: Options(
+            headers: headers, extra: kIsWeb ? {'withCredentials': true} : null),
       );
 
       if (response.statusCode == 200) {
