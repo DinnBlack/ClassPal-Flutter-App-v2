@@ -299,15 +299,18 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: kMarginLg),
-            CustomButton(
-              text: 'Thêm học viên',
-              onTap: () {
-                CustomPageTransition.navigateTo(
-                  context: context,
-                  page: const StudentCreateScreen(),
-                  transitionType: PageTransitionType.slideFromBottom,
-                );
-              },
+            SizedBox(
+              width: 650,
+              child: CustomButton(
+                text: 'Thêm học viên',
+                onTap: () {
+                  CustomPageTransition.navigateTo(
+                    context: context,
+                    page: const StudentCreateScreen(),
+                    transitionType: PageTransitionType.slideFromBottom,
+                  );
+                },
+              ),
             ),
           ],
         ),

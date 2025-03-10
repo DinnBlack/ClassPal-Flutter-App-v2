@@ -64,25 +64,60 @@ class _GradeStudentCreateScreenState extends State<GradeStudentCreateScreen> {
         selectedGradeType != null ||
         _commentController.text.isNotEmpty) {
       return await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Xác nhận'),
-          content: const Text('Bạn có chắc chắn muốn thoát không?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Không'),
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Xác nhận'),
+              content: const Text('Bạn có chắc chắn muốn thoát không?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Không'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Có'),
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Có'),
-            ),
-          ],
-        ),
-      ) ??
+          ) ??
           false;
     }
     return true;
+  }
+
+  void _submitForm() {
+    final double? score = double.tryParse(_scoreController.text);
+
+    if (score == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Điểm không hợp lệ')),
+      );
+      return;
+    }
+
+    if (selectedGradeType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng chọn loại điểm')),
+      );
+      return;
+    }
+
+    if (widget.studentId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Mã sinh viên không hợp lệ')),
+      );
+      return;
+    }
+
+    context.read<GradeBloc>().add(
+          GradeCreateStarted(
+            subjectId: widget.subject.id,
+            studentId: widget.studentId!,
+            gradeTypeId: selectedGradeType!.id,
+            value: score,
+            comment: _commentController.text,
+          ),
+        );
   }
 
   @override
@@ -131,6 +166,7 @@ class _GradeStudentCreateScreenState extends State<GradeStudentCreateScreen> {
                     CustomTextField(
                       controller: _scoreController,
                       text: 'Điểm',
+                      autofocus: true,
                       isNumber: true,
                     ),
                     const SizedBox(height: kMarginMd),
@@ -138,7 +174,7 @@ class _GradeStudentCreateScreenState extends State<GradeStudentCreateScreen> {
                       controller: _gradeTypeController,
                       text: 'Loại điểm',
                       options:
-                      widget.subject.gradeTypes.map((e) => e.name).toList(),
+                          widget.subject.gradeTypes.map((e) => e.name).toList(),
                       onChanged: (value) {
                         setState(() {
                           selectedGradeType = widget.subject.gradeTypes
@@ -147,52 +183,19 @@ class _GradeStudentCreateScreenState extends State<GradeStudentCreateScreen> {
                         });
                         _updateValid();
                       },
+                      onFieldSubmitted: (_) => _submitForm(),
                     ),
                     const SizedBox(height: kMarginMd),
                     CustomTextField(
                       controller: _commentController,
                       text: 'Nhận xét',
+                      onFieldSubmitted: (_) => _submitForm(),
                     ),
                     const SizedBox(height: kMarginLg),
                     CustomButton(
                       isValid: _valid,
                       text: 'Thêm mới',
-                      onTap: () {
-                        final double? score =
-                        double.tryParse(_scoreController.text);
-                        if (score == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Điểm không hợp lệ')),
-                          );
-                          return;
-                        }
-
-                        if (selectedGradeType == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Vui lòng chọn loại điểm')),
-                          );
-                          return;
-                        }
-
-                        if (widget.studentId == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Mã sinh viên không hợp lệ')),
-                          );
-                          return;
-                        }
-
-                        context.read<GradeBloc>().add(
-                          GradeCreateStarted(
-                            subjectId: widget.subject.id,
-                            studentId: widget.studentId!,
-                            gradeTypeId: selectedGradeType!.id,
-                            value: score,
-                            comment: _commentController.text,
-                          ),
-                        );
-                      },
+                      onTap: _submitForm,
                     ),
                     const SizedBox(height: kMarginLg),
                   ],
@@ -221,4 +224,3 @@ class _GradeStudentCreateScreenState extends State<GradeStudentCreateScreen> {
     );
   }
 }
-

@@ -104,7 +104,7 @@ class _ClassCreateScreenState extends State<ClassCreateScreen> {
             : _currentStep == 1
                 ? 'Phân công'
                 : 'Tạo lớp học mới',
-        leftWidget: !kIsWeb && _currentStep != 2
+        leftWidget: _currentStep != 2
             ? GestureDetector(
                 child: Icon(
                   _currentStep == 0
@@ -149,7 +149,7 @@ class _ClassCreateScreenState extends State<ClassCreateScreen> {
               )
             : null,
       ),
-      backgroundColor: kIsWeb ? kTransparentColor: kBackgroundColor,
+      backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
       body: widget.isClassSchoolCreateView
           ? _buildClassSchoolCreationSteps()
           : _buildClassPersonalCreationSteps(),
@@ -244,90 +244,105 @@ class _ClassCreateScreenState extends State<ClassCreateScreen> {
 
   Widget _buildStep1() {
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          const SizedBox(height: kMarginXxl),
-          CustomButtonCamera(onImagePicked: (File? value) {}),
-          const SizedBox(height: kMarginXxl),
-          CustomTextField(
-            text: 'Tên lớp học',
-            autofocus: true,
-            controller: _classNameController,
-            onChanged: (_) => _validateForm(),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 650),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: kMarginXxl),
+              CustomButtonCamera(onImagePicked: (File? value) {}),
+              const SizedBox(height: kMarginXxl),
+              CustomTextField(
+                text: 'Tên lớp học',
+                autofocus: true,
+                controller: _classNameController,
+                onChanged: (_) => _validateForm(),
+                onFieldSubmitted: (_) {
+                  if (_isValid) _navigateStep(1);
+                },
+              ),
+              const SizedBox(height: kMarginLg),
+              CustomButton(
+                text: 'Tiếp tục',
+                onTap: _isValid ? () => _navigateStep(1) : null,
+                isValid: _isValid,
+              ),
+            ],
           ),
-          const SizedBox(height: kMarginLg),
-          CustomButton(
-            text: 'Tiếp tục',
-            onTap: _isValid ? () => _navigateStep(1) : null,
-            isValid: _isValid,
-          ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildClassPersonalStep2() {
     return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: kMarginXxl),
-          _buildStepTitle('Mời đồng giáo viên!',
-              'Hãy mời đồng giáo viên để quản lý lớp học'),
-          const SizedBox(height: kMarginXxl),
-          CustomTextField(
-            text: 'Email hoặc số điện thoại',
-            validator: (value) => Validators.validateEmail(value),
-            controller: _emailController,
-            onChanged: (value) {
-              setState(() {
-                _hasText = value.isNotEmpty;
-              });
-            },
-            suffixIcon: InkWell(
-              onTap: _hasText ? _addEmail : null,
-              borderRadius: BorderRadius.circular(kBorderRadiusMd),
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: kMarginSm),
-                decoration: BoxDecoration(
-                  color: _hasText ? kPrimaryColor : kGreyLightColor,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  FontAwesomeIcons.plus,
-                  size: 16,
-                  color: _hasText ? Colors.white : kGreyColor,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 650),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: kMarginXxl),
+              _buildStepTitle('Mời đồng giáo viên!',
+                  'Hãy mời đồng giáo viên để quản lý lớp học'),
+              const SizedBox(height: kMarginXxl),
+              CustomTextField(
+                text: 'Email hoặc số điện thoại',
+                validator: (value) => Validators.validateEmail(value),
+                controller: _emailController,
+                onChanged: (value) {
+                  setState(() {
+                    _hasText = value.isNotEmpty;
+                  });
+                },
+                suffixIcon: InkWell(
+                  onTap: _hasText ? _addEmail : null,
+                  borderRadius: BorderRadius.circular(kBorderRadiusMd),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: kMarginSm),
+                    decoration: BoxDecoration(
+                      color: _hasText ? kPrimaryColor : kGreyLightColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      FontAwesomeIcons.plus,
+                      size: 16,
+                      color: _hasText ? Colors.white : kGreyColor,
+                    ),
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(height: kMarginLg),
+              _buildInviteSection(),
+              CustomButton(
+                text: 'Mời và tạo lớp học',
+                isValid: _invitedEmails.isNotEmpty,
+                onTap: _invitedEmails.isNotEmpty
+                    ? () {
+                        context.read<ClassBloc>().add(
+                            ClassPersonalCreateStarted(
+                                name: _classNameController.text));
+                        _navigateStep(2);
+                      }
+                    : null,
+              ),
+              const SizedBox(height: kMarginMd),
+              GestureDetector(
+                onTap: () async {
+                  context.read<ClassBloc>().add(ClassPersonalCreateStarted(
+                      name: _classNameController.text));
+                  _navigateStep(2);
+                },
+                child: Text(
+                  'Tôi không có đồng giáo viên, Tạo lớp học',
+                  style: AppTextStyle.semibold(kTextSizeXs, kPrimaryColor),
+                ),
+              ),
+              const SizedBox(height: kMarginLg),
+            ],
           ),
-          const SizedBox(height: kMarginLg),
-          _buildInviteSection(),
-          CustomButton(
-            text: 'Mời và tạo lớp học',
-            isValid: _invitedEmails.isNotEmpty,
-            onTap: _invitedEmails.isNotEmpty
-                ? () {
-                    context.read<ClassBloc>().add(ClassPersonalCreateStarted(
-                        name: _classNameController.text));
-                    _navigateStep(2);
-                  }
-                : null,
-          ),
-          const SizedBox(height: kMarginMd),
-          GestureDetector(
-            onTap: () async {
-              context.read<ClassBloc>().add(
-                  ClassPersonalCreateStarted(name: _classNameController.text));
-              _navigateStep(2);
-            },
-            child: Text(
-              'Tôi không có đồng giáo viên, Tạo lớp học',
-              style: AppTextStyle.semibold(kTextSizeXs, kPrimaryColor),
-            ),
-          ),
-          const SizedBox(height: kMarginLg),
-        ],
+        ),
       ),
     );
   }
@@ -413,41 +428,45 @@ class _ClassCreateScreenState extends State<ClassCreateScreen> {
   Widget _buildStep3() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(
-            height: kMarginLg,
-          ),
-          CustomTextField(
-            text: 'Họ và tên học sinh',
-            controller: _studentNameController,
-            onChanged: _updateHasText,
-            suffixIcon: InkWell(
-              onTap: () {
-                context.read<StudentBloc>().add(
-                    StudentCreateStarted(name: _studentNameController.text));
-              },
-              borderRadius: BorderRadius.circular(kBorderRadiusMd),
-              child: Container(
-                margin: const EdgeInsets.symmetric(vertical: kMarginSm),
-                decoration: BoxDecoration(
-                  color: _hasText ? kPrimaryColor : kGreyLightColor,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  FontAwesomeIcons.plus,
-                  size: 16,
-                  color: _hasText ? Colors.white : kGreyColor,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 650),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: kMarginLg),
+              CustomTextField(
+                text: 'Họ và tên học sinh',
+                controller: _studentNameController,
+                onChanged: _updateHasText,
+                suffixIcon: InkWell(
+                  onTap: () {
+                    context.read<StudentBloc>().add(StudentCreateStarted(
+                        name: _studentNameController.text));
+                  },
+                  borderRadius: BorderRadius.circular(kBorderRadiusMd),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: kMarginSm),
+                    decoration: BoxDecoration(
+                      color: _hasText ? kPrimaryColor : kGreyLightColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      FontAwesomeIcons.plus,
+                      size: 16,
+                      color: _hasText ? Colors.white : kGreyColor,
+                    ),
+                  ),
                 ),
               ),
-            ),
+              const Expanded(
+                child: StudentListScreen(
+                  isCreateView: true,
+                ),
+              ),
+            ],
           ),
-          const Expanded(
-              child: StudentListScreen(
-            isCreateView: true,
-          )),
-        ],
+        ),
       ),
     );
   }
@@ -522,136 +541,147 @@ class _ClassSchoolStep2State extends State<ClassSchoolStep2> {
                 .where((teacher) => !_selectedTeacherIds.contains(teacher.id))
                 .toList();
 
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: kMarginXxl),
-                  Center(
-                    child: _buildStepTitle(
-                      'Thêm giáo viên phụ trách!',
-                      'Hãy phân công giáo viên để quản lý lớp học',
-                    ),
-                  ),
-                  const SizedBox(height: kMarginXxl),
-                  Text('Đã chọn', style: AppTextStyle.bold(kTextSizeMd)),
-                  const SizedBox(height: kMarginMd),
-                  // Danh sách giáo viên đã chọn
-                  selectedTeachers.isNotEmpty
-                      ? ListView.separated(
-                          shrinkWrap: true,
-                          padding:
-                              const EdgeInsets.symmetric(vertical: kMarginMd),
-                          itemCount: selectedTeachers.length,
-                          itemBuilder: (context, index) {
-                            final teacher = selectedTeachers[index];
-                            return CustomListItem(
-                              title: teacher.displayName,
-                              isAnimation: false,
-                              leading: CustomAvatar(profile: teacher),
-                              trailing: GestureDetector(
-                                onTap: () {
-                                  _toggleTeacherSelection(teacher.id, teachers);
-                                },
-                                child: const Padding(
-                                  padding: EdgeInsets.all(kPaddingMd),
-                                  child: Icon(
-                                    FontAwesomeIcons.xmark,
-                                    size: 16,
-                                    color: kRedColor,
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 650),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: kMarginXxl),
+                      Center(
+                        child: _buildStepTitle(
+                          'Thêm giáo viên phụ trách!',
+                          'Hãy phân công giáo viên để quản lý lớp học',
+                        ),
+                      ),
+                      const SizedBox(height: kMarginXxl),
+                      Text('Đã chọn', style: AppTextStyle.bold(kTextSizeMd)),
+                      const SizedBox(height: kMarginMd),
+                      // Danh sách giáo viên đã chọn
+                      selectedTeachers.isNotEmpty
+                          ? ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: kMarginMd),
+                              itemCount: selectedTeachers.length,
+                              itemBuilder: (context, index) {
+                                final teacher = selectedTeachers[index];
+                                return CustomListItem(
+                                  title: teacher.displayName,
+                                  isAnimation: false,
+                                  leading: CustomAvatar(profile: teacher),
+                                  trailing: GestureDetector(
+                                    onTap: () {
+                                      _toggleTeacherSelection(
+                                          teacher.id, teachers);
+                                    },
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(kPaddingMd),
+                                      child: Icon(
+                                        FontAwesomeIcons.xmark,
+                                        size: 16,
+                                        color: kRedColor,
+                                      ),
+                                    ),
                                   ),
+                                );
+                              },
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: kMarginMd),
+                            )
+                          : Row(
+                              children: [
+                                Image.asset('assets/images/empty_teacher.jpg',
+                                    height: 70),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Chưa có giáo viên quản lý lớp học!',
+                                        style: AppTextStyle.bold(kTextSizeSm),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      Text(
+                                        'Phân công giáo viên để quản lý lớp học',
+                                        style: AppTextStyle.medium(kTextSizeXs),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                      const SizedBox(height: kMarginMd),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Danh sách giáo viên của bạn',
+                              style: AppTextStyle.bold(kTextSizeMd)),
+                          GestureDetector(
+                            onTap: () {
+                              CustomPageTransition.navigateTo(
+                                context: context,
+                                page: const TeacherCreateScreen(),
+                                transitionType:
+                                    PageTransitionType.slideFromBottom,
+                              );
+                            },
+                            child: Text(
+                              '+ Giáo viên',
+                              style: AppTextStyle.semibold(
+                                  kTextSizeSm, kPrimaryColor),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: kMarginMd),
+                      // Danh sách giáo viên chưa chọn
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding:
+                            const EdgeInsets.symmetric(vertical: kMarginMd),
+                        itemCount: unselectedTeachers.length,
+                        itemBuilder: (context, index) {
+                          final teacher = unselectedTeachers[index];
+                          return CustomListItem(
+                            title: teacher.displayName,
+                            isAnimation: false,
+                            leading: CustomAvatar(profile: teacher),
+                            trailing: GestureDetector(
+                              onTap: () {
+                                _toggleTeacherSelection(teacher.id, teachers);
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.all(kPaddingMd),
+                                child: Icon(
+                                  FontAwesomeIcons.plus,
+                                  size: 16,
+                                  color: kPrimaryColor,
                                 ),
                               ),
-                            );
-                          },
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: kMarginMd),
-                        )
-                      : Row(
-                          children: [
-                            Image.asset('assets/images/empty_teacher.jpg',
-                                height: 70),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Chưa có giáo viên quản lý lớp học!',
-                                    style: AppTextStyle.bold(kTextSizeSm),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Text(
-                                    'Phân công giáo viên để quản lý lớp học',
-                                    style: AppTextStyle.medium(kTextSizeXs),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                  const SizedBox(height: kMarginMd),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Danh sách giáo viên của bạn',
-                          style: AppTextStyle.bold(kTextSizeMd)),
-                      GestureDetector(
-                        onTap: () {
-                          CustomPageTransition.navigateTo(
-                            context: context,
-                            page: const TeacherCreateScreen(),
-                            transitionType: PageTransitionType.slideFromBottom,
+                            ),
                           );
                         },
-                        child: Text(
-                          '+ Giáo viên',
-                          style:
-                              AppTextStyle.semibold(kTextSizeSm, kPrimaryColor),
-                        ),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: kMarginMd),
+                      ),
+                      const SizedBox(height: kMarginMd),
+                      CustomButton(
+                        text: 'Phân công',
+                        onTap: () {
+                          context.read<ClassBloc>().add(
+                              ClassSchoolCreateStarted(name: widget.className));
+                        },
+                        isValid: selectedTeachers.isNotEmpty,
                       ),
                     ],
                   ),
-                  const SizedBox(height: kMarginMd),
-                  // Danh sách giáo viên chưa chọn
-                  ListView.separated(
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.symmetric(vertical: kMarginMd),
-                    itemCount: unselectedTeachers.length,
-                    itemBuilder: (context, index) {
-                      final teacher = unselectedTeachers[index];
-                      return CustomListItem(
-                        title: teacher.displayName,
-                        isAnimation: false,
-                        leading: CustomAvatar(profile: teacher),
-                        trailing: GestureDetector(
-                          onTap: () {
-                            _toggleTeacherSelection(teacher.id, teachers);
-                          },
-                          child: const Padding(
-                            padding: EdgeInsets.all(kPaddingMd),
-                            child: Icon(
-                              FontAwesomeIcons.plus,
-                              size: 16,
-                              color: kPrimaryColor,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: kMarginMd),
-                  ),
-                  const SizedBox(height: kMarginMd),
-                  CustomButton(
-                    text: 'Phân công',
-                    onTap: () {
-                      context.read<ClassBloc>().add(
-                          ClassSchoolCreateStarted(name: widget.className));
-                    },
-                    isValid: selectedTeachers.isNotEmpty,
-                  ),
-                ],
+                ),
               ),
             );
           }

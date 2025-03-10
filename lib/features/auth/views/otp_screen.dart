@@ -1,8 +1,10 @@
 import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/auth/views/reset_password_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
 
 import '../../../core/config/app_constants.dart';
@@ -64,6 +66,18 @@ class _OtpScreenState extends State<OtpScreen> {
         border: Border.all(color: borderColor),
       ),
     );
+    void submitOtp() {
+      if (_isValid) {
+        CustomPageTransition.navigateTo(
+          context: context,
+          page: ResetPasswordScreen(
+            email: widget.email,
+            otp: _otpController.text,
+          ),
+          transitionType: PageTransitionType.slideFromRight,
+        );
+      }
+    }
 
     return Scaffold(
       backgroundColor: kBackgroundColor,
@@ -115,7 +129,10 @@ class _OtpScreenState extends State<OtpScreen> {
                     ),
                   ),
                   onCompleted: (pin) {
-                    print('OTP Entered: $pin');
+                    submitOtp(); // Gọi hàm xử lý OTP khi nhập đủ
+                  },
+                  onSubmitted: (pin) {
+                    submitOtp(); // Gọi hàm xử lý khi nhấn Enter
                   },
                 ),
                 const SizedBox(height: kMarginLg),
@@ -124,12 +141,23 @@ class _OtpScreenState extends State<OtpScreen> {
                   isValid: _isValid,
                   onTap: _isValid
                       ? () {
-                    CustomPageTransition.navigateTo(
-                        context: context,
-                        page: ResetPasswordScreen(
-                          email: widget.email, otp: _otpController.text,),
-                        transitionType: PageTransitionType.slideFromRight);
-                  }
+                          if (kIsWeb) {
+                            GoRouter.of(context).push('/auth/reset-password',
+                                extra: {
+                                  'email': widget.email,
+                                  'otp': _otpController.text
+                                });
+                          } else {
+                            CustomPageTransition.navigateTo(
+                                context: context,
+                                page: ResetPasswordScreen(
+                                  email: widget.email,
+                                  otp: _otpController.text,
+                                ),
+                                transitionType:
+                                    PageTransitionType.slideFromRight);
+                          }
+                        }
                       : null,
                 )
               ],
@@ -137,7 +165,6 @@ class _OtpScreenState extends State<OtpScreen> {
           ),
         ),
       ),
-
     );
   }
 }

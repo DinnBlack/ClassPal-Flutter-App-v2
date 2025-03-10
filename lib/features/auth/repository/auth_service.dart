@@ -245,6 +245,8 @@ class AuthService extends ProfileService {
         headers: {'Content-Type': 'application/json'},
       );
 
+      print(response);
+
       if (response.statusCode == 200) {
         print('Authentication successful');
       } else {

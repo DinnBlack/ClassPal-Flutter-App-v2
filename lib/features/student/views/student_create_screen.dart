@@ -1,5 +1,4 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
-import 'package:classpal_flutter_app/core/utils/responsive.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +22,7 @@ class StudentCreateScreen extends StatefulWidget {
 
 class _StudentCreateScreenState extends State<StudentCreateScreen> {
   final TextEditingController _controller = TextEditingController();
+  final FocusNode _focusNode = FocusNode(); // Thêm FocusNode
 
   bool _hasText = false;
 
@@ -30,6 +30,13 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
     setState(() {
       _hasText = value.isNotEmpty;
     });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose(); // Hủy FocusNode khi không cần thiết
+    super.dispose();
   }
 
   @override
@@ -55,6 +62,13 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
                 message: 'Tạo học sinh thành công!',
               ),
             );
+
+            // Giữ focus trên TextField sau khi tạo thành công
+            if (kIsWeb) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _focusNode.requestFocus();
+              });
+            }
           } else if (state is StudentCreateFailure) {
             showTopSnackBar(
               Overlay.of(context),
@@ -71,22 +85,32 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
 
   Widget _buildBody() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kIsWeb ? kPaddingLg : kPaddingMd),
+      padding: const EdgeInsets.symmetric(
+          horizontal: kIsWeb ? kPaddingLg : kPaddingMd),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(
-            height: kMarginMd,
-          ),
+          const SizedBox(height: kMarginMd),
           CustomTextField(
+            customFocusNode: _focusNode,
+            autofocus: true,
             text: 'Họ và tên học sinh',
             controller: _controller,
             onChanged: _updateHasText,
-            suffixIcon: InkWell(
-              onTap: () {
+            onFieldSubmitted: (_) {
+              if (_hasText) {
                 context
                     .read<StudentBloc>()
                     .add(StudentCreateStarted(name: _controller.text));
+              }
+            },
+            suffixIcon: InkWell(
+              onTap: () {
+                if (_hasText) {
+                  context
+                      .read<StudentBloc>()
+                      .add(StudentCreateStarted(name: _controller.text));
+                }
               },
               borderRadius: BorderRadius.circular(kBorderRadiusMd),
               child: Container(
@@ -105,8 +129,8 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
           ),
           const Expanded(
               child: StudentListScreen(
-            isCreateView: true,
-          )),
+                isCreateView: true,
+              )),
         ],
       ),
     );
@@ -126,3 +150,4 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
     );
   }
 }
+

@@ -14,6 +14,7 @@ class CustomTextField extends StatefulWidget {
   final double height;
   final TextEditingController? controller;
   final Function(String)? onChanged;
+  final Function(String)? onFieldSubmitted;
   final bool autofocus;
   final String? defaultValue;
   final bool isDatePicker;
@@ -21,7 +22,7 @@ class CustomTextField extends StatefulWidget {
   final Widget? suffixIcon;
   final String? Function(String?)? validator;
   final bool readOnly;
-  final FocusNode? customFocusNode; // New field for custom focus node
+  final FocusNode? customFocusNode;
 
   const CustomTextField({
     super.key,
@@ -33,6 +34,7 @@ class CustomTextField extends StatefulWidget {
     this.height = 50.0,
     this.controller,
     this.onChanged,
+    this.onFieldSubmitted,
     this.autofocus = false,
     this.defaultValue,
     this.isDatePicker = false,
@@ -40,17 +42,18 @@ class CustomTextField extends StatefulWidget {
     this.suffixIcon,
     this.validator,
     this.readOnly = false,
-    this.customFocusNode, // New parameter for custom focus node
+    this.customFocusNode,
   });
 
   @override
   _CustomTextFieldState createState() => _CustomTextFieldState();
 }
 
+
 class _CustomTextFieldState extends State<CustomTextField> {
   bool _isObscured = true;
   late FocusNode _focusNode;
-  late FocusNode _customFocusNode; // New local focus node variable
+  late FocusNode _customFocusNode;
   String _selectedOption = "";
   String? _errorText;
 
@@ -184,8 +187,9 @@ class _CustomTextFieldState extends State<CustomTextField> {
           ),
           child: TextField(
             controller: widget.controller,
-            focusNode: _focusNode, // FocusNode can be customized to use _customFocusNode
+            focusNode: _focusNode,
             autofocus: widget.autofocus,
+            onSubmitted: widget.onFieldSubmitted,
             textAlignVertical:
             isOptionMode || widget.isPassword || widget.suffixIcon != null
                 ? TextAlignVertical.center

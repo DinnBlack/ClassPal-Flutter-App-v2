@@ -68,7 +68,7 @@ class _ClassJoinScreenState extends State<ClassJoinScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kBackgroundColor,
+      backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
@@ -133,6 +133,11 @@ class _ClassJoinScreenState extends State<ClassJoinScreen> {
               CustomTextField(
                 controller: _codeController,
                 text: 'Nhập mã lớp học',
+                onFieldSubmitted: (p0) {
+                  if (_isLoading) {
+                    _joinClass(_codeController.text);
+                  }
+                },
               ),
               const SizedBox(height: kMarginLg),
               CustomButton(

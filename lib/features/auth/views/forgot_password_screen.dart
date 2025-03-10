@@ -50,9 +50,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     setState(() {
       final isEmailValid =
           Validators.validateEmail(_emailController.text) == null;
-
       _isValid = isEmailValid && _emailController.text.trim().isNotEmpty;
     });
+  }
+
+  void _submitForgotPassword() {
+    if (_formKey.currentState!.validate()) {
+      final email = _emailController.text.trim();
+      context.read<AuthBloc>().add(AuthForgotPasswordStarted(email: email));
+    }
   }
 
   @override
@@ -62,13 +68,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       appBar: kIsWeb
           ? null
           : CustomAppBar(
-              leftWidget: InkWell(
-                child: const Icon(FontAwesomeIcons.arrowLeft),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ),
+        leftWidget: InkWell(
+          child: const Icon(FontAwesomeIcons.arrowLeft),
+          onTap: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 500),
@@ -93,6 +99,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     text: 'Email',
                     controller: _emailController,
                     validator: Validators.validateEmail,
+                    onFieldSubmitted: (_) => _submitForgotPassword(),
                   ),
                   const SizedBox(height: kMarginLg),
                   BlocConsumer<AuthBloc, AuthState>(
@@ -106,12 +113,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       if (state is AuthForgotPasswordSuccess) {
                         final email = _emailController.text.trim();
                         if (kIsWeb) {
-                          GoRouter.of(context)
-                              .go('/auth/otp', extra: {'email': email});
+                          GoRouter.of(context).go('/auth/otp', extra: {'email': email});
                         } else {
                           CustomPageTransition.navigateTo(
                             context: context,
-                            page: OtpScreen(email: _emailController.text),
+                            page: OtpScreen(email: email),
                             transitionType: PageTransitionType.slideFromRight,
                           );
                         }
@@ -128,16 +134,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       return CustomButton(
                         text: 'Khôi phục lại mật khẩu',
                         isValid: _isValid,
-                        onTap: _isValid
-                            ? () {
-                                if (_formKey.currentState!.validate()) {
-                                  final email = _emailController.text;
-                                  context.read<AuthBloc>().add(
-                                        AuthForgotPasswordStarted(email: email),
-                                      );
-                                }
-                              }
-                            : null,
+                        onTap: _isValid ? _submitForgotPassword : null,
                       );
                     },
                   ),
@@ -154,10 +151,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           TextSpan(
                             text: 'Đăng nhập',
                             style:
-                                AppTextStyle.medium(kTextSizeXs, kPrimaryColor),
+                            AppTextStyle.medium(kTextSizeXs, kPrimaryColor),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
-                                Navigator.pop(context);
+                                if (kIsWeb) {
+                                  GoRouter.of(context).go('/auth/login');
+                                } else {
+                                  Navigator.pop(context);
+                                }
                               },
                           ),
                         ],

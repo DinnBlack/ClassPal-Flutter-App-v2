@@ -470,7 +470,6 @@ class _RollCallReportScreenState extends State<RollCallReportScreen> {
 
   CustomAppBar _buildAppBar(BuildContext context) {
     return CustomAppBar(
-      backgroundColor: kWhiteColor,
       title: 'Dữ liệu điểm danh',
       leftWidget: InkWell(
         child: const Icon(FontAwesomeIcons.xmark),

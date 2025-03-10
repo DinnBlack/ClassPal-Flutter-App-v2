@@ -83,6 +83,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
   }
 
+  void _submitRegister() {
+    if (_formKey.currentState!.validate()) {
+      final name = _nameController.text;
+      final email = _emailController.text;
+      final phoneNumber = _phoneNumberController.text;
+      final password = _passwordController.text;
+
+      context.read<AuthBloc>().add(
+            AuthRegisterStarted(
+              name: name,
+              email: email,
+              phoneNumber: phoneNumber,
+              password: password,
+            ),
+          );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,18 +108,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
       appBar: kIsWeb
           ? null
           : CustomAppBar(
-        leftWidget: InkWell(
-          child: const Icon(FontAwesomeIcons.arrowLeft),
-          onTap: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
+              leftWidget: InkWell(
+                child: const Icon(FontAwesomeIcons.arrowLeft),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 500), // Giới hạn max width
+            constraints: const BoxConstraints(maxWidth: 500),
+            // Giới hạn max width
             child: Form(
               key: _formKey,
               child: Column(
@@ -121,11 +140,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         TextSpan(
                           text: 'Đăng nhập',
-                          style: AppTextStyle.medium(kTextSizeXs, kPrimaryColor),
+                          style:
+                              AppTextStyle.medium(kTextSizeXs, kPrimaryColor),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
                               GoRouter.of(context).go(RouteConstants.login);
-
                             },
                         ),
                       ],
@@ -136,12 +155,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     text: 'Họ và tên',
                     controller: _nameController,
                     validator: Validators.validateName,
+                    onFieldSubmitted: (_) {
+                      if (_isValid) _submitRegister();
+                    },
                   ),
                   const SizedBox(height: kMarginMd),
                   CustomTextField(
                     text: 'Email',
                     controller: _emailController,
                     validator: Validators.validateEmail,
+                    onFieldSubmitted: (_) {
+                      if (_isValid) _submitRegister();
+                    },
                   ),
                   const SizedBox(height: kMarginMd),
                   CustomTextField(
@@ -149,6 +174,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     isNumber: true,
                     controller: _phoneNumberController,
                     validator: Validators.validatePhone,
+                    onFieldSubmitted: (_) {
+                      if (_isValid) _submitRegister();
+                    },
                   ),
                   const SizedBox(height: kMarginMd),
                   CustomTextField(
@@ -156,6 +184,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _passwordController,
                     isPassword: true,
                     validator: Validators.validatePassword,
+                    onFieldSubmitted: (_) {
+                      if (_isValid) _submitRegister();
+                    },
                   ),
                   const SizedBox(height: kMarginMd),
                   CustomTextField(
@@ -164,6 +195,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     isPassword: true,
                     validator: (value) => Validators.validateConfirmPassword(
                         value, _passwordController.text),
+                    onFieldSubmitted: (_) {
+                      if (_isValid) _submitRegister();
+                    },
                   ),
                   const SizedBox(height: kMarginMd),
                   Align(
@@ -184,7 +218,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       }
 
                       if (state is AuthRegisterSuccess) {
-                        Navigator.pop(context);
+                        if (kIsWeb) {
+                          GoRouter.of(context).go('/auth/login');
+                        } else {
+                          Navigator.pop(context);
+                        }
+
                         showTopSnackBar(
                           Overlay.of(context),
                           const CustomSnackBar.success(
@@ -195,7 +234,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         showTopSnackBar(
                           Overlay.of(context),
                           const CustomSnackBar.error(
-                            message: 'Đăng ký không thành công! Vui lòng kiểm tra lại.',
+                            message:
+                                'Đăng ký không thành công! Vui lòng kiểm tra lại.',
                           ),
                         );
                       }
@@ -204,25 +244,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       return CustomButton(
                         text: 'Tạo tài khoản',
                         isValid: _isValid,
-                        onTap: _isValid
-                            ? () {
-                          if (_formKey.currentState!.validate()) {
-                            final name = _nameController.text;
-                            final email = _emailController.text;
-                            final phoneNumber = _phoneNumberController.text;
-                            final password = _passwordController.text;
-
-                            context.read<AuthBloc>().add(
-                              AuthRegisterStarted(
-                                name: name,
-                                email: email,
-                                phoneNumber: phoneNumber,
-                                password: password,
-                              ),
-                            );
-                          }
-                        }
-                            : null,
+                        onTap: _isValid ? _submitRegister : null,
                       );
                     },
                   ),
@@ -262,5 +284,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
     );
   }
-
 }

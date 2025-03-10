@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:go_router/go_router.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
@@ -68,20 +69,25 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _openGoogleSignIn() async {
-    final Uri googleSignInUrl =
-        Uri.parse('https://cpserver.amrakk.rest/api/v1/auth/google');
-    final Uri gmailAppUri = Uri.parse('mailto:');
-
-    // Kiểm tra xem có thể mở Gmail không
-    if (await canLaunchUrl(gmailAppUri)) {
-      await launchUrl(gmailAppUri);
+    const String googleSignInUrl = 'https://cpserver.amrakk.rest/api/v1/auth/google';
+    if (await canLaunch(googleSignInUrl)) {
+      await launch(googleSignInUrl, forceSafariVC: false, forceWebView: false);
     } else {
-      // Nếu không có app Gmail, mở URL đăng nhập Google
-      if (await canLaunchUrl(googleSignInUrl)) {
-        await launchUrl(googleSignInUrl, mode: LaunchMode.externalApplication);
-      } else {
-        throw Exception('Không thể mở đường dẫn đăng nhập Google.');
-      }
+      throw 'Could not launch $googleSignInUrl';
+    }
+  }
+
+  void _submitLogin() {
+    if (_formKey.currentState!.validate()) {
+      final emailOrPhoneNumber = _emailOrPhoneNumberController.text;
+      final password = _passwordController.text;
+
+      context.read<AuthBloc>().add(
+            AuthLoginStarted(
+              emailOrPhoneNumber: emailOrPhoneNumber,
+              password: password,
+            ),
+          );
     }
   }
 
@@ -157,6 +163,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               }
                               return null;
                             },
+                            onFieldSubmitted: (_) {
+                              if (_isValid) _submitLogin();
+                            },
                           ),
                           const SizedBox(height: kMarginMd),
                           CustomTextField(
@@ -166,6 +175,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             validator: (value) =>
                                 Validators.validateRequiredText(
                                     value, 'Mật khẩu không được bỏ trống'),
+                            onFieldSubmitted: (_) {
+                              if (_isValid) _submitLogin();
+                            },
                           ),
                           const SizedBox(height: kMarginLg),
                           BlocConsumer<AuthBloc, AuthState>(

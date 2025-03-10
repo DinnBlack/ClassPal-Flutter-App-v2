@@ -1,7 +1,9 @@
 import 'package:classpal_flutter_app/features/auth/repository/auth_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
@@ -218,8 +220,12 @@ class _MainScreenState extends State<MainScreen> {
               const SizedBox(height: kMarginLg),
               GestureDetector(
                 onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
+                  if (kIsWeb) {
+                    GoRouter.of(context).go('/auth/select-role');
+                  } else {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  }
                 },
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),

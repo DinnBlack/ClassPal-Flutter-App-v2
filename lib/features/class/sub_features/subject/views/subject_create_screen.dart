@@ -187,6 +187,11 @@ class _SubjectCreateScreenState extends State<SubjectCreateScreen> {
               controller: _scoreTypeController,
               text: 'Loại điểm',
               onChanged: (value) => setState(() {}),
+              onFieldSubmitted: (p0) {
+                if (_validScoreType) {
+                  _addScoreType();
+                }
+              },
               suffixIcon: IconButton(
                 icon: FaIcon(
                   FontAwesomeIcons.check,

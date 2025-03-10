@@ -2,6 +2,7 @@ import 'package:classpal_flutter_app/core/widgets/custom_avatar.dart';
 import 'package:classpal_flutter_app/features/class/repository/class_service.dart';
 import 'package:classpal_flutter_app/features/teacher/views/teacher_create_screen.dart';
 import 'package:classpal_flutter_app/features/teacher/views/teacher_detail_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -9,7 +10,9 @@ import 'package:get/get.dart';
 
 import '../../../core/config/app_constants.dart';
 import '../../../core/utils/app_text_style.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/custom_button.dart';
+import '../../../core/widgets/custom_dialog.dart';
 import '../../../core/widgets/custom_list_item.dart';
 import '../../../core/widgets/custom_page_transition.dart';
 import '../../class/models/class_model.dart';
@@ -76,29 +79,146 @@ class _TeacherListScreenState extends State<TeacherListScreen> {
   }
 
   Widget _buildListTeacherView(List<ProfileModel> teachers) {
-    return ListView.separated(
+    return (Responsive.isMobile(context) || widget.isTeacherConnectView == true)
+        ? ListView.separated(
+            shrinkWrap: true,
+            padding: const EdgeInsets.symmetric(vertical: kMarginMd),
+            itemCount: teachers.length,
+            itemBuilder: (context, index) {
+              final teacher = teachers[index];
+              return CustomListItem(
+                title: teacher.displayName,
+                subtitle:
+                    teacher.userId == null ? 'Giáo viên chưa tham gia' : null,
+                leading: CustomAvatar(profile: teacher),
+                onTap: widget.isTeacherConnectView == true
+                    ? null
+                    : () {
+                        CustomPageTransition.navigateTo(
+                          context: context,
+                          page: TeacherDetailScreen(teacher: teacher),
+                          transitionType: PageTransitionType.slideFromBottom,
+                        );
+                      },
+                hasTrailingArrow: true,
+              );
+            },
+            separatorBuilder: (context, index) =>
+                const SizedBox(height: kMarginMd),
+          )
+        : LayoutBuilder(
+            builder: (context, constraints) {
+              double itemHeight = 105;
+              double itemWidth = (constraints.maxWidth -
+                      ((Responsive.isMobile(context)
+                                  ? 4
+                                  : Responsive.isTablet(context)
+                                      ? 5
+                                      : 6) -
+                              1) *
+                          kPaddingMd) /
+                  (Responsive.isMobile(context)
+                      ? 4
+                      : Responsive.isTablet(context)
+                          ? 5
+                          : 6);
+
+              return _buildGridView(teachers, itemHeight, itemWidth);
+            },
+          );
+  }
+
+  Widget _buildGridView(
+      List<ProfileModel> teachers, double itemHeight, double itemWidth) {
+    return GridView.builder(
       shrinkWrap: true,
-      padding: const EdgeInsets.symmetric(vertical: kMarginMd),
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: Responsive.isMobile(context)
+            ? 4
+            : Responsive.isTablet(context)
+                ? 5
+                : 6,
+        crossAxisSpacing: kPaddingMd,
+        mainAxisSpacing: kPaddingMd,
+        childAspectRatio: itemWidth / itemHeight,
+      ),
       itemCount: teachers.length,
       itemBuilder: (context, index) {
         final teacher = teachers[index];
-        return CustomListItem(
-          title: teacher.displayName,
-          subtitle: teacher.userId == null ? 'Giáo viên chưa tham gia': null,
-          leading: CustomAvatar(profile: teacher),
-          onTap: widget.isTeacherConnectView == true
-              ? null
-              : () {
-                  CustomPageTransition.navigateTo(
-                    context: context,
-                    page: TeacherDetailScreen(teacher: teacher),
-                    transitionType: PageTransitionType.slideFromBottom,
-                  );
-                },
-          hasTrailingArrow: true,
+        return GestureDetector(
+          onTap: () {
+            if (kIsWeb) {
+              showCustomDialog(context, TeacherDetailScreen(teacher: teacher));
+            } else {
+              CustomPageTransition.navigateTo(
+                context: context,
+                page: TeacherDetailScreen(teacher: teacher),
+                transitionType: PageTransitionType.slideFromBottom,
+              );
+            }
+          },
+          child: Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.only(bottom: 5),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(kBorderRadiusLg),
+                  color: kGreyLightColor,
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(kBorderRadiusLg),
+                    color: kWhiteColor,
+                    border: Border.all(width: 2, color: kGreyLightColor),
+                  ),
+                  child: Row(
+                    children: [
+                      const SizedBox(
+                        width: kMarginMd,
+                      ),
+                      CircleAvatar(
+                        backgroundColor: kGreyMediumColor,
+                        backgroundImage: teacher.avatarUrl != null
+                            ? NetworkImage(teacher.avatarUrl)
+                            : AssetImage(
+                                (teacher.displayName ?? '') == 'Male'
+                                    ? 'assets/images/boy.jpg'
+                                    : 'assets/images/girl.jpg',
+                              ) as ImageProvider,
+                        radius: 30,
+                        onBackgroundImageError: (_, __) {},
+                      ),
+                      const SizedBox(
+                        width: kMarginMd,
+                      ),
+                      Expanded(
+                        child: Container(
+                          height: Responsive.isMobile(context) ? 34 : null,
+                          alignment: Alignment.center,
+                          child: Text(
+                            teacher.displayName ?? '',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: AppTextStyle.bold(
+                              kTextSizeSm,
+                              kBlackColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        width: kMarginMd,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         );
       },
-      separatorBuilder: (context, index) => const SizedBox(height: kMarginMd),
     );
   }
 
@@ -107,9 +227,7 @@ class _TeacherListScreenState extends State<TeacherListScreen> {
       future: ClassService().getCurrentClass(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-              child:
-                  CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (!snapshot.hasData) {

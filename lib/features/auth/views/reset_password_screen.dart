@@ -4,6 +4,7 @@ import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import '../../../core/utils/validators.dart';
@@ -60,6 +61,20 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     });
   }
 
+  void _submitResetPassword() {
+    if (!_isValid) return;
+
+    final password = _passwordController.text;
+    context.read<AuthBloc>().add(
+      AuthResetPasswordStarted(
+        email: widget.email,
+        otp: widget.otp,
+        password: password,
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,13 +82,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       appBar: kIsWeb
           ? null
           : CustomAppBar(
-        leftWidget: InkWell(
-          child: const Icon(FontAwesomeIcons.arrowLeft),
-          onTap: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
+              leftWidget: InkWell(
+                child: const Icon(FontAwesomeIcons.arrowLeft),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
@@ -97,6 +112,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   isPassword: true,
                   controller: _passwordController,
                   validator: Validators.validatePassword,
+                  onFieldSubmitted: (_) => _submitResetPassword(),
                 ),
                 const SizedBox(height: kMarginLg),
                 CustomTextField(
@@ -105,6 +121,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   controller: _confirmPasswordController,
                   validator: (value) => Validators.validateConfirmPassword(
                       value, _passwordController.text),
+                  onFieldSubmitted: (_) => _submitResetPassword(),
                 ),
                 const SizedBox(height: kMarginLg),
                 BlocConsumer<AuthBloc, AuthState>(
@@ -121,11 +138,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           message: 'Khôi phục tài khoản thành công!',
                         ),
                       );
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        LoginScreen.route,
-                        (route) => false,
-                      );
+                      GoRouter.of(context).go('/auth/login');
                     } else if (state is AuthResetPasswordFailure) {
                       showTopSnackBar(
                         Overlay.of(context),

@@ -65,66 +65,80 @@ class _StudentViewState extends State<StudentView> {
                 final user = userSnapshot.data!;
                 return Scaffold(
                   appBar: AppBar(
-                    title: Text('Student View'),
+                    backgroundColor: kWhiteColor,
                     actions: [
                       IconButton(
-                        icon: const Icon(FontAwesomeIcons.qrcode),
+                        icon: const Icon(
+                          FontAwesomeIcons.qrcode,
+                          color: kPrimaryColor,
+                        ),
                         onPressed: () {
                           if (kIsWeb) {
-                            showCustomDialog(context, const ClassJoinScreen(isStudentView: true));
+                            showCustomDialog(context,
+                                const ClassJoinScreen(isStudentView: true));
                           } else {
-                            CustomPageTransition.navigateTo(context: context, page: const ClassJoinScreen(isStudentView: true), transitionType: PageTransitionType.slideFromBottom);
+                            CustomPageTransition.navigateTo(
+                                context: context,
+                                page:
+                                    const ClassJoinScreen(isStudentView: true),
+                                transitionType:
+                                    PageTransitionType.slideFromBottom);
                           }
-
                         },
                       ),
                     ],
                   ),
-                  body: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: kMarginXl),
-                        Padding(
-                          padding:
-                          const EdgeInsets.symmetric(horizontal: kPaddingMd),
-                          child: Column(
-                            children: [
-                              CircleAvatar(
-                                radius: 50,
-                                backgroundColor: kPrimaryColor,
-                                backgroundImage: user.avatarUrl.isNotEmpty
-                                    ? NetworkImage(user.avatarUrl)
-                                    : const AssetImage(
-                                    'assets/images/default_avatar.png')
-                                as ImageProvider,
+                  body: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 650),
+                      // Giới hạn maxWidth là 650
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: kMarginXl),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: kPaddingMd),
+                              child: Column(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 50,
+                                    backgroundColor: kPrimaryColor,
+                                    backgroundImage: user.avatarUrl.isNotEmpty
+                                        ? NetworkImage(user.avatarUrl)
+                                        : const AssetImage(
+                                                'assets/images/default_avatar.png')
+                                            as ImageProvider,
+                                  ),
+                                  const SizedBox(height: kMarginXl),
+                                  Text(
+                                    'Xin chào, ${user.name}',
+                                    style: AppTextStyle.bold(kTextSizeLg),
+                                  ),
+                                  const SizedBox(height: kMarginXl),
+                                  const ClassListScreen(
+                                    isStudentView: true,
+                                  ),
+                                  const SizedBox(height: kMarginXl),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      'Bảng tin',
+                                      style: AppTextStyle.bold(kTextSizeLg),
+                                    ),
+                                  ),
+                                  const SizedBox(height: kMarginMd),
+                                ],
                               ),
-                              const SizedBox(height: kMarginXl),
-                              Text(
-                                'Xin chào, ${user.name}',
-                                style: AppTextStyle.bold(kTextSizeLg),
-                              ),
-                              const SizedBox(height: kMarginXl),
-                              const ClassListScreen(
-                                isStudentView: true,
-                              ),
-                              const SizedBox(height: kMarginXl),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'Bảng tin',
-                                  style: AppTextStyle.bold(kTextSizeLg),
-                                ),
-                              ),
-                              const SizedBox(height: kMarginMd),
-                            ],
-                          ),
+                            ),
+                            const PostListScreen(
+                              isStudentView: true,
+                            ),
+                            const SizedBox(height: kMarginXl),
+                          ],
                         ),
-                        const PostListScreen(
-                          isStudentView: true,
-                        ),
-                        const SizedBox(height: kMarginXl),
-                      ],
+                      ),
                     ),
                   ),
                 );

@@ -87,7 +87,14 @@ class ProfileService {
         throw Exception('Current profile or class not found');
       }
 
-      final responseUrl = '$_baseUrl/profiles/$groupType/${currentClass.id}';
+      String responseUrl;
+
+      if (groupType == 0) {
+         responseUrl = '$_baseUrl/profiles/$groupType/${currentProfile.id}';
+      } else {
+         responseUrl = '$_baseUrl/profiles/$groupType/${currentClass.id}';
+      }
+
       final headers = await buildHeaders(profileId: currentProfile.id);
 
       final response = await _dio.post(

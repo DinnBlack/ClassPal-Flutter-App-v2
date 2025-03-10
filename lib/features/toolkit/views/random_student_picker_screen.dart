@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
+import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -11,7 +12,7 @@ import '../../profile/model/profile_model.dart';
 class RandomStudentPickerScreen extends StatefulWidget {
   final List<ProfileModel> students;
 
-  RandomStudentPickerScreen({required this.students});
+  const RandomStudentPickerScreen({super.key, required this.students});
 
   @override
   _RandomStudentPickerScreenState createState() =>
@@ -24,49 +25,104 @@ class _RandomStudentPickerScreenState extends State<RandomStudentPickerScreen>
   Timer? _timer;
   bool isRandomizing = false;
   final Random _random = Random();
+  List<ProfileModel> _remainingStudents = [];
+  late AnimationController _rotationController;
 
   @override
   void initState() {
     super.initState();
-    selectedStudent = widget.students[_random.nextInt(widget.students.length)];
+    _remainingStudents = List.from(widget.students);
+    _rotationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    );
     _startRandomizingOnOpen();
   }
 
   void _startRandomizingOnOpen() {
+    if (_remainingStudents.isEmpty) return;
     isRandomizing = true;
-    _timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      setState(() {
-        selectedStudent =
-            widget.students[_random.nextInt(widget.students.length)];
-      });
-    });
-
-    Future.delayed(Duration(milliseconds: 2000 + _random.nextInt(2000)), () {
-      _timer?.cancel();
-      setState(() => isRandomizing = false);
+    _startRandomEffect().then((_) {
+      _showRemoveDialog();
     });
   }
 
-  void startRandomizing() {
-    if (isRandomizing) return;
-    setState(() => isRandomizing = true);
+  /// Tạo hiệu ứng vòng quay chậm dần
+  Future<void> _startRandomEffect() async {
+    int duration = 50; // Bắt đầu với tốc độ cao (50ms)
+    isRandomizing = true;
+    _rotationController.repeat();
 
-    _timer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
+    _timer = Timer.periodic(Duration(milliseconds: duration), (timer) {
       setState(() {
-        selectedStudent =
-            widget.students[_random.nextInt(widget.students.length)];
+        selectedStudent = _remainingStudents[_random.nextInt(_remainingStudents.length)];
       });
+
+      if (duration < 300) {
+        duration += 20; // Tăng thời gian để hiệu ứng chậm dần
+        timer.cancel();
+        _timer = Timer.periodic(Duration(milliseconds: duration), (t) {
+          setState(() {
+            selectedStudent = _remainingStudents[_random.nextInt(_remainingStudents.length)];
+          });
+
+          if (duration >= 300) {
+            t.cancel();
+            _rotationController.stop();
+            setState(() => isRandomizing = false);
+          }
+        });
+      }
     });
 
-    Future.delayed(Duration(milliseconds: 2000 + _random.nextInt(2000)), () {
-      _timer?.cancel();
-      setState(() => isRandomizing = false);
+    await Future.delayed(Duration(milliseconds: 3000)); // Tổng thời gian random
+    _timer?.cancel();
+    _rotationController.stop();
+    setState(() => isRandomizing = false);
+  }
+
+  /// Hỏi người dùng có muốn giữ lại học sinh hay không
+  void _showRemoveDialog() {
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Xóa học sinh khỏi danh sách?"),
+          content: Text("Bạn có muốn xóa ${selectedStudent.displayName} khỏi danh sách?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Giữ lại học sinh
+              },
+              child: const Text("Giữ lại"),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _remainingStudents.remove(selectedStudent);
+                });
+                Navigator.pop(context);
+              },
+              child: const Text("Xóa"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void startRandomizing() {
+    if (isRandomizing || _remainingStudents.isEmpty) return;
+    _startRandomEffect().then((_) {
+      _showRemoveDialog();
     });
   }
 
   @override
   void dispose() {
     _timer?.cancel();
+    _rotationController.dispose();
     super.dispose();
   }
 
@@ -90,21 +146,30 @@ class _RandomStudentPickerScreenState extends State<RandomStudentPickerScreen>
               child: Column(
                 key: ValueKey(selectedStudent.displayName),
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.blue.withOpacity(0.5),
-                          blurRadius: 10,
-                          spreadRadius: 3,
-                        ),
-                      ],
-                    ),
-                    child: CircleAvatar(
-                      backgroundColor: kPrimaryColor,
-                      radius: 70,
-                      backgroundImage: NetworkImage(selectedStudent.avatarUrl),
+                  AnimatedBuilder(
+                    animation: _rotationController,
+                    builder: (context, child) {
+                      return Transform.rotate(
+                        angle: _rotationController.value * 2 * pi,
+                        child: child,
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.blue.withOpacity(0.5),
+                            blurRadius: 10,
+                            spreadRadius: 3,
+                          ),
+                        ],
+                      ),
+                      child: CircleAvatar(
+                        backgroundColor: kPrimaryColor,
+                        radius: 70,
+                        backgroundImage: NetworkImage(selectedStudent.avatarUrl),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 15),
@@ -120,22 +185,13 @@ class _RandomStudentPickerScreenState extends State<RandomStudentPickerScreen>
               ),
             ),
             const SizedBox(height: 40),
-            ElevatedButton.icon(
-              onPressed: startRandomizing,
-              icon: const Icon(
-                Icons.shuffle,
-                color: kWhiteColor,
-              ),
-              label: Text(
-                isRandomizing ? "Đang chọn..." : "Chọn lại",
-                style: AppTextStyle.semibold(kTextSizeMd, kWhiteColor),
-              ),
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                textStyle: AppTextStyle.semibold(kTextSizeMd, kWhiteColor),
-                backgroundColor:
-                    isRandomizing ? Colors.grey : kPrimaryColor,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),
+              child: CustomButton(
+                text: isRandomizing ? 'Đang chọn...' : 'Chọn lại',
+                icon: Icons.shuffle,
+                isValid: !isRandomizing,
+                onTap: !isRandomizing ? startRandomizing : null,
               ),
             ),
           ],
