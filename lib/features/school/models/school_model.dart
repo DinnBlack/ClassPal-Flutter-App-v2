@@ -1,4 +1,3 @@
-
 class SchoolModel {
   final String id;
   final String name;
@@ -84,30 +83,38 @@ class SchoolModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': this.id,
-      'name': this.name,
-      'address': this.address,
-      'phoneNumber': this.phoneNumber,
-      'avatarUrl': this.avatarUrl,
-      'creatorId': this.creatorId,
-      'updatedAt': this.updatedAt,
-      'createdAt': this.createdAt,
+      'id': id,
+      'name': name,
+      'address': address,
+      'phoneNumber': phoneNumber,
+      'avatarUrl': avatarUrl,
+      'creatorId': creatorId,
+      'updatedAt': updatedAt.toIso8601String(),  // 🔥 Chuyển DateTime thành String
+      'createdAt': createdAt.toIso8601String(),  // 🔥 Chuyển DateTime thành String
     };
   }
 
+
   factory SchoolModel.fromMap(Map<String, dynamic> map) {
     return SchoolModel(
-      id: map['_id'] as String,
-      name: map['name'] as String,
-      address: map['address'] as String?,
-      phoneNumber: map['phoneNumber'] as String?,
-      avatarUrl: map['avatarUrl'] as String,
-      creatorId: map['creatorId'] as String,
-      updatedAt: DateTime.parse(map['updatedAt'] as String),
-      createdAt: DateTime.parse(map['createdAt'] as String),
+      id: map['_id']?.toString() ?? '',
+      // Nếu null, thay thế bằng chuỗi rỗng
+      name: map['name']?.toString() ?? '',
+      address: map['address']?.toString(),
+      // Có thể null
+      phoneNumber: map['phoneNumber']?.toString(),
+      // Có thể null
+      avatarUrl: map['avatarUrl']?.toString() ?? '',
+      creatorId: map['creatorId']?.toString() ?? '',
+      updatedAt: map['updatedAt'] != null
+          ? DateTime.parse(map['updatedAt'].toString())
+          : DateTime.now(),
+      // Nếu null, dùng thời gian hiện tại
+      createdAt: map['createdAt'] != null
+          ? DateTime.parse(map['createdAt'].toString())
+          : DateTime.now(),
     );
   }
-
 
 //</editor-fold>
 }

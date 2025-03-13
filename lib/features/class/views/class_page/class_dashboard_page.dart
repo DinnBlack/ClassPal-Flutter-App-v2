@@ -331,7 +331,8 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
             height: kMarginLg,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: kIsWeb ? kPaddingLg: kPaddingMd),
+            padding: const EdgeInsets.symmetric(
+                horizontal: kIsWeb ? kPaddingLg : kPaddingMd),
             child: Text(
               'Nhóm',
               style: AppTextStyle.semibold(kTextSizeMd),
@@ -341,7 +342,8 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
             height: kMarginLg,
           ),
           const Padding(
-            padding: const EdgeInsets.symmetric(horizontal: kIsWeb ? kPaddingLg: kPaddingMd),
+            padding: const EdgeInsets.symmetric(
+                horizontal: kIsWeb ? kPaddingLg : kPaddingMd),
             child: GroupListScreen(),
           ),
           const SizedBox(
@@ -359,12 +361,14 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
       title: widget.currentClass.name,
       titleStyle:
           Responsive.isMobile(context) ? null : AppTextStyle.bold(kTextSizeXxl),
-      leftWidget: InkWell(
-        child: const Icon(FontAwesomeIcons.arrowLeft),
-        onTap: () {
-          Navigator.pop(context);
-        },
-      ),
+      leftWidget: !kIsWeb
+          ? InkWell(
+              child: const Icon(FontAwesomeIcons.arrowLeft),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            )
+          : null,
       rightWidget: Responsive.isMobile(context)
           ? InkWell(
               child: const Icon(FontAwesomeIcons.ellipsis),

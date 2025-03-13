@@ -1,3 +1,4 @@
+import 'package:classpal_flutter_app/features/school/repository/school_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/views/login_screen.dart';
@@ -11,6 +12,7 @@ import '../../features/class/views/class_create_screen.dart';
 import '../../features/class/views/class_join_screen.dart';
 import '../../features/class/views/class_screen.dart';
 import '../../features/invitation/views/invitation_screen.dart';
+import '../../features/school/models/school_model.dart';
 import '../../features/school/views/school_create_screen.dart';
 import '../../features/school/views/school_join_screen.dart';
 import '../../features/school/views/school_screen.dart';
@@ -37,6 +39,7 @@ class RouteConstants {
 
   // Class
   static const String classScreen = 'class';
+  static const String classSchoolScreen = 'class-school';
   static const String classCreate = 'class-create';
   static const String classJoin = 'class-join';
 
@@ -99,12 +102,48 @@ class MyAppRouter {
         },
       ),
 
-      // School
       GoRoute(
-          name: RouteConstants.school,
-          path: '/home/school',
-          builder: (context, state) => SchoolScreen(
-              school: (state.extra as Map<String, dynamic>?)?['school'])),
+        name: RouteConstants.school,
+        path: '/home/school/:schoolId',
+        builder: (context, state) {
+          final Map<String, dynamic>? extra =
+              state.extra as Map<String, dynamic>?;
+
+          return FutureBuilder<SchoolModel>(
+            future: extra != null
+                ? Future.value(SchoolModel.fromMap(extra['school']))
+                : SchoolService().getCurrentSchool(),
+            builder: (context, snapshot) {
+              final school = snapshot.data!;
+              print(school);
+              final bool isTeacherView =
+                  extra?['isTeacherView'] as bool? ?? false;
+
+              return SchoolScreen(school: school, isTeacherView: isTeacherView);
+            },
+          );
+        },
+        routes: [
+          GoRoute(
+            name: RouteConstants.classSchoolScreen,
+            path: 'class/:classId',
+            builder: (context, state) {
+              final Map<String, dynamic>? extra =
+                  state.extra as Map<String, dynamic>?;
+
+              if (extra == null || !extra.containsKey('currentClass')) {
+                return Scaffold(
+                    body:
+                        Center(child: Text('Lỗi: Không có dữ liệu lớp học!')));
+              }
+
+              final currentClass = ClassModel.fromMap(extra['currentClass']);
+              return ClassScreen(currentClass: currentClass);
+            },
+          ),
+        ],
+      ),
+
       GoRoute(
           name: RouteConstants.schoolCreate,
           path: '/home/school/create',
@@ -117,22 +156,11 @@ class MyAppRouter {
       // Class
       GoRoute(
         name: RouteConstants.classScreen,
-        path: '/home/class',
+        path: '/home/class/:classId',
         builder: (context, state) {
-          print(1);
-          // Kiểm tra xem extra có null không
           final Map<String, dynamic>? extra =
               state.extra as Map<String, dynamic>?;
-
-          print(extra);
-
-          // Chuyển đổi Map sang ClassModel
           final currentClass = ClassModel.fromMap(extra!['currentClass']);
-
-          // Debug thông tin
-          print(currentClass); // Xem thông tin của currentClass để debug
-
-          // Trả về ClassScreen với currentClass
           return ClassScreen(currentClass: currentClass);
         },
       ),

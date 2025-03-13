@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -40,13 +41,15 @@ class ClassNewsPage extends StatelessWidget {
       backgroundColor: kWhiteColor,
       title: 'Bảng tin',
       titleStyle:
-      Responsive.isMobile(context) ? null : AppTextStyle.bold(kTextSizeXxl),
-      leftWidget: InkWell(
-        child: const Icon(FontAwesomeIcons.arrowLeft),
-        onTap: () {
-          Navigator.pop(context);
-        },
-      ),
+          Responsive.isMobile(context) ? null : AppTextStyle.bold(kTextSizeXxl),
+      leftWidget: !kIsWeb
+          ? InkWell(
+              child: const Icon(FontAwesomeIcons.arrowLeft),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            )
+          : null,
     );
   }
 }

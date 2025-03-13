@@ -162,13 +162,15 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
       height: Responsive.isMobile(context) ? kToolbarHeight : 70,
       backgroundColor: kWhiteColor,
       title: widget.isTeacherView ? 'Lớp học của bạn' : 'Quản lý',
-      leftWidget: InkWell(
-        child: const Icon(FontAwesomeIcons.arrowLeft),
-        onTap: () {
-          context.read<ClassBloc>().add(ClassPersonalFetchStarted());
-          Navigator.pop(context);
-        },
-      ),
+      leftWidget: !kIsWeb
+          ? InkWell(
+              child: const Icon(FontAwesomeIcons.arrowLeft),
+              onTap: () {
+                context.read<ClassBloc>().add(ClassPersonalFetchStarted());
+                Navigator.pop(context);
+              },
+            )
+          : null,
       additionalHeight: 60,
       bottomWidget: Column(
         children: [
@@ -181,7 +183,9 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
             linePadding: 0,
             tabBarHeight: 40,
           ),
-          const SizedBox(height: kMarginSm,),
+          const SizedBox(
+            height: kMarginSm,
+          ),
           Container(
             alignment: Alignment.center,
             decoration: const BoxDecoration(

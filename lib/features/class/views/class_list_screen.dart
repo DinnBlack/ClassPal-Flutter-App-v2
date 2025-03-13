@@ -221,11 +221,20 @@ class _ClassListScreenState extends State<ClassListScreen> {
                 onTap: () async {
                   await ProfileService().saveCurrentProfile(profile);
                   await ClassService().saveCurrentClass(currentClass);
-                  CustomPageTransition.navigateTo(
-                    context: context,
-                    page: ClassScreen(currentClass: currentClass),
-                    transitionType: PageTransitionType.slideFromRight,
-                  );
+                  if (kIsWeb) {
+                    GoRouter.of(context).go(
+                      '/home/class/${currentClass.id}',
+                      extra: {
+                        'currentClass': currentClass.toMap()
+                      },
+                    );
+                  } else {
+                    CustomPageTransition.navigateTo(
+                      context: context,
+                      page: ClassScreen(currentClass: currentClass),
+                      transitionType: PageTransitionType.slideFromRight,
+                    );
+                  }
                 },
               );
             },
@@ -257,11 +266,20 @@ class _ClassListScreenState extends State<ClassListScreen> {
                   onTap: () async {
                     await ProfileService().saveCurrentProfile(profile);
                     await ClassService().saveCurrentClass(currentClass);
-                    CustomPageTransition.navigateTo(
-                      context: context,
-                      page: ClassScreen(currentClass: currentClass),
-                      transitionType: PageTransitionType.slideFromRight,
-                    );
+                    if (kIsWeb) {
+                      GoRouter.of(context).go(
+                        '/home/class/${currentClass.id}',
+                        extra: {
+                          'currentClass': currentClass.toMap()
+                        },
+                      );
+                    } else {
+                      CustomPageTransition.navigateTo(
+                        context: context,
+                        page: ClassScreen(currentClass: currentClass),
+                        transitionType: PageTransitionType.slideFromRight,
+                      );
+                    }
                   },
                   child: Container(
                     padding: const EdgeInsets.only(bottom: 5),
@@ -398,11 +416,20 @@ class _ClassListScreenState extends State<ClassListScreen> {
                 title: currentClass.name,
                 onTap: () async {
                   await ClassService().saveCurrentClass(currentClass);
-                  CustomPageTransition.navigateTo(
-                    context: context,
-                    page: ClassScreen(currentClass: currentClass),
-                    transitionType: PageTransitionType.slideFromRight,
-                  );
+                  if (kIsWeb) {
+                    GoRouter.of(context).push(
+                      '/home/class/${currentClass.id}',
+                      extra: {
+                        'currentClass': currentClass.toMap()
+                      },
+                    );
+                  } else {
+                    CustomPageTransition.navigateTo(
+                      context: context,
+                      page: ClassScreen(currentClass: currentClass),
+                      transitionType: PageTransitionType.slideFromRight,
+                    );
+                  }
                 },
                 hasTrailingArrow: true,
               );
@@ -428,11 +455,21 @@ class _ClassListScreenState extends State<ClassListScreen> {
                 child: GestureDetector(
                   onTap: () async {
                     await ClassService().saveCurrentClass(currentClass);
-                    CustomPageTransition.navigateTo(
-                      context: context,
-                      page: ClassScreen(currentClass: currentClass),
-                      transitionType: PageTransitionType.slideFromRight,
-                    );
+                    if (kIsWeb) {
+                      final profile = await ProfileService().getCurrentProfile();
+                      GoRouter.of(context).go(
+                        '/home/school/${profile!.groupId}/class/${currentClass.id}',
+                        extra: {
+                          'currentClass': currentClass.toMap()
+                        },
+                      );
+                    } else {
+                      CustomPageTransition.navigateTo(
+                        context: context,
+                        page: ClassScreen(currentClass: currentClass),
+                        transitionType: PageTransitionType.slideFromRight,
+                      );
+                    }
                   },
                   child: Container(
                     padding: const EdgeInsets.only(bottom: 5),

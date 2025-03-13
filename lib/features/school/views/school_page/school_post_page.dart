@@ -2,6 +2,7 @@ import 'package:classpal_flutter_app/core/widgets/custom_app_bar.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_loading_dialog.dart';
 import 'package:classpal_flutter_app/features/post/views/post_list_screen.dart';
 import 'package:classpal_flutter_app/features/school/models/school_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -172,36 +173,38 @@ class _SchoolPostPageState extends State<SchoolPostPage> {
       height: Responsive.isMobile(context) ? kToolbarHeight : 70,
       backgroundColor: kWhiteColor,
       title: widget.school.name,
-      leftWidget: InkWell(
-        child: const Icon(FontAwesomeIcons.arrowLeft),
-        onTap: () {
-          context.read<ClassBloc>().add(ClassPersonalFetchStarted());
-          Navigator.pop(context);
-        },
-      ),
+      leftWidget: !kIsWeb
+          ? InkWell(
+              child: const Icon(FontAwesomeIcons.arrowLeft),
+              onTap: () {
+                context.read<ClassBloc>().add(ClassPersonalFetchStarted());
+                Navigator.pop(context);
+              },
+            )
+          : null,
       rightWidget: Responsive.isMobile(context)
           ? InkWell(
-        child: const Icon(FontAwesomeIcons.ellipsis),
-        onTap: () => _showFeatureDialog(context),
-      )
-          : GestureDetector(
-        onTap: () => _showFeatureDialog(context),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Tùy chọn',
-              style: AppTextStyle.semibold(kTextSizeMd),
-            ),
-            const SizedBox(
-              width: kMarginMd,
-            ),
-            const Icon(
-              FontAwesomeIcons.caretDown,
+              child: const Icon(FontAwesomeIcons.ellipsis),
+              onTap: () => _showFeatureDialog(context),
             )
-          ],
-        ),
-      ),
+          : GestureDetector(
+              onTap: () => _showFeatureDialog(context),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Tùy chọn',
+                    style: AppTextStyle.semibold(kTextSizeMd),
+                  ),
+                  const SizedBox(
+                    width: kMarginMd,
+                  ),
+                  const Icon(
+                    FontAwesomeIcons.caretDown,
+                  )
+                ],
+              ),
+            ),
       bottomWidget: Container(
         height: 2,
         width: double.infinity,

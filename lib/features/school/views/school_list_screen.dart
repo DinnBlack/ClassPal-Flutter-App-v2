@@ -1,5 +1,6 @@
 import 'package:classpal_flutter_app/features/auth/repository/auth_service.dart';
 import 'package:classpal_flutter_app/features/school/models/school_model.dart';
+import 'package:classpal_flutter_app/features/school/repository/school_service.dart';
 import 'package:classpal_flutter_app/features/school/views/school_create_screen.dart';
 import 'package:classpal_flutter_app/features/school/views/school_join_screen.dart';
 import 'package:classpal_flutter_app/features/school/views/school_screen.dart';
@@ -371,15 +372,27 @@ class _SchoolListScreenState extends State<SchoolListScreen> {
                     subtitle: _getRoleDisplayName(classesText),
                     onTap: () async {
                       await ProfileService().saveCurrentProfile(profile);
-                      CustomPageTransition.navigateTo(
-                        context: context,
-                        page: SchoolScreen(
-                          school: school,
-                          isTeacherView:
-                              classesText == 'Executive' ? false : true,
-                        ),
-                        transitionType: PageTransitionType.slideFromRight,
-                      );
+                      await SchoolService().saveCurrentSchool(school, classesText == 'Executive' ? false : true);
+                      if (kIsWeb) {
+                        GoRouter.of(context).go(
+                          '/home/school/${school.id}',
+                          extra: {
+                            'school': school.toMap(),
+                            'isTeacherView':
+                                classesText == 'Executive' ? false : true,
+                          },
+                        );
+                      } else {
+                        CustomPageTransition.navigateTo(
+                          context: context,
+                          page: SchoolScreen(
+                            school: school,
+                            isTeacherView:
+                                classesText == 'Executive' ? false : true,
+                          ),
+                          transitionType: PageTransitionType.slideFromRight,
+                        );
+                      }
                     },
                   );
                 },
@@ -416,30 +429,27 @@ class _SchoolListScreenState extends State<SchoolListScreen> {
                     child: GestureDetector(
                       onTap: () async {
                         await ProfileService().saveCurrentProfile(profile);
-
-                        // if (kIsWeb) {
-                        //   GoRouter.of(context)
-                        //       .go('/home/school', extra: {'school': school});
-                        // } else {
-                        //   CustomPageTransition.navigateTo(
-                        //       context: context,
-                        //       page: SchoolScreen(
-                        //         school: school,
-                        //         isTeacherView:
-                        //             classesText == 'Executive' ? false : true,
-                        //       ),
-                        //       transitionType:
-                        //           PageTransitionType.slideFromRight);
-                        // }
-                        CustomPageTransition.navigateTo(
+                        await SchoolService().saveCurrentSchool(school, classesText == 'Executive' ? false : true);
+                        if (kIsWeb) {
+                          GoRouter.of(context).go(
+                            '/home/school/${school.id}',
+                            extra: {
+                              'school': school.toMap(),
+                              'isTeacherView':
+                                  classesText == 'Executive' ? false : true,
+                            },
+                          );
+                        } else {
+                          CustomPageTransition.navigateTo(
                             context: context,
                             page: SchoolScreen(
                               school: school,
                               isTeacherView:
-                              classesText == 'Executive' ? false : true,
+                                  classesText == 'Executive' ? false : true,
                             ),
-                            transitionType:
-                            PageTransitionType.slideFromRight);
+                            transitionType: PageTransitionType.slideFromRight,
+                          );
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.only(bottom: 5),

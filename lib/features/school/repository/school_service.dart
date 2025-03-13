@@ -3,6 +3,7 @@ import 'package:classpal_flutter_app/features/profile/model/profile_model.dart';
 import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
 import 'package:classpal_flutter_app/features/school/models/school_model.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/config/cookie/token_manager.dart';
 
@@ -13,6 +14,23 @@ class SchoolService extends ProfileService {
 
   SchoolService() {
     TokenManager.initialize();
+  }
+
+  Future<void> saveCurrentSchool(SchoolModel school, bool isTeacherView) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('currentSchool', jsonEncode(school.toMap()));
+    await prefs.setBool('isTeacherView', isTeacherView);
+  }
+
+  Future<SchoolModel> getCurrentSchool() async {
+    final prefs = await SharedPreferences.getInstance();
+    final schoolJson = prefs.getString('currentSchool');
+
+    if (schoolJson != null) {
+      return SchoolModel.fromMap(jsonDecode(schoolJson));
+    }
+
+    throw Exception("Không tìm thấy trường học trong bộ nhớ cache.");
   }
 
   Future<Map<String, List<dynamic>>> getAllSchools() async {
