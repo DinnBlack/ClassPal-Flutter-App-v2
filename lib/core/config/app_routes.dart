@@ -104,7 +104,7 @@ class MyAppRouter {
 
       GoRoute(
         name: RouteConstants.school,
-        path: '/home/school/:schoolId',
+        path: '/home/school/detail/:schoolId',
         builder: (context, state) {
           final Map<String, dynamic>? extra =
               state.extra as Map<String, dynamic>?;
@@ -115,7 +115,6 @@ class MyAppRouter {
                 : SchoolService().getCurrentSchool(),
             builder: (context, snapshot) {
               final school = snapshot.data!;
-              print(school);
               final bool isTeacherView =
                   extra?['isTeacherView'] as bool? ?? false;
 
@@ -126,18 +125,12 @@ class MyAppRouter {
         routes: [
           GoRoute(
             name: RouteConstants.classSchoolScreen,
-            path: 'class/:classId',
+            path: 'class/detail/:classId',
             builder: (context, state) {
               final Map<String, dynamic>? extra =
                   state.extra as Map<String, dynamic>?;
 
-              if (extra == null || !extra.containsKey('currentClass')) {
-                return Scaffold(
-                    body:
-                        Center(child: Text('Lỗi: Không có dữ liệu lớp học!')));
-              }
-
-              final currentClass = ClassModel.fromMap(extra['currentClass']);
+              final currentClass = ClassModel.fromMap(extra!['currentClass']);
               return ClassScreen(currentClass: currentClass);
             },
           ),
@@ -156,7 +149,7 @@ class MyAppRouter {
       // Class
       GoRoute(
         name: RouteConstants.classScreen,
-        path: '/home/class/:classId',
+        path: '/home/class/detail/:classId',
         builder: (context, state) {
           final Map<String, dynamic>? extra =
               state.extra as Map<String, dynamic>?;

@@ -8,12 +8,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
-
+import '../../../../core/config/platform/platform_config.dart';
 import '../../../../core/config/app_constants.dart';
 import '../../../../core/utils/app_text_style.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/custom_feature_dialog.dart';
-import '../../../auth/repository/auth_service.dart';
 import '../../../class/bloc/class_bloc.dart';
 import '../../../post/bloc/post_bloc.dart';
 import '../../bloc/school_bloc.dart';
@@ -35,7 +34,6 @@ class _SchoolPostPageState extends State<SchoolPostPage> {
   @override
   void initState() {
     super.initState();
-    print(widget.isTeacherView);
   }
 
   void _showFeatureDialog(BuildContext context) {
@@ -173,15 +171,17 @@ class _SchoolPostPageState extends State<SchoolPostPage> {
       height: Responsive.isMobile(context) ? kToolbarHeight : 70,
       backgroundColor: kWhiteColor,
       title: widget.school.name,
-      leftWidget: !kIsWeb
-          ? InkWell(
-              child: const Icon(FontAwesomeIcons.arrowLeft),
-              onTap: () {
-                context.read<ClassBloc>().add(ClassPersonalFetchStarted());
-                Navigator.pop(context);
-              },
-            )
-          : null,
+      leftWidget: InkWell(
+        child: const Icon(FontAwesomeIcons.arrowLeft),
+        onTap: () {
+          context.read<ClassBloc>().add(ClassPersonalFetchStarted());
+          if (kIsWeb) {
+            goBack();
+          } else {
+            Navigator.pop(context);
+          }
+        },
+      ),
       rightWidget: Responsive.isMobile(context)
           ? InkWell(
               child: const Icon(FontAwesomeIcons.ellipsis),

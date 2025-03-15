@@ -89,8 +89,8 @@ class SchoolModel {
       'phoneNumber': phoneNumber,
       'avatarUrl': avatarUrl,
       'creatorId': creatorId,
-      'updatedAt': updatedAt.toIso8601String(),  // 🔥 Chuyển DateTime thành String
-      'createdAt': createdAt.toIso8601String(),  // 🔥 Chuyển DateTime thành String
+      'updatedAt': updatedAt.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
     };
   }
 

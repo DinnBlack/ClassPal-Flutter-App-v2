@@ -11,7 +11,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
+import '../../../../core/config/platform/platform_config.dart';
 import '../../../../core/config/app_constants.dart';
 import '../../../../core/utils/app_text_style.dart';
 import '../../../../core/widgets/custom_app_bar.dart';
@@ -361,14 +361,16 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
       title: widget.currentClass.name,
       titleStyle:
           Responsive.isMobile(context) ? null : AppTextStyle.bold(kTextSizeXxl),
-      leftWidget: !kIsWeb
-          ? InkWell(
-              child: const Icon(FontAwesomeIcons.arrowLeft),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            )
-          : null,
+      leftWidget: InkWell(
+        child: const Icon(FontAwesomeIcons.arrowLeft),
+        onTap: () {
+          if (kIsWeb) {
+            goBack();
+          } else {
+            Navigator.pop(context);
+          }
+        },
+      ),
       rightWidget: Responsive.isMobile(context)
           ? InkWell(
               child: const Icon(FontAwesomeIcons.ellipsis),

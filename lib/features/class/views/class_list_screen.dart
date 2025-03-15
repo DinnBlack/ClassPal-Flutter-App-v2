@@ -223,7 +223,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
                   await ClassService().saveCurrentClass(currentClass);
                   if (kIsWeb) {
                     GoRouter.of(context).go(
-                      '/home/class/${currentClass.id}',
+                      '/home/class/detail/${currentClass.id}',
                       extra: {
                         'currentClass': currentClass.toMap()
                       },
@@ -268,7 +268,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
                     await ClassService().saveCurrentClass(currentClass);
                     if (kIsWeb) {
                       GoRouter.of(context).go(
-                        '/home/class/${currentClass.id}',
+                        '/home/class/detail/${currentClass.id}',
                         extra: {
                           'currentClass': currentClass.toMap()
                         },
@@ -418,7 +418,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
                   await ClassService().saveCurrentClass(currentClass);
                   if (kIsWeb) {
                     GoRouter.of(context).push(
-                      '/home/class/${currentClass.id}',
+                      '/home/class/detail/${currentClass.id}',
                       extra: {
                         'currentClass': currentClass.toMap()
                       },
@@ -458,7 +458,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
                     if (kIsWeb) {
                       final profile = await ProfileService().getCurrentProfile();
                       GoRouter.of(context).go(
-                        '/home/school/${profile!.groupId}/class/${currentClass.id}',
+                        '/home/school/detail/${profile!.groupId}/class/detail/${currentClass.id}',
                         extra: {
                           'currentClass': currentClass.toMap()
                         },

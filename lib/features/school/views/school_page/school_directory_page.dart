@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
+import '../../../../core/config/platform/platform_config.dart';
 import '../../../../core/config/app_constants.dart';
 import '../../../../core/utils/app_text_style.dart';
 import '../../../../core/utils/responsive.dart';
@@ -40,7 +40,6 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
   void initState() {
     super.initState();
     if (!widget.isTeacherView) {
-      print(widget.isTeacherView);
       context.read<TeacherBloc>().add(TeacherFetchStarted());
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -162,15 +161,17 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
       height: Responsive.isMobile(context) ? kToolbarHeight : 70,
       backgroundColor: kWhiteColor,
       title: widget.isTeacherView ? 'Lớp học của bạn' : 'Quản lý',
-      leftWidget: !kIsWeb
-          ? InkWell(
-              child: const Icon(FontAwesomeIcons.arrowLeft),
-              onTap: () {
-                context.read<ClassBloc>().add(ClassPersonalFetchStarted());
-                Navigator.pop(context);
-              },
-            )
-          : null,
+      leftWidget: InkWell(
+        child: const Icon(FontAwesomeIcons.arrowLeft),
+        onTap: () {
+          context.read<ClassBloc>().add(ClassPersonalFetchStarted());
+          if (kIsWeb) {
+            goBack();
+          } else {
+            Navigator.pop(context);
+          }
+        },
+      ),
       additionalHeight: 60,
       bottomWidget: Column(
         children: [

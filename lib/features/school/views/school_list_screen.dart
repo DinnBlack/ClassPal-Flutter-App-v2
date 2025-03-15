@@ -375,7 +375,7 @@ class _SchoolListScreenState extends State<SchoolListScreen> {
                       await SchoolService().saveCurrentSchool(school, classesText == 'Executive' ? false : true);
                       if (kIsWeb) {
                         GoRouter.of(context).go(
-                          '/home/school/${school.id}',
+                          '/home/school/detail/${school.id}',
                           extra: {
                             'school': school.toMap(),
                             'isTeacherView':
@@ -432,7 +432,7 @@ class _SchoolListScreenState extends State<SchoolListScreen> {
                         await SchoolService().saveCurrentSchool(school, classesText == 'Executive' ? false : true);
                         if (kIsWeb) {
                           GoRouter.of(context).go(
-                            '/home/school/${school.id}',
+                            '/home/school/detail/${school.id}',
                             extra: {
                               'school': school.toMap(),
                               'isTeacherView':
@@ -519,7 +519,7 @@ class _SchoolListScreenState extends State<SchoolListScreen> {
       case 'Parent':
         return 'Phụ Huynh';
       default:
-        return roleName; // Giữ nguyên nếu không nằm trong danh sách
+        return roleName;
     }
   }
 }

@@ -44,12 +44,10 @@ class AuthService extends ProfileService {
     await prefs.setStringList('currentRoles', currentRoles);
   }
 
-
   Future<List<String>> getCurrentRoles() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getStringList('currentRoles') ?? [];
   }
-
 
   /// Đăng nhập
   Future<UserModel?> login(String emailOrPhone, String password) async {
@@ -91,8 +89,6 @@ class AuthService extends ProfileService {
     return null;
   }
 
-
-
   // Đăng ký (Register)
   Future<String?> register(
       String name, String email, String phoneNumber, String password) async {
@@ -125,16 +121,24 @@ class AuthService extends ProfileService {
     try {
       final response = await _dio.post(
         '$_baseUrl/auth/logout',
-        options: Options(headers: {'Content-Type': 'application/json'}),
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          extra: {
+            'withCredentials': true,
+          },
+        ),
       );
 
-      print(response.data);
+      print('Response: ${response.data}');
 
       if (response.statusCode == 200) {
         final prefs = await SharedPreferences.getInstance();
         prefs.clear();
         print('Logout success');
       } else {
+        print('Logout success: ${response.data}');
         return jsonDecode(response.data)['message'] ?? 'Logout failed';
       }
     } catch (e) {
@@ -145,7 +149,6 @@ class AuthService extends ProfileService {
   // Quên mật khẩu (Forgot Password)
   Future<String?> forgotPassword(String email) async {
     try {
-      print(email);
       final response = await _dio.post(
         '$_baseUrl/auth/forgot-password',
         options: Options(headers: {'Content-Type': 'application/json'}),
@@ -153,8 +156,6 @@ class AuthService extends ProfileService {
           'email': email,
         }),
       );
-
-      print(response.data);
 
       if (response.statusCode == 200) {
         return null;

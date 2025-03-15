@@ -24,10 +24,7 @@ import 'features/student/sub_features/group/bloc/group_bloc.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'features/teacher/bloc/teacher_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
-
-// Import phù hợp với nền tảng
-import 'core/config/mobile_config.dart'
-    if (dart.library.html) 'core/config/web_config.dart';
+import 'core/config/platform/platform_config.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -144,7 +144,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               AppTextStyle.medium(kTextSizeXs, kPrimaryColor),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              GoRouter.of(context).go(RouteConstants.login);
+                              if (kIsWeb) {
+                                GoRouter.of(context).go('/auth/login');
+                              } else {
+                                Navigator.pop(context);
+                              }
                             },
                         ),
                       ],

@@ -68,11 +68,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       await authService.logout();
       emit(AuthLogoutSuccess());
-
-      // Delay navigation to prevent assertion error
       Future.microtask(() {
         if (event.context.mounted) {
-          event.context.go('/auth/login'); // Điều hướng về Login
+          event.context.go('/auth/login');
         }
       });
     } catch (error) {
