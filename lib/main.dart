@@ -1,11 +1,11 @@
 import 'dart:async';
+import 'package:app_links/app_links.dart';
 import 'package:classpal_flutter_app/features/school/bloc/school_bloc.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uni_links/uni_links.dart';
 import 'core/config/app_routes.dart';
 import 'core/config/app_themes.dart';
 import 'features/auth/bloc/auth_bloc.dart';
@@ -50,8 +50,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  StreamSubscription? _sub;
-  String? _pendingDeepLink;
+  final AppLinks appLinks = AppLinks();
+  StreamSubscription<Uri>? _sub;
+  Uri? _pendingDeepLink;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   late final GoRouter _router;
 
@@ -59,27 +60,6 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _router = MyAppRouter().router;
-  }
-
-  Future<void> _initDeepLink() async {
-    try {
-      final initialLink = await getInitialLink();
-      if (initialLink != null) {
-        setState(() {
-          _pendingDeepLink = initialLink;
-        });
-      }
-
-      _sub = linkStream.listen((String? link) {
-        if (link != null) {
-          setState(() {
-            _pendingDeepLink = link;
-          });
-        }
-      });
-    } catch (e) {
-      print('Lỗi lấy deep link: $e');
-    }
   }
 
   @override
@@ -91,14 +71,10 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  void _handleDeepLink(String link) {
-    print("Deep link nhận được: $link");
+  void _handleDeepLink(Uri uri) {
+    print("Deep link nhận được: $uri");
 
-    Uri uri = Uri.parse(link);
-
-    // Kiểm tra host và port đúng
     if (uri.host == "localhost" && uri.port == 5018) {
-      // Kiểm tra path
       if (uri.pathSegments.isNotEmpty &&
           uri.pathSegments.first == "invitation" &&
           uri.pathSegments.length >= 2) {

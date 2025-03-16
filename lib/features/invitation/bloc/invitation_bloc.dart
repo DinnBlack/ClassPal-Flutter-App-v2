@@ -1,10 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:classpal_flutter_app/features/invitation/repository/invitation_service.dart';
-import 'package:classpal_flutter_app/features/teacher/bloc/teacher_bloc.dart';
 import 'package:meta/meta.dart';
-
 import '../../auth/repository/auth_service.dart';
-import '../../profile/model/profile_model.dart';
 import '../../profile/repository/profile_service.dart';
 
 part 'invitation_event.dart';
