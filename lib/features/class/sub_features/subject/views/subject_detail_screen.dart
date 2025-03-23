@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../../../../core/utils/responsive.dart';
 import '../../../../../core/widgets/custom_feature_dialog.dart';
 import '../../../../../core/widgets/custom_loading_dialog.dart';
 import '../../../../../core/widgets/custom_page_transition.dart';
@@ -38,7 +39,7 @@ class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
       ['Chỉnh sửa môn học', 'Xóa môn học'],
       [
         () {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(
               context,
               SubjectEditScreen(subject: _subject ?? widget.subject),
@@ -120,7 +121,7 @@ class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
+        backgroundColor: !Responsive.isMobile(context) ? kTransparentColor : kBackgroundColor,
         appBar: _buildAppBar(context),
         body: _buildBody(),
       ),
@@ -129,8 +130,8 @@ class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
 
   Widget _buildBody() {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: kIsWeb ? kPaddingLg : kPaddingMd),
+      padding:  EdgeInsets.symmetric(
+          horizontal: !Responsive.isMobile(context) ? kPaddingLg : kPaddingMd),
       child: GradeListScreen(
         subject: _subject!,
       ),
@@ -142,8 +143,8 @@ class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
       title: _subject?.name ?? widget.subject.name,
       leftWidget: InkWell(
         onTap: () => Navigator.pop(context),
-        child: const Icon(
-            kIsWeb ? FontAwesomeIcons.xmark : FontAwesomeIcons.arrowLeft),
+        child:  Icon(
+            !Responsive.isMobile(context) ? FontAwesomeIcons.xmark : FontAwesomeIcons.arrowLeft),
       ),
       rightWidget: InkWell(
         onTap: () => _showFeatureDialog(context),

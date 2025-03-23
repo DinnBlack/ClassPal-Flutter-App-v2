@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../../core/config/app_constants.dart';
+import '../../../../../core/utils/responsive.dart';
 import '../../../../../core/widgets/custom_app_bar.dart';
 import '../bloc/roll_call_bloc.dart';
 import '../models/roll_call_entry_model.dart';
@@ -81,7 +82,7 @@ class _RollCallReportScreenState extends State<RollCallReportScreen> {
     List<DateTime> weekDays =
         List.generate(7, (index) => _startOfWeek.add(Duration(days: index)));
     return Scaffold(
-      backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
+      backgroundColor: !Responsive.isMobile(context) ? kTransparentColor : kBackgroundColor,
       appBar: widget.isStudentView ? null : _buildAppBar(context),
       body: Column(
         children: [

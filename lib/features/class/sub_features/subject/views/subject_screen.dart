@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../../core/config/app_constants.dart';
+import '../../../../../core/utils/responsive.dart';
 import '../../../../../core/widgets/custom_app_bar.dart';
 import '../../../../../core/widgets/custom_loading_dialog.dart';
 import '../bloc/subject_bloc.dart';
@@ -17,7 +18,7 @@ class SubjectScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
+      backgroundColor: !Responsive.isMobile(context) ? kTransparentColor : kBackgroundColor,
       appBar: _buildAppBar(context),
       body: BlocListener<SubjectBloc, SubjectState>(
         listener: (context, state) {

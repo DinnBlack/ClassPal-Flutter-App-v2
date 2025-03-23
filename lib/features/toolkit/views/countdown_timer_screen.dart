@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../core/config/app_constants.dart';
 import '../../../core/utils/app_text_style.dart';
+import '../../../core/utils/responsive.dart';
 
 class CountdownTimerScreen extends StatefulWidget {
   @override
@@ -86,7 +87,7 @@ class _CountdownTimerScreenState extends State<CountdownTimerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
+      backgroundColor: !Responsive.isMobile(context) ? kTransparentColor : kBackgroundColor,
       appBar: _buildAppBar(context),
       body: Padding(
         padding:  const EdgeInsets.symmetric(horizontal: kPaddingMd),

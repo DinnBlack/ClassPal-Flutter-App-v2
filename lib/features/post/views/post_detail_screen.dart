@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_text_field.dart';
 import '../../../../../core/widgets/custom_app_bar.dart';
+import '../../../core/utils/responsive.dart';
 import '../models/post_model.dart';
 import '../sub_feature/comment/bloc/comment_bloc.dart';
 import 'widgets/custom_post_list_item.dart';
@@ -51,7 +52,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       },
       child: Scaffold(
         resizeToAvoidBottomInset: true,
-        backgroundColor: kIsWeb ? kTransparentColor: kBackgroundColor,
+        backgroundColor: !Responsive.isMobile(context) ? kTransparentColor: kBackgroundColor,
         appBar: _buildAppBar(context),
         body: _buildBody(),
         bottomSheet: _buildBottom(),
@@ -61,7 +62,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
   Container _buildBottom() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: kIsWeb ? kPaddingLg : kPaddingMd),
+      padding:  EdgeInsets.symmetric(horizontal: !Responsive.isMobile(context) ? kPaddingLg : kPaddingMd),
       height: 70,
       color: kTransparentColor,
       child: Row(

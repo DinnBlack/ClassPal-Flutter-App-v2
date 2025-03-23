@@ -49,7 +49,7 @@ class _StudentReportScreenState extends State<StudentReportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
+      backgroundColor: !Responsive.isMobile(context) ? kTransparentColor : kBackgroundColor,
       appBar: _buildAppBar(),
       body: Column(
         children: [

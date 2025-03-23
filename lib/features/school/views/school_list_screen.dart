@@ -155,6 +155,7 @@ class _SchoolListScreenState extends State<SchoolListScreen> {
           }
         } else {
           return _buildListSchoolView();
+          // return SizedBox.shrink();
         }
       },
     );
@@ -317,13 +318,14 @@ class _SchoolListScreenState extends State<SchoolListScreen> {
       builder: (context, snapshot) {
         final userRoles = snapshot.data ?? [];
 
-        return Responsive.isMobile(context)
+        return (Responsive.isMobile(context))
             ? ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: schools.length + 1,
+                itemCount:
+                    widget.isTeacherView ? schools.length : schools.length + 1,
                 itemBuilder: (context, index) {
-                  if (index == schools.length) {
+                  if (index == schools.length && !widget.isTeacherView) {
                     return CustomListItem(
                       leading: Container(
                         width: 40,
@@ -354,47 +356,49 @@ class _SchoolListScreenState extends State<SchoolListScreen> {
                         );
                       },
                     );
-                  }
-                  final school = schools[index];
-                  final profile = profiles[index];
-                  final matchingRoles = userRoles
-                      .where((role) => profile.roles.contains(role.id))
-                      .map((role) => role.name)
-                      .toList();
-                  final classesText = matchingRoles.isNotEmpty
-                      ? matchingRoles.join(', ')
-                      : 'Không có vai trò';
+                  } else {
+                    final school = schools[index];
+                    final profile = profiles[index];
+                    final matchingRoles = userRoles
+                        .where((role) => profile.roles.contains(role.id))
+                        .map((role) => role.name)
+                        .toList();
+                    final classesText = matchingRoles.isNotEmpty
+                        ? matchingRoles.join(', ')
+                        : 'Không có vai trò';
 
-                  return CustomListItem(
-                    leading: const CustomAvatar(
-                        imageAsset: 'assets/images/school.jpg'),
-                    title: school.name,
-                    subtitle: _getRoleDisplayName(classesText),
-                    onTap: () async {
-                      await ProfileService().saveCurrentProfile(profile);
-                      await SchoolService().saveCurrentSchool(school, classesText == 'Executive' ? false : true);
-                      if (kIsWeb) {
-                        GoRouter.of(context).go(
-                          '/home/school/detail/${school.id}',
-                          extra: {
-                            'school': school.toMap(),
-                            'isTeacherView':
-                                classesText == 'Executive' ? false : true,
-                          },
-                        );
-                      } else {
-                        CustomPageTransition.navigateTo(
-                          context: context,
-                          page: SchoolScreen(
-                            school: school,
-                            isTeacherView:
-                                classesText == 'Executive' ? false : true,
-                          ),
-                          transitionType: PageTransitionType.slideFromRight,
-                        );
-                      }
-                    },
-                  );
+                    return CustomListItem(
+                      leading: const CustomAvatar(
+                          imageAsset: 'assets/images/school.jpg'),
+                      title: school.name,
+                      subtitle: _getRoleDisplayName(classesText),
+                      onTap: () async {
+                        await ProfileService().saveCurrentProfile(profile);
+                        await SchoolService().saveCurrentSchool(
+                            school, classesText == 'Executive' ? false : true);
+                        if (kIsWeb) {
+                          GoRouter.of(context).go(
+                            '/home/school/detail/${school.id}',
+                            extra: {
+                              'school': school.toMap(),
+                              'isTeacherView':
+                                  classesText == 'Executive' ? false : true,
+                            },
+                          );
+                        } else {
+                          CustomPageTransition.navigateTo(
+                            context: context,
+                            page: SchoolScreen(
+                              school: school,
+                              isTeacherView:
+                                  classesText == 'Executive' ? false : true,
+                            ),
+                            transitionType: PageTransitionType.slideFromRight,
+                          );
+                        }
+                      },
+                    );
+                  }
                 },
                 separatorBuilder: (context, index) =>
                     const SizedBox(height: kMarginMd),
@@ -402,7 +406,8 @@ class _SchoolListScreenState extends State<SchoolListScreen> {
             : GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: schools.length + 1,
+                itemCount:
+                    widget.isTeacherView ? schools.length : schools.length + 1,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: Responsive.isTablet(context) ? 4 : 6,
                   crossAxisSpacing: kPaddingLg,
@@ -410,8 +415,7 @@ class _SchoolListScreenState extends State<SchoolListScreen> {
                   childAspectRatio: 1,
                 ),
                 itemBuilder: (context, index) {
-                  if (index == schools.length) {
-                    // Hiển thị item tạo lớp học mới
+                  if (index == schools.length && !widget.isTeacherView) {
                     return _buildCreateSchoolItem();
                   }
                   final school = schools[index];
@@ -429,7 +433,8 @@ class _SchoolListScreenState extends State<SchoolListScreen> {
                     child: GestureDetector(
                       onTap: () async {
                         await ProfileService().saveCurrentProfile(profile);
-                        await SchoolService().saveCurrentSchool(school, classesText == 'Executive' ? false : true);
+                        await SchoolService().saveCurrentSchool(
+                            school, classesText == 'Executive' ? false : true);
                         if (kIsWeb) {
                           GoRouter.of(context).go(
                             '/home/school/detail/${school.id}',

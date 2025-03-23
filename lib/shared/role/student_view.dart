@@ -1,3 +1,4 @@
+import 'package:classpal_flutter_app/core/utils/responsive.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:flutter/foundation.dart';
@@ -64,30 +65,6 @@ class _StudentViewState extends State<StudentView> {
               } else {
                 final user = userSnapshot.data!;
                 return Scaffold(
-                  appBar: AppBar(
-                    backgroundColor: kWhiteColor,
-                    actions: [
-                      IconButton(
-                        icon: const Icon(
-                          FontAwesomeIcons.qrcode,
-                          color: kPrimaryColor,
-                        ),
-                        onPressed: () {
-                          if (kIsWeb) {
-                            showCustomDialog(context,
-                                const ClassJoinScreen(isStudentView: true));
-                          } else {
-                            CustomPageTransition.navigateTo(
-                                context: context,
-                                page:
-                                    const ClassJoinScreen(isStudentView: true),
-                                transitionType:
-                                    PageTransitionType.slideFromBottom);
-                          }
-                        },
-                      ),
-                    ],
-                  ),
                   body: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 650),
@@ -97,6 +74,28 @@ class _StudentViewState extends State<StudentView> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             const SizedBox(height: kMarginXl),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: IconButton(
+                                icon: const Icon(
+                                  FontAwesomeIcons.qrcode,
+                                  color: kPrimaryColor,
+                                ),
+                                onPressed: () {
+                                  if (!Responsive.isMobile(context)) {
+                                    showCustomDialog(context,
+                                        const ClassJoinScreen(isStudentView: true));
+                                  } else {
+                                    CustomPageTransition.navigateTo(
+                                        context: context,
+                                        page:
+                                        const ClassJoinScreen(isStudentView: true),
+                                        transitionType:
+                                        PageTransitionType.slideFromBottom);
+                                  }
+                                },
+                              ),
+                            ),
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: kPaddingMd),

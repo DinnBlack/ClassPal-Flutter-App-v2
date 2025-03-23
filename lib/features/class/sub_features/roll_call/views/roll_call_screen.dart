@@ -10,6 +10,7 @@ import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 import '../../../../../core/utils/app_text_style.dart';
+import '../../../../../core/utils/responsive.dart';
 import '../../../../../core/widgets/custom_loading_dialog.dart';
 import '../bloc/roll_call_bloc.dart';
 
@@ -90,7 +91,7 @@ class _RollCallScreenState extends State<RollCallScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
+      backgroundColor: !Responsive.isMobile(context) ? kTransparentColor : kBackgroundColor,
       appBar: _buildAppBar(context),
       body: BlocConsumer<RollCallBloc, RollCallState>(
         listener: (context, state) {

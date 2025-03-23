@@ -6,8 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pinput/pinput.dart';
-
-import '../../../core/config/app_constants.dart';
+import '../../../core/config/app_constants.dart';import 'package:classpal_flutter_app/core/config/platform/platform_config.dart';
 import '../../../core/utils/app_text_style.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/widgets/custom_app_bar.dart';
@@ -85,7 +84,11 @@ class _OtpScreenState extends State<OtpScreen> {
         leftWidget: InkWell(
           child: const Icon(FontAwesomeIcons.arrowLeft),
           onTap: () {
-            Navigator.pop(context);
+            if (kIsWeb) {
+              goBack();
+            } else {
+              Navigator.pop(context);
+            }
           },
         ),
       ),
@@ -129,10 +132,10 @@ class _OtpScreenState extends State<OtpScreen> {
                     ),
                   ),
                   onCompleted: (pin) {
-                    submitOtp(); // Gọi hàm xử lý OTP khi nhập đủ
+                    submitOtp();
                   },
                   onSubmitted: (pin) {
-                    submitOtp(); // Gọi hàm xử lý khi nhấn Enter
+                    submitOtp();
                   },
                 ),
                 const SizedBox(height: kMarginLg),

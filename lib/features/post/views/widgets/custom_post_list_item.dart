@@ -9,6 +9,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view.dart';
 import '../../../../../../core/widgets/custom_avatar.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/custom_feature_dialog.dart';
 import '../../bloc/post_bloc.dart';
 import '../../models/post_model.dart';
@@ -98,7 +99,7 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
       onTap: widget.disableOnTap
           ? null
           : () {
-        if (kIsWeb) {
+        if (!Responsive.isMobile(context)) {
           showCustomDialog(context, PostDetailScreen(post: widget.post),);
         } else {
           CustomPageTransition.navigateTo(
@@ -177,7 +178,7 @@ class _CustomPostListItemState extends State<CustomPostListItem> {
               padding: const EdgeInsets.symmetric(horizontal: kPaddingMd),
               child: GestureDetector(
                 onTap: () {
-                  if (kIsWeb) {
+                  if (!Responsive.isMobile(context)) {
                     showCustomDialog(
                       context,
                       PostDetailScreen(

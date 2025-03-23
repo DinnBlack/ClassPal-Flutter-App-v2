@@ -6,6 +6,7 @@ import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/custom_app_bar.dart';
 import '../../profile/model/profile_model.dart';
 
@@ -129,7 +130,7 @@ class _RandomStudentPickerScreenState extends State<RandomStudentPickerScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
+      backgroundColor: !Responsive.isMobile(context) ? kTransparentColor : kBackgroundColor,
       appBar: _buildAppBar(context),
       body: Center(
         child: Column(

@@ -1,3 +1,5 @@
+import 'package:classpal_flutter_app/core/utils/responsive.dart';
+import 'package:classpal_flutter_app/core/utils/responsive.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/class/sub_features/grade/views/grade_student_create_screen.dart';
@@ -56,7 +58,7 @@ class _CustomSubjectListItemState extends State<CustomSubjectListItem>
         await _controller.forward();
 
         if (widget.isAddButton) {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(context, const SubjectCreateScreen());
           } else {
             CustomPageTransition.navigateTo(
@@ -75,7 +77,7 @@ class _CustomSubjectListItemState extends State<CustomSubjectListItem>
             maxWidth: 400,
           );
         } else {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(
               context,
               SubjectDetailScreen(

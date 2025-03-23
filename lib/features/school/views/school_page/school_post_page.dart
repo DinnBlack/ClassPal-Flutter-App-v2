@@ -52,7 +52,7 @@ class _SchoolPostPageState extends State<SchoolPostPage> {
 
   void _showDeleteClassDialog(BuildContext context) {
     final TextEditingController schoolNameController = TextEditingController();
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
     showDialog(
       context: context,
@@ -60,7 +60,7 @@ class _SchoolPostPageState extends State<SchoolPostPage> {
         return AlertDialog(
           title: const Text('Xóa trường học'),
           content: Form(
-            key: _formKey,
+            key: formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -92,7 +92,7 @@ class _SchoolPostPageState extends State<SchoolPostPage> {
             ),
             TextButton(
               onPressed: () {
-                if (_formKey.currentState?.validate() ?? false) {
+                if (formKey.currentState?.validate() ?? false) {
                   context
                       .read<SchoolBloc>()
                       .add(SchoolDeleteStarted(schoolId: widget.school.id));
@@ -182,7 +182,7 @@ class _SchoolPostPageState extends State<SchoolPostPage> {
           }
         },
       ),
-      rightWidget: Responsive.isMobile(context)
+      rightWidget: !widget.isTeacherView ? Responsive.isMobile(context)
           ? InkWell(
               child: const Icon(FontAwesomeIcons.ellipsis),
               onTap: () => _showFeatureDialog(context),
@@ -204,13 +204,13 @@ class _SchoolPostPageState extends State<SchoolPostPage> {
                   )
                 ],
               ),
-            ),
-      bottomWidget: Container(
+            ) : null,
+      bottomWidget:  !Responsive.isMobile(context) ? Container(
         height: 2,
         width: double.infinity,
         color: kGreyMediumColor,
-      ),
-      additionalHeight: 2,
+      ) : null,
+      additionalHeight: !Responsive.isMobile(context) ? 2: 0,
     );
   }
 }

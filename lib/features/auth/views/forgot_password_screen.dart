@@ -11,6 +11,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
+import 'package:classpal_flutter_app/core/config/platform/platform_config.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/widgets/custom_app_bar.dart';
 import '../../../core/widgets/custom_button.dart';
@@ -65,13 +66,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      appBar: kIsWeb
-          ? null
-          : CustomAppBar(
+      appBar: CustomAppBar(
         leftWidget: InkWell(
           child: const Icon(FontAwesomeIcons.arrowLeft),
           onTap: () {
-            Navigator.pop(context);
+            if (kIsWeb) {
+              goBack();
+            } else {
+              Navigator.pop(context);
+            }
           },
         ),
       ),
@@ -113,7 +116,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       if (state is AuthForgotPasswordSuccess) {
                         final email = _emailController.text.trim();
                         if (kIsWeb) {
-                          GoRouter.of(context).go('/auth/otp', extra: {'email': email});
+                          GoRouter.of(context)
+                              .go('/auth/otp', extra: {'email': email});
                         } else {
                           CustomPageTransition.navigateTo(
                             context: context,
@@ -151,7 +155,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           TextSpan(
                             text: 'Đăng nhập',
                             style:
-                            AppTextStyle.medium(kTextSizeXs, kPrimaryColor),
+                                AppTextStyle.medium(kTextSizeXs, kPrimaryColor),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
                                 if (kIsWeb) {

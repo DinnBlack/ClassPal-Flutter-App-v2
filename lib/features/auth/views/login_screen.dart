@@ -68,11 +68,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _openGoogleSignIn() async {
-    const String googleSignInUrl = 'https://cpserver.amrakk.rest/api/v1/auth/google';
-    if (await canLaunch(googleSignInUrl)) {
-      await launch(googleSignInUrl, forceSafariVC: false, forceWebView: false);
-    } else {
-      throw 'Could not launch $googleSignInUrl';
+    final Uri googleSignInUri =
+        Uri.parse('https://cpserver.amrakk.rest/api/v1/auth/google');
+
+    if (!await launchUrl(googleSignInUri,
+        mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch $googleSignInUri');
     }
   }
 

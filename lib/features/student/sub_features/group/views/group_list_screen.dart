@@ -68,7 +68,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
                     return CustomGroupListItem(
                       groupWithStudents: group,
                       onTap: () {
-                        if (kIsWeb) {
+                        if (!Responsive.isMobile(context)) {
                           showCustomDialog(
                             context,
                             GroupDetailScreen(groupWithStudents: group),
@@ -86,7 +86,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
                     return CustomGroupListItem(
                       addItem: true,
                       onTap: () {
-                        if (kIsWeb) {
+                        if (!Responsive.isMobile(context)) {
                           showCustomDialog(
                             context,
                             const GroupCreateScreen(),

@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../../../core/utils/responsive.dart';
 import '../post_create_screen.dart';
 
 class PostCreateButton extends StatefulWidget {
@@ -43,7 +44,7 @@ class _PostCreateButtonState extends State<PostCreateButton>
       onTap: () async {
         await _controller.reverse();
         await _controller.forward();
-        if (kIsWeb) {
+        if (!Responsive.isMobile(context)) {
           showCustomDialog(context, const PostCreateScreen(),);
         } else {
           CustomPageTransition.navigateTo(

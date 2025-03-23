@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:classpal_flutter_app/core/utils/responsive.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_loading_dialog.dart';
 import 'package:classpal_flutter_app/features/profile/repository/profile_service.dart';
 import 'package:flutter/foundation.dart';
@@ -101,7 +102,7 @@ class _TeacherDetailScreenState extends State<TeacherDetailScreen> {
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: kIsWeb ? kTransparentColor : kWhiteColor,
+          backgroundColor: !Responsive.isMobile(context) ? kTransparentColor : kWhiteColor,
           appBar: _buildAppBar(context),
           body: _buildBody(),
         );

@@ -2,6 +2,7 @@ import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../../core/utils/responsive.dart';
 import '../../../../../core/widgets/custom_button.dart';
 import '../../../../../core/widgets/custom_feature_dialog.dart';
 import '../bloc/grade_bloc.dart';
@@ -34,7 +35,7 @@ class _GradeStudentListScreenState extends State<GradeStudentListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kIsWeb ? kTransparentColor : kWhiteColor,
+      backgroundColor: !Responsive.isMobile(context) ? kTransparentColor : kWhiteColor,
       body: BlocBuilder<GradeBloc, GradeState>(
         builder: (context, state) {
           if (state is GradeFetchByStudentIdInProgress) {

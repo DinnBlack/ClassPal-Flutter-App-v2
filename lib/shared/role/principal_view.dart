@@ -1,4 +1,5 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
+import 'package:classpal_flutter_app/core/utils/responsive.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_page_transition.dart';
 import 'package:classpal_flutter_app/features/auth/models/user_model.dart';
 import 'package:classpal_flutter_app/features/class/repository/class_service.dart';
@@ -42,12 +43,11 @@ class _PrincipalViewState extends State<PrincipalView> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: kIsWeb ? kPaddingLg: kPaddingMd),
+      padding:  EdgeInsets.symmetric(horizontal: !Responsive.isMobile(context) ? kPaddingLg: kPaddingMd),
       child: RefreshIndicator(
         onRefresh: _prefetchData,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          // Để có thể kéo xuống ngay cả khi nội dung ít
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

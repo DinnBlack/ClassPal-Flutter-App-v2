@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import '../../../core/config/app_constants.dart';
-import '../../../core/config/app_routes.dart';
+import 'package:classpal_flutter_app/core/config/platform/platform_config.dart';
 import '../../../core/utils/app_text_style.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/widgets/custom_app_bar.dart';
@@ -105,16 +105,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      appBar: kIsWeb
-          ? null
-          : CustomAppBar(
-              leftWidget: InkWell(
-                child: const Icon(FontAwesomeIcons.arrowLeft),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ),
+      appBar: CustomAppBar(
+        leftWidget: InkWell(
+          child: const Icon(FontAwesomeIcons.arrowLeft),
+          onTap: () {
+            if (kIsWeb) {
+              goBack();
+            } else {
+              Navigator.pop(context);
+            }
+          },
+        ),
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),

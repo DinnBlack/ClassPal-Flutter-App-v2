@@ -184,7 +184,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
                     ['Chỉnh sửa học sinh', 'Hủy bỏ học sinh'],
                     [
                       () {
-                        if (kIsWeb) {
+                        if (!Responsive.isMobile(context)) {
                           showCustomDialog(
                             context,
                             StudentEditScreen(
@@ -341,7 +341,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
           return CustomStudentListItem(
             addItem: true,
             onTap: () {
-              if (kIsWeb) {
+              if (!Responsive.isMobile(context)) {
                 showCustomDialog(context, const StudentCreateScreen());
               } else {
                 CustomPageTransition.navigateTo(
@@ -370,7 +370,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
           return CustomStudentListItem(
             student: student,
             onTap: () {
-              if (kIsWeb) {
+              if (!Responsive.isMobile(context)) {
                 showCustomDialog(
                   context,
                   StudentDashboardScreen(

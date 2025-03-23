@@ -11,6 +11,7 @@ import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import '../../../core/config/app_constants.dart';
 import '../../../core/utils/app_text_style.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/widgets/custom_app_bar.dart';
 import '../../../core/widgets/custom_avatar.dart';
@@ -149,7 +150,7 @@ class _ClassCreateScreenState extends State<ClassCreateScreen> {
               )
             : null,
       ),
-      backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
+      backgroundColor: !Responsive.isMobile(context) ? kTransparentColor : kBackgroundColor,
       body: widget.isClassSchoolCreateView
           ? _buildClassSchoolCreationSteps()
           : _buildClassPersonalCreationSteps(),

@@ -69,7 +69,7 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
       ],
       [
         () {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(
               context,
               const ClassCreateScreen(
@@ -87,7 +87,7 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
           }
         },
         () {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(
               context,
               const ClassCreateBatchScreen(),
@@ -101,7 +101,7 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
           }
         },
         () {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(
               context,
               const TeacherCreateScreen(),
@@ -115,7 +115,7 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
           }
         },
         () {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(
               context,
               const TeacherCreateBatchScreen(),
@@ -135,7 +135,7 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(context),
+      appBar: _buildAppBar(context, widget.isTeacherView),
       body: !widget.isTeacherView
           ? Column(
               children: [
@@ -156,7 +156,7 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
     );
   }
 
-  CustomAppBar _buildAppBar(BuildContext context) {
+  CustomAppBar _buildAppBar(BuildContext context, bool isTeacherView) {
     return CustomAppBar(
       height: Responsive.isMobile(context) ? kToolbarHeight : 70,
       backgroundColor: kWhiteColor,
@@ -172,53 +172,60 @@ class _SchoolDirectoryPageState extends State<SchoolDirectoryPage> {
           }
         },
       ),
-      additionalHeight: 60,
-      bottomWidget: Column(
-        children: [
-          CustomTabBar(
-            currentIndex: _currentIndex,
-            onTabTapped: _onTabTapped,
-            tabTitles: const ['Lớp học', 'Giáo viên'],
-            tabBarWidthRatio: Responsive.isMobile(context) ? 0.9 : 0.3,
-            lineHeight: 4,
-            linePadding: 0,
-            tabBarHeight: 40,
-          ),
-          const SizedBox(
-            height: kMarginSm,
-          ),
-          Container(
-            alignment: Alignment.center,
-            decoration: const BoxDecoration(
-              border:
-                  Border(bottom: BorderSide(width: 2, color: kGreyMediumColor)),
-            ),
-          )
-        ],
-      ),
-      rightWidget: Responsive.isMobile(context)
-          ? InkWell(
-              child: const Icon(FontAwesomeIcons.ellipsis),
-              onTap: () => _showFeatureDialog(context),
-            )
-          : GestureDetector(
-              onTap: () => _showFeatureDialog(context),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Tùy chọn',
-                    style: AppTextStyle.semibold(kTextSizeMd),
-                  ),
+      additionalHeight: !isTeacherView ? 60 : 0,
+      bottomWidget: !isTeacherView
+          ? Column(
+              children: [
+                CustomTabBar(
+                  currentIndex: _currentIndex,
+                  onTabTapped: _onTabTapped,
+                  tabTitles: const ['Lớp học', 'Giáo viên'],
+                  tabBarWidthRatio: Responsive.isMobile(context) ? 0.9 : 0.3,
+                  lineHeight: 4,
+                  linePadding: 0,
+                  tabBarHeight: 40,
+                ),
+                if (!Responsive.isMobile(context)) ...[
                   const SizedBox(
-                    width: kMarginMd,
+                    height: kMarginSm,
                   ),
-                  const Icon(
-                    FontAwesomeIcons.caretDown,
+                  Container(
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                      border: Border(
+                          bottom:
+                              BorderSide(width: 2, color: kGreyMediumColor)),
+                    ),
                   )
-                ],
-              ),
-            ),
+                ]
+              ],
+            )
+          : null,
+      rightWidget: !widget.isTeacherView
+          ? Responsive.isMobile(context)
+              ? InkWell(
+                  child: const Icon(FontAwesomeIcons.ellipsis),
+                  onTap: () => _showFeatureDialog(context),
+                )
+              : GestureDetector(
+                  onTap: () => _showFeatureDialog(context),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Tùy chọn',
+                        style: AppTextStyle.semibold(kTextSizeMd),
+                      ),
+                      const SizedBox(
+                        width: kMarginMd,
+                      ),
+                      const Icon(
+                        FontAwesomeIcons.caretDown,
+                      )
+                    ],
+                  ),
+                )
+          : null,
     );
   }
 

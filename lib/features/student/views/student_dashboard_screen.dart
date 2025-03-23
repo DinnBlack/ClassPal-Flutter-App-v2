@@ -62,7 +62,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
       ],
       [
         () {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(
               context,
               StudentEditScreen(
@@ -80,7 +80,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
           }
         },
         () {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(
               context,
               const ClassConnectScreen(

@@ -1,3 +1,4 @@
+import 'package:classpal_flutter_app/core/utils/responsive.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/features/class/sub_features/subject/views/subject_create_screen.dart';
 import 'package:classpal_flutter_app/features/class/sub_features/subject/views/widgets/custom_subject_list_item.dart';
@@ -119,7 +120,7 @@ class _SubjectListScreenState extends State<SubjectListScreen> {
             CustomButton(
               text: 'Thêm môn học',
               onTap: () {
-                if (kIsWeb) {
+                if (!Responsive.isMobile(context)) {
                   showCustomDialog(context, const SubjectCreateScreen());
                 } else {
                   CustomPageTransition.navigateTo(

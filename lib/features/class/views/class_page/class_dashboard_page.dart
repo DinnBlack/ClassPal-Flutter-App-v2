@@ -54,7 +54,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
       ],
       [
         () {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(
               context,
               const ClassConnectScreen(
@@ -72,7 +72,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
           }
         },
         () {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(
               context,
               const ClassConnectScreen(
@@ -90,7 +90,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
           }
         },
         () {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(
               context,
               const ClassConnectScreen(
@@ -108,7 +108,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
           }
         },
         () {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(
               context,
               const StudentCreateScreen(),
@@ -122,7 +122,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
           }
         },
         () {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(
               context,
               const SubjectScreen(),
@@ -136,7 +136,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
           }
         },
         () {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(
               context,
               const RollCallReportScreen(),
@@ -150,7 +150,7 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
           }
         },
         () {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(
               context,
               ClassInformationScreen(
@@ -331,8 +331,8 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
             height: kMarginLg,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: kIsWeb ? kPaddingLg : kPaddingMd),
+            padding:  EdgeInsets.symmetric(
+                horizontal: !Responsive.isMobile(context) ? kPaddingLg : kPaddingMd),
             child: Text(
               'Nhóm',
               style: AppTextStyle.semibold(kTextSizeMd),
@@ -341,9 +341,9 @@ class _ClassDashboardPageState extends State<ClassDashboardPage> {
           const SizedBox(
             height: kMarginLg,
           ),
-          const Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: kIsWeb ? kPaddingLg : kPaddingMd),
+           Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: !Responsive.isMobile(context) ? kPaddingLg : kPaddingMd),
             child: GroupListScreen(),
           ),
           const SizedBox(

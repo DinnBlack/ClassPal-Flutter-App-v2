@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../../core/config/app_constants.dart';
+import '../../../../../core/utils/responsive.dart';
 import '../../../../../core/widgets/custom_app_bar.dart';
 import '../../../../../core/widgets/custom_feature_dialog.dart';
 import '../../../../../core/widgets/custom_loading_dialog.dart';
@@ -33,7 +34,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
       ],
       [
         () {
-          if (kIsWeb) {
+          if (!Responsive.isMobile(context)) {
             showCustomDialog(
               context,
               GroupEditScreen(
@@ -103,7 +104,7 @@ class _GroupDetailScreenState extends State<GroupDetailScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
+        backgroundColor: !Responsive.isMobile(context) ? kTransparentColor : kBackgroundColor,
         appBar: _buildAppBar(context),
         body: _buildBody(context),
       ),

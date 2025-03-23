@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:classpal_flutter_app/core/utils/responsive.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -139,7 +140,7 @@ class _SubjectCreateScreenState extends State<SubjectCreateScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
+        backgroundColor: !Responsive.isMobile(context) ? kTransparentColor : kBackgroundColor,
         appBar: _buildAppBar(context),
         body: _buildBody(),
       ),

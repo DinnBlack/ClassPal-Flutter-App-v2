@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/widgets/custom_tab_bar.dart';
 import 'class_connect_page/class_connect_parent_page.dart';
 import 'class_connect_page/class_connect_student_page.dart';
@@ -51,7 +52,7 @@ class _ClassConnectScreenState extends State<ClassConnectScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
+      backgroundColor: !Responsive.isMobile(context) ? kTransparentColor : kBackgroundColor,
       appBar: _buildAppBar(),
       body: Column(
         children: [
@@ -60,7 +61,7 @@ class _ClassConnectScreenState extends State<ClassConnectScreen> {
             onTabTapped: _onTabTapped,
             tabTitles: const ['Gia đình', 'Học sinh', 'Giáo viên'],
             tabBarWidthRatio:
-                kIsWeb ? calculateTabBarWidthRatio(context, 650) : 0.9,
+                !Responsive.isMobile(context) ? calculateTabBarWidthRatio(context, 650) : 0.9,
             lineHeight: 4,
             linePadding: 0,
             tabBarHeight: 40,

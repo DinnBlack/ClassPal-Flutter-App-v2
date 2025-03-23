@@ -37,7 +37,12 @@ void main() async {
   // Cấu hình URL Strategy cho Web
   configureApp();
 
-  runApp(MyApp(isLoggedIn: isLoggedIn));
+  runApp(
+    DevicePreview(
+      enabled: true, // Bật DevicePreview
+      builder: (context) => MyApp(isLoggedIn: isLoggedIn),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {

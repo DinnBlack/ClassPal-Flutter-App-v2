@@ -1,3 +1,4 @@
+import 'package:classpal_flutter_app/core/config/platform/platform_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
@@ -79,16 +80,18 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      appBar: kIsWeb
-          ? null
-          : CustomAppBar(
-              leftWidget: InkWell(
-                child: const Icon(FontAwesomeIcons.arrowLeft),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ),
+      appBar: CustomAppBar(
+        leftWidget: InkWell(
+          child: const Icon(FontAwesomeIcons.arrowLeft),
+          onTap: () {
+            if (kIsWeb) {
+              goBack();
+            } else {
+              Navigator.pop(context);
+            }
+          },
+        ),
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: kPaddingLg),

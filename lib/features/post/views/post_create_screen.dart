@@ -12,6 +12,7 @@ import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import '../../../../../core/config/app_constants.dart';
 import '../../../../../core/utils/app_text_style.dart';
 import '../../../../../core/widgets/custom_app_bar.dart';
+import '../../../core/utils/responsive.dart';
 import '../bloc/post_bloc.dart';
 
 class PostCreateScreen extends StatefulWidget {
@@ -101,7 +102,7 @@ class _PostCreateScreenState extends State<PostCreateScreen> {
       },
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
+          backgroundColor: !Responsive.isMobile(context) ? kTransparentColor : kBackgroundColor,
           appBar: _buildAppBar(context),
           body: SafeArea(
             child: Column(

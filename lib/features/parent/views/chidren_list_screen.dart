@@ -1,5 +1,6 @@
 import 'package:classpal_flutter_app/core/config/app_constants.dart';
 import 'package:classpal_flutter_app/core/utils/app_text_style.dart';
+import 'package:classpal_flutter_app/core/utils/responsive.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_button.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_dialog.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_loading_dialog.dart';
@@ -149,7 +150,7 @@ class _CustomChildrenListItem extends StatelessWidget {
               text: 'Xem báo cáo',
               onTap: () async {
                 await ProfileService().saveCurrentProfile(child);
-                if (kIsWeb) {
+                if (!Responsive.isMobile(context)) {
                   showCustomDialog(
                     context,
                     StudentReportScreen(

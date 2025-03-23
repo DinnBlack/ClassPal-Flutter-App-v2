@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/custom_loading_dialog.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../bloc/student_bloc.dart';
@@ -42,7 +43,7 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
+      backgroundColor: !Responsive.isMobile(context) ? kTransparentColor : kBackgroundColor,
       appBar: _buildAppBar(context),
       body: BlocListener<StudentBloc, StudentState>(
         listener: (context, state) {
@@ -85,8 +86,8 @@ class _StudentCreateScreenState extends State<StudentCreateScreen> {
 
   Widget _buildBody() {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: kIsWeb ? kPaddingLg : kPaddingMd),
+      padding:  EdgeInsets.symmetric(
+          horizontal: !Responsive.isMobile(context) ? kPaddingLg : kPaddingMd),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

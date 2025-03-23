@@ -29,7 +29,7 @@ class ClassManagementScreen extends StatelessWidget {
   void onFeatureTapped(BuildContext context, String feature) {
     switch (feature) {
       case "Điểm danh":
-        if (kIsWeb) {
+        if (!Responsive.isMobile(context)) {
           showCustomDialog(context, const RollCallScreen());
         } else {
           CustomPageTransition.navigateTo(
@@ -40,7 +40,7 @@ class ClassManagementScreen extends StatelessWidget {
 
         break;
       case "Quản lý điểm số":
-        if (kIsWeb) {
+        if (!Responsive.isMobile(context)) {
           showCustomDialog(context, const SubjectScreen());
         } else {
           CustomPageTransition.navigateTo(
@@ -51,7 +51,7 @@ class ClassManagementScreen extends StatelessWidget {
 
         break;
       case "Quản lý học sinh":
-        if (kIsWeb) {
+        if (!Responsive.isMobile(context)) {
           showCustomDialog(context, const StudentCreateScreen());
         } else {
           CustomPageTransition.navigateTo(
@@ -62,7 +62,7 @@ class ClassManagementScreen extends StatelessWidget {
 
         break;
       case "Bộ đếm thời gian":
-        if (kIsWeb) {
+        if (!Responsive.isMobile(context)) {
           showCustomDialog(context, CountdownTimerScreen());
         } else {
           CustomPageTransition.navigateTo(
@@ -73,7 +73,7 @@ class ClassManagementScreen extends StatelessWidget {
 
         break;
       case "Chọn ngẫu nhiên":
-        if (kIsWeb) {
+        if (!Responsive.isMobile(context)) {
           showCustomDialog(
             context,
             RandomStudentPickerScreen(

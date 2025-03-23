@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/utils/app_text_style.dart';
+import '../../../core/utils/responsive.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../invitation/repository/invitation_service.dart';
 import '../../invitation/views/qr_code_screen.dart';
@@ -76,7 +77,7 @@ class _StudentConnectListScreenState extends State<StudentConnectListScreen> {
                       final code =
                           await InvitationService().generateGroupCode();
                       if (code != null) {
-                        if (kIsWeb) {
+                        if (!Responsive.isMobile(context)) {
                           showCustomDialog(context, QRCodeScreen(code: code));
                         } else {
                           CustomPageTransition.navigateTo(
