@@ -1,3 +1,4 @@
+import 'package:classpal_flutter_app/core/utils/responsive.dart';
 import 'package:classpal_flutter_app/core/widgets/custom_loading_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -124,7 +125,7 @@ class _TeacherCreateBatchScreenState extends State<TeacherCreateBatchScreen> {
       builder: (context, state) {
         return Scaffold(
           appBar: _buildAppBar(context),
-          backgroundColor: kIsWeb ? kTransparentColor : kBackgroundColor,
+          backgroundColor: !Responsive.isMobile(context) ? kTransparentColor : kBackgroundColor,
           body: _buildBody(),
         );
       },

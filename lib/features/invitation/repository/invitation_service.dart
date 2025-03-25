@@ -204,9 +204,7 @@ class InvitationService extends ProfileService {
       final headers = await buildHeaders();
       final response = await _dio.delete(
         '$_baseUrl/invitations/code/$code',
-        options: Options(
-          headers: headers, extra: {'withCredentials': true}
-        ),
+        options: Options(headers: headers, extra: {'withCredentials': true}),
       );
 
       return response.statusCode == 200;

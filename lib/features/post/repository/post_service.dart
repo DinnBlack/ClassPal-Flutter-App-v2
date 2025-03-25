@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
-
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import '../../../core/config/cookie/token_manager.dart';
 import '../../profile/repository/profile_service.dart';
 import '../models/post_model.dart';
@@ -15,10 +15,22 @@ class PostService extends ProfileService {
     TokenManager.initialize();
   }
 
+  Future<File> compressImage(File file) async {
+    final targetPath = '${file.path}_compressed.jpg';
+    var result = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path, targetPath,
+      quality: 70, // Giảm chất lượng xuống 70%
+    );
+    return File(result!.path);
+  }
+
   Future<void> insertNews(File? imageFile, String content) async {
     try {
       final currentProfile = await getCurrentProfile();
-      final headers = await buildHeaders(profileId: currentProfile?.id, contentType: 'multipart/form-data');
+      final headers = await buildHeaders(
+          profileId: currentProfile?.id,
+          contentType: 'multipart/form-data'
+      );
       final requestUrl = '$_baseUrl/news/${currentProfile?.groupId}';
 
       FormData formData = FormData.fromMap({
@@ -27,14 +39,20 @@ class PostService extends ProfileService {
       });
 
       if (imageFile != null && imageFile.existsSync()) {
-        String fileName = imageFile.path.split("/").last.replaceAll("'", "");
+        // Giảm kích thước ảnh trước khi upload
+        File compressedImage = await compressImage(imageFile);
+        String fileName = compressedImage.path.split("/").last.replaceAll("'", "");
+
         MultipartFile file = await MultipartFile.fromFile(
-          imageFile.path,
+          compressedImage.path,
           filename: fileName,
-          contentType: MediaType("image", "png"),
+          contentType: MediaType("image", "jpeg"),
         );
+
         formData.files.add(MapEntry("image", file));
       }
+
+      print('insert news');
 
       final response = await _dio.post(
         requestUrl,
@@ -51,7 +69,7 @@ class PostService extends ProfileService {
         throw Exception('Lỗi khi chèn tin tức: ${response.data}');
       }
     } on DioException catch (e) {
-      print(e.response?.data);
+      print('Loi: ${e.response?.data}');
       throw Exception('Lỗi khi gửi yêu cầu insert news: ${e.response?.data}');
     }
   }

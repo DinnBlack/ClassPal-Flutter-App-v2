@@ -35,9 +35,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:scheme="http"
-                    android:host="localhost"
-                    android:port="5018"
+                    android:scheme="https"
+                    android:host="classpal.pages.dev"
                     android:pathPrefix="/invitation/" />
             </intent-filter>
 

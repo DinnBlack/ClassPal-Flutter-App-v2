@@ -63,6 +63,9 @@ class TokenManager {
   /// **Lấy các cookies cần thiết**
   static Future<String> getCookies() async {
     final cookies = await _cookieJar.loadForRequest(Uri.parse(_apiUrl));
+    if(cookies == null) {
+      restoreCookies();
+    }
 
     // Mặc định chỉ lấy 'sessionid' và 'auth_token'
     final filter = ['sessionid', 'auth_token'];

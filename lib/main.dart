@@ -38,10 +38,7 @@ void main() async {
   configureApp();
 
   runApp(
-    DevicePreview(
-      enabled: true, // Bật DevicePreview
-      builder: (context) => MyApp(isLoggedIn: isLoggedIn),
-    ),
+    MyApp(isLoggedIn: isLoggedIn),
   );
 }
 
@@ -79,7 +76,7 @@ class _MyAppState extends State<MyApp> {
   void _handleDeepLink(Uri uri) {
     print("Deep link nhận được: $uri");
 
-    if (uri.host == "localhost" && uri.port == 5018) {
+    if (uri.host == "classpal.pages.dev") {
       if (uri.pathSegments.isNotEmpty &&
           uri.pathSegments.first == "invitation" &&
           uri.pathSegments.length >= 2) {
